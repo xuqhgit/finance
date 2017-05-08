@@ -1,0 +1,320 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+@(#)TEST.xml 16/1/18
+@description:测试查询
+@author apple 
+-->
+<query-config>
+    <query id="SAVE_STOCK" type="">
+        <sql>
+            <![CDATA[
+                INSERT INTO stock(code,name,type,create_time)
+                        values([code],[name],[type],now())
+            ]]>
+        </sql>
+
+    </query>
+    <!--同花顺行业-->
+    <query id="SAVE_PLATE_BASE" type="">
+        <sql>
+            <![CDATA[
+                INSERT INTO plate(code,name,type,create_time)
+                        values([platecode],[platename],'SECTOR',now())
+            ]]>
+        </sql>
+
+    </query>
+
+    <!--同花顺行业-->
+    <query id="SAVE_CONCEPT_BASE" type="">
+        <sql>
+            <![CDATA[
+                INSERT INTO plate(code,name,type,create_time)
+                        values([platecode],[platename],'CONCEPT',now())
+            ]]>
+        </sql>
+
+    </query>
+
+    <query id="SAVE_AREA_BASE" type="">
+        <sql>
+            <![CDATA[
+                INSERT INTO plate(code,name,type,create_time)
+                        values([platecode],[platename],'AREA',now())
+            ]]>
+        </sql>
+
+    </query>
+
+    <query id="FIND_STOCK_ALL" type="">
+        <sql>
+            <![CDATA[
+                SELECT code FROM stock WHERE state=1
+            ]]>
+        </sql>
+    </query>
+
+     <query id="FIND_CUR_STOCK_ALL" type="">
+        <sql>
+            <![CDATA[
+               select stock_code code from stock_daily where trade_date=DATE_FORMAT(curdate(),"%Y%m%d")
+            ]]>
+        </sql>
+    </query>
+
+    <query id="SAVE_DAILY_STOCK" type="">
+        <sql>
+            <![CDATA[
+                insert into stock_daily (c_amt, t_stock, pe, volume_transaction, volume, amplitude, mc, stock_code, sell_price,
+                                         open_price, turnover_rate, vp, high_end,low_end,  trade_date, growth, turnover, buy_price, ep, close_price,
+                                         volume_out, chg, volume_in, pb, low_price, price, amt, c_stock, average_price, high_price,
+                                         create_time)
+                values ([c_amt], [t_stock], [pe], [volume_transaction], [volume], [amplitude], [mc], [stock_code], [sell_price],
+                                         [open_price], [turnover_rate], [vp], [high_end],[low_end],  [trade_date], [growth], [turnover], [buy_price], [ep], [close_price],
+                                         [volume_out], [chg], [volume_in], [pb], [low_price], [price], [amt], [c_stock], [average_price], [high_price],now())
+            ]]>
+        </sql>
+    </query>
+    <query id="FIND_PLATE_ALL" type="">
+        <sql>
+            <![CDATA[
+                SELECT code,type FROM plate WHERE state=1 
+            ]]>
+        </sql>
+    </query>
+
+    <query id="SAVE_DAILY_PLATE" type="">
+        <sql>
+            <![CDATA[
+                insert into plate_daily (keep_count, c_amt, volume_transaction, amplitude, volume,
+                 c_buy, plate_code, up_count, open_price, turnover_rate, vp, c_sell, amt, down_count, growth,
+                  turnover, ep, trade_date, close_price, chg, mc, low_price, price, average_price, high_price, create_time)
+                 values ( [keep_count], [c_amt], [volume_transaction],  [amplitude], [volume], [c_buy], [plate_code],
+                  [up_count], [open_price], [turnover_rate], [vp], [c_sell], [amt], [down_count], [growth], [turnover], [ep],
+                  [trade_date], [close_price], [chg],[mc], [low_price], [price], [average_price], [high_price],now());
+            ]]>
+        </sql>
+    </query>
+
+    <query id="SAVE_STOCK_NEW_TEMP" type="">
+       <sql>
+           <![CDATA[
+              insert into stock_new_temp ( buy_date, lot_date, public_date, create_time, bank_pe, high_count,
+               type, public_pe, code, public_volume_online, income, buy_code, public_price, buy_limit, buy_c_limit,
+                public_volume, name, lot_winning_rate)
+              values ([buy_date], [lot_date], [public_date], now(),
+                [bank_pe], [high_count], [type], [public_pe], [code], [public_volume_online], [income], [buy_code],
+                 [public_price], [buy_limit], [buy_c_limit], [public_volume], [name], [lot_winning_rate])
+            ]]>
+    </sql>
+    </query>
+
+    <query id="CLEAR_STOCK_NEW_TEMP" type="">
+       <sql>
+           <![CDATA[
+            delete from stock_new_temp where 1=1
+            ]]>
+       </sql>
+    </query>
+    <query id="SAVE_STOCK_PLATE_TEMP" type="">
+       <sql>
+           <![CDATA[
+              insert into stock_plate_temp(stock_code,plate_code) values([stock_code],[plate_code])
+            ]]>
+       </sql>
+    </query>
+
+    <query id="INSERT_STOCK_PLATE" type="">
+       <sql>
+           <![CDATA[
+            INSERT INTO stock_plate SELECT
+                s.stock_code,
+                s.plate_code,
+                1,
+                now(),
+                now()
+            FROM
+                stock_plate_temp s
+            WHERE
+                NOT EXISTS (
+                    SELECT
+                        1
+                    FROM
+                        stock_plate
+                    WHERE
+                        s.stock_code = stock_code
+                    AND s.plate_code = plate_code
+                )
+            ]]>
+       </sql>
+    </query>
+    <query id="UPDATE_STOCK_PLATE" type="">
+       <sql>
+           <![CDATA[
+            UPDATE stock_plate s
+                SET state = 2,update_time=now()
+                WHERE
+                    NOT EXISTS (
+                        SELECT
+                            1
+                        FROM
+                            stock_plate_temp
+                        WHERE
+                            s.stock_code = stock_code
+                        AND s.plate_code = plate_code
+                    )
+                AND EXISTS (
+                    SELECT
+                        1
+                    FROM
+                        stock_plate_temp
+                    WHERE
+                        s.stock_code = stock_code
+                )
+                and s.state=1
+            ]]>
+       </sql>
+    </query>
+
+    <query id="CLEAR_STOCK_PLATE_TEMP" type="">
+       <sql>
+           <![CDATA[
+              delete from stock_plate_temp where 1=1
+            ]]>
+       </sql>
+    </query>
+    <query id="COUNT_STOCK_DAILY" type="">
+       <sql>
+           <![CDATA[
+              select count(*) as ct from stock_daily where trade_date=[date]
+            ]]>
+       </sql>
+    </query>
+    <query id="COUNT_PLATE_DAILY" type="">
+       <sql>
+           <![CDATA[
+              select count(*) as ct from plate_daily where trade_date=[date]
+            ]]>
+       </sql>
+    </query>
+
+    <query id="TEST" type="">
+       <sql>
+           <![CDATA[
+            SELECT * FROM plate
+            WHERE 1=1
+            {% if code %}
+               and code = [code]
+            {% endif%}
+            ]]>
+       </sql>
+    </query>
+
+    <query id="FIND_STOCK_NEW" type="">
+        <sql>
+            <![CDATA[
+                SELECT code FROM stock_new
+            ]]>
+        </sql>
+    </query>
+
+    <query id="FIND_PUBLIC_NEW_STOCK" type="">
+        <sql>
+            <![CDATA[
+                select
+                    code,name,public_volume/10000 as public_volume,high_count,type
+                FROM
+                    stock_new
+                WHERE
+                    date_format(update_time, '%Y-%m-%d') = (
+                        SELECT
+                            date_format(max(update_time), '%Y-%m-%d')
+                        FROM
+                            stock_new
+                    ) and high_count>0 and type in ('zxb','sh') order by public_volume,high_count
+            ]]>
+        </sql>
+    </query>
+    <query id="FIND_STOCK_DAILY_BY_CODE">
+        <sql>
+            <![CDATA[
+                SELECT
+                    sd.trade_date,
+                    sd.open_price,
+                    sd.price,
+                    sd.low_price,
+                    sd.high_price,
+                    sd.average_price,
+                    sd.volume_transaction,
+                    sd.turnover_rate,
+                    sd.growth
+                FROM
+                    stock_daily sd
+                WHERE
+                    stock_code =[code]
+            ]]>
+        </sql>
+    </query>
+
+    <query id="FIND_STOP_STOCK">
+        <sql>
+            <![CDATA[
+                SELECT
+                    code,type
+                FROM
+                    stock
+                WHERE
+                    CODE NOT IN (
+                        SELECT
+                            stock_code
+                        FROM
+                            stock_daily
+                        WHERE
+                            trade_date = (select max(trade_date) from stock_daily)
+                    )
+                AND state = '1' and type in ('sh','zxb')
+            ]]>
+        </sql>
+    </query>
+    <query id="FIND_LAST_NEW_STOCK">
+        <sql>
+            <![CDATA[
+                 SELECT
+                    s.code,
+                    s.high_count,
+                    s.income,
+                    s.public_date,
+                    s.public_volume,
+                    p.name as area
+                FROM
+                    stock_new s
+                    join stock_plate sp on s.code=sp.stock_code and sp.state=1
+                    join plate p on p.code = sp.plate_code and p.type='area'
+                WHERE
+                    s.high_count > 0
+                AND date_format(s.update_time, '%Y-%m-%d') BETWEEN date_add(
+                    (
+                        SELECT
+                            max(update_time)
+                        FROM
+                            stock_new
+                    ),
+                    INTERVAL - 30 DAY
+                )
+                AND date_add(
+                    (
+                        SELECT
+                            max(update_time)
+                        FROM
+                            stock_new
+                    ),
+                    INTERVAL + 1  DAY
+                )
+                ORDER BY
+                    s.update_time DESC
+            ]]>
+        </sql>
+    </query>
+
+
+</query-config>

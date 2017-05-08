@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+@(#)TEST.xml 16/1/18
+@description:测试查询
+@author apple
+-->
+<query-config>
+    <query id="GET_ALL_SSQ" type="">
+        <sql>
+            <![CDATA[
+                select periods,numbers,main_num,one,two,three,four,five,six,date_format(lottery_date, '%Y-%m-%d') as lottery_date from lottery_ssq order by lottery_date asc
+            ]]>
+        </sql>
+
+    </query>
+
+
+
+
+</query-config>

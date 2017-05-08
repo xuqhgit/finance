@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+@(#)TEST.xml 16/1/18
+@description:测试查询
+@author apple 
+-->
+<query-config>
+    <query id="TEST" type="">
+        <sql>
+            <![CDATA[
+                SELECT * FROM test
+                WHERE 1=1
+                {% if name %}
+                    and name = [name]
+                {% endif %}
+            ]]>
+        </sql>
+
+    </query>
+     <query id="TEST1" type="">
+
+       23
+    </query>
+    <query id="TEST2" type="">
+        <![CDATA[
+            SELECT * FROM test
+            WHERE 1=1
+            {% if name %}
+                name = [name]
+            {% endif%}
+        ]]>
+    </query>
+
+</query-config>

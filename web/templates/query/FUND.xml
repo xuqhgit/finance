@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+@(#)TEST.xml 16/1/18
+@description:测试查询
+@author apple 
+-->
+<query-config>
+    <query id="SAVE_FUND" type="">
+        <sql>
+            <![CDATA[
+                INSERT INTO fund(code,name,type,create_time)
+                        values([code],[name],[type],now())
+            ]]>
+        </sql>
+    </query>
+</query-config>

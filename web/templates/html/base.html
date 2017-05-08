@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}test{% endblock %}</title>
+    {% block commonCss %}
+    <!--统一引用的css-->
+    <!--<link rel="stylesheet" type="text/css" href="">-->
+            <link href="/static/components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" >
+    {% endblock %}
+    {% block css %}
+    <!--自定义的css-->
+    {% endblock %}
+    {% block commonScript %}
+    <!--统一引用的js-->
+
+    {% endblock %}
+    {% block script %}
+    <!--自己定义js-->
+    {% endblock %}
+
+</head>
+<body>
+{% block content %}
+    <!--内容-->
+{% endblock %}
+
+{% block endScript %}
+    <script src="/static/components/jquery/1.11.3/jquery.min.js"></script>
+    <script src="/static/components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/static/components/common/js/jsrender.min.js"></script>
+    <script src="/static/components/common/js/common.js"></script>
+{% endblock %}
+
+{% block footScript %}
+    <!--body foot script-->
+{% endblock %}
+</body>
+</html>

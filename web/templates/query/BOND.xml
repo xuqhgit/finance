@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+@(#)TEST.xml 16/1/18
+@description:测试查询
+@author apple 
+-->
+<query-config>
+    <query id="SAVE_BOND" type="">
+        <sql>
+            <![CDATA[
+                INSERT INTO bond(code,name,type,create_time)
+                        values([code],[name],[type],now())
+            ]]>
+        </sql>
+    </query>
+</query-config>
