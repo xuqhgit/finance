@@ -505,7 +505,8 @@ class THSDataOther(object):
                 # 发行价
                 data_json['public_price'] = StringUtils.str_2_float(tds[7].string)
                 # 发行市盈率
-                data_json['public_pe'] = tds[8].string.replace('-', '')
+                if tds[8].string:
+                    data_json['public_pe'] = tds[8].string.replace('-', '')
                 # 板块市盈率
                 data_json['bank_pe'] = tds[9].string.replace('-', '')
                 # 申购日期
