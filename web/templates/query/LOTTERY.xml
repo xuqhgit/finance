@@ -14,6 +14,14 @@
 
     </query>
 
+    <query id="SAVE_GD115" type="">
+        <sql>
+            <![CDATA[
+                INSERT INTO lottery_gd115(code,result,open_time,create_time) VALUES([code],[result],[open_time],now())
+            ]]>
+        </sql>
+
+    </query>
 
 
 
