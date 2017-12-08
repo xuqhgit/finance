@@ -8,6 +8,7 @@ import datetime
 import hashlib
 import time
 import re
+import json
 
 str = 'zyxwvutsrqponmlkjihgfedcba0123456789ZYXWVUTSRQPONMLKJIHGFEDCBA'
 
@@ -124,6 +125,45 @@ class StringUtils(object):
                 if len(a) == l:
                     arr.append(a)
         return arr
+
+    @staticmethod
+    def str_2_json(jsonStr):
+        """
+        字符串转json
+        :param jsonStr:
+        :return:
+        """
+        if jsonStr:
+            return json.load(jsonStr)
+        return None
+
+    @staticmethod
+    def json_2_str(data):
+        """
+        json 转字符串
+        :param data:
+        :return:
+        """
+        if isinstance(data, str):
+            return data
+        else:
+            return json.dumps(data)
+
+    @staticmethod
+    def stock_code_type(code):
+        """
+
+        :param code:
+        :return:
+        """
+        code_type = None
+        if code[0] == '6':
+            code_type = 'sh'
+        elif code[0] == '0':
+            code_type = 'sz'
+        elif code[0] == '3':
+            code_type = 'cy'
+        return code_type
 
 
 if __name__ == '__main__':

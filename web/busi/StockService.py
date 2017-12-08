@@ -2,7 +2,7 @@
 
 from web.busi import shares
 from web.utils.ExcelUtils import ExcelUtils
-from web.utils.FileUtils import FileUtils
+
 from web.utils.StringUtils import StringUtils
 from web.utils import EmailSend
 from web.utils import CommonUtils

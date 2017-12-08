@@ -1,10 +1,9 @@
 # coding:utf-8
 
-from web.busi import shares
-from web.utils.ExcelUtils import ExcelUtils
-from web.db.dbexec import DBExec
+
 from web.utils.webclient import WebClient
 from web.utils.StringUtils import StringUtils
+from web.utils import THSUtils
 import json
 import logging
 from web.dataCenter.StockDataCenter import *
@@ -24,8 +23,20 @@ MONGO_COL_STOCK_HISTORY = 'THS_HISTORY'  # mongodb collection 历史数据
 
 class THSData(StockData):
     def __init__(self):
-        self.client = WebClient()
+        self.client = WebClient(
+            headers={
+                'Host': 'd.10jqka.com.cn',
+                'Connection': 'keep-alive',
+                'Cookie': 'v=%s' % THSUtils.get_v(),
+                'Accept': '*/*',
+                'Accept-Language': 'zh-cn',
+                'Referer': 'http://m.10jqka.com.cn',
+                'Cache-Control': 'max-age=0'
+            })
         pass
+
+    def getData(self, url):
+        return self.client.get(url, headers={"Cookie": "v=%s" % THSUtils.get_v()})
 
     def getAllStockList(self):
         """
@@ -43,7 +54,7 @@ class THSData(StockData):
         # url中2代表了第二页 目前还有两页数据 %s 值为 1 2
         url = "http://q.10jqka.com.cn/interface/stock/thshy/zdf/desc/%s/quote/quote"
         url_1 = url % '1'
-        data = self.client.get(url_1)
+        data = self.getData(url_1)
         result = []
         if data.status == 200:
             data_json = json.loads(data.data)['data']
@@ -52,7 +63,7 @@ class THSData(StockData):
         else:
             logging.error("同花顺下载板块数据1出错:%s" % data.status)
         url_2 = url % '2'
-        data = self.client.get(url_2)
+        data = self.getData(url_2)
         if data.status == 200:
             data_json = json.loads(data.data)['data']
             result.extend(data_json)
@@ -73,13 +84,13 @@ class THSData(StockData):
         result = []
         for i in page:
             url_i = url % i
-            data = self.client.get(url_i)
+            data = self.getData(url_i)
             if data.status == 200:
                 data_json = json.loads(data.data)['data']
                 result.extend(data_json)
                 pass
             else:
-                logging.error("同花顺下载板块数据%s出错:%s" % i, data.status)
+                logging.error("同花顺下载板块数据%s出错:%s" % (i, data.status))
         return result
 
     def getAllStockArea(self, code):
@@ -125,12 +136,12 @@ class THSData(StockData):
         """
         # %s为股票code
         url = "http://d.10jqka.com.cn/v4/stockblock/hs_%s/last.js" % code
-        data = self.client.get(url)
+        data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
             return json.loads(json_str)['items']
         else:
-            logging.error("同花顺获取个股[%s]概念数据出错:%s" % code, data.status)
+            logging.error("同花顺获取个股[%s]概念数据出错:%s" % (code, data.status))
         return None
 
     def getStockPlateInfoByCode(self, code):
@@ -140,7 +151,7 @@ class THSData(StockData):
         """
         # %s为股票code
         url = "http://d.10jqka.com.cn/v5/realhead/hs_%s/last.js" % code
-        data = self.client.get(url)
+        data = self.getData(url)
         json_data = {}
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
@@ -236,13 +247,13 @@ class THSData(StockData):
         获取股票最后交易数据
         :return:
         """
-        url = 'http://d.10jqka.com.cn/v2/time/hs_%s/last.js' % code
-        data = self.client.get(url)
+        url = 'http://d.10jqka.com.cn/v4/time/hs_%s/last.js' % code
+        data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
             return json.loads(json_str)
         else:
-            logging.error("同花顺获取个股[%s] LAST数据出错:%s" % code, data.status)
+            logging.error("同花顺获取个股[%s] LAST数据出错:%s" % (code, data.status))
         return None
 
     def getStockMoneyLast(self, code):
@@ -252,12 +263,12 @@ class THSData(StockData):
         :return:
         """
         url = 'http://d.10jqka.com.cn/v2/moneyflow/hs_%s/last.js' % code
-        data = self.client.get(url)
+        data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
             return json.loads(json_str)
         else:
-            logging.error("同花顺获取个股[%s] MONEY_LAST数据出错:%s" % code, data.status)
+            logging.error("同花顺获取个股[%s] MONEY_LAST数据出错:%s" % (code, data.status))
         return None
 
     def getBondDailyByCode(self, code):
@@ -267,12 +278,12 @@ class THSData(StockData):
         :return:
         """
         url = '' % code
-        data = self.client.get(url)
+        data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
             return json.loads(json_str)
         else:
-            logging.error("同花顺获取债券[%s] DAILY数据出错:%s" % code, data.status)
+            logging.error("同花顺获取债券[%s] DAILY数据出错:%s" % (code, data.status))
         return None
 
     def getBondLastByCode(self, code):
@@ -282,12 +293,12 @@ class THSData(StockData):
         :return:
         """
         url = '' % code
-        data = self.client.get(url)
+        data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
             return json.loads(json_str)
         else:
-            logging.error("同花顺获取债券[%s] LAST数据出错:%s" % code, data.status)
+            logging.error("同花顺获取债券[%s] LAST数据出错:%s" % (code, data.status))
         return None
 
     def getFundDailyByCode(self, code):
@@ -297,12 +308,12 @@ class THSData(StockData):
         :return:
         """
         url = '' % code
-        data = self.client.get(url)
+        data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
             return json.loads(json_str)
         else:
-            logging.error("同花顺获取债券[%s] DAILY数据出错:%s" % code, data.status)
+            logging.error("同花顺获取债券[%s] DAILY数据出错:%s" % (code, data.status))
         return None
 
     def getFundLastByCode(self, code):
@@ -312,12 +323,12 @@ class THSData(StockData):
         :return:
         """
         url = '' % code
-        data = self.client.get(url)
+        data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
             return json.loads(json_str)
         else:
-            logging.error("同花顺获取债券[%s] LAST数据出错:%s" % code, data.status)
+            logging.error("同花顺获取债券[%s] LAST数据出错:%s" % (code, data.status))
         return None
 
     def getStockPlateDailyByCode(self, code):
@@ -326,7 +337,7 @@ class THSData(StockData):
         :return:
         """
         url = 'http://d.10jqka.com.cn/v4/realhead/48_%s/last.js' % code
-        data = self.client.get(url)
+        data = self.getData(url)
         json_data = {}
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
@@ -408,13 +419,13 @@ class THSData(StockData):
         获取股票最后交易数据
         :return:
         """
-        url = 'http://d.10jqka.com.cn/v4/time/48_%s/last.js' % code
-        data = self.client.get(url)
+        url = 'http://d.10jqka.com.cn/v4/time/hs_%s/last.js' % code
+        data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
             return json.loads(json_str)
         else:
-            logging.error("同花顺获取板块[%s] LAST数据出错:%s" % code, data.status)
+            logging.error("同花顺获取板块[%s] LAST数据出错:%s" % (code, data.status))
         return None
 
     def getStockHistoryDataFromRedis(self, code, year, type):
@@ -435,7 +446,7 @@ class THSData(StockData):
             result = self.getStockHistoryData(code, year, type)
             if result:
                 redis.set(key, json.dumps(result))
-                redis.expire(key, 60*60*3)
+                redis.expire(key, 60 * 60 * 3)
         else:
             result = json.loads(str)
         return result
@@ -451,7 +462,7 @@ class THSData(StockData):
         :return:
         """
         url = 'http://d.10jqka.com.cn/v3/line/hs_%s/%s/%s.js' % (code, type, year)
-        data = self.client.get(url)
+        data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
             return json.loads(json_str)
@@ -475,7 +486,7 @@ class THSDataOther(object):
         """
         client = WebClient()
         url = 'http://data.10jqka.com.cn/ipo/xgsgyzq/board/%s/field/SGDATE/page/%s/order/desc/ajax/1/' % (type, page)
-        data = client.get(url)
+        data = client.get(url, headers={"Cookie": "v=%s" % THSUtils.get_v()})
         list = []
         if data.status == 200:
             html = data.data.decode('gbk').encode('UTF-8')

@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import copy
 import httplib
@@ -9,7 +9,6 @@ import urlparse
 
 
 class CookieSet(object):
-
     def __init__(self, *args):
         self.d = {}
         if args:
@@ -20,10 +19,10 @@ class CookieSet(object):
                     self.parse_line(line)
 
     def parse_line(self, raw_line):
-        lines = re.split(r'[\,]+', raw_line, re.I|re.S)
+        lines = re.split(r'[\,]+', raw_line, re.I | re.S)
         for line in lines:
             pt = r'^([^\=]+)\=(.*)$'
-            m = re.search(pt, line, re.I|re.S)
+            m = re.search(pt, line, re.I | re.S)
             if not m:
                 continue
             key = urllib.unquote(m.group(1))
@@ -57,7 +56,6 @@ class CookieSet(object):
 
 
 class Response(object):
-
     def __init__(self, raw_resp, cookies):
         self.status = raw_resp.status
         self.reason = raw_resp.reason
@@ -70,13 +68,11 @@ class Response(object):
 
 
 class WebClient(object):
-
-    def __init__(self, timeout=30):
+    def __init__(self, timeout=30, headers={}):
         self.cookies = {}
         self.timeout = timeout
-        self.user_agent = ''.join(('Mozilla/5.0 (Windows NT 6.1; WOW64) ',
-                                   'AppleWebKit/537.36 (KHTML, like Gecko) ',
-                                   'Chrome/44.0.2403.130 Safari/537.36',))
+        self.user_agent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36"
+        self.headers=headers
 
     def serialize(self):
         rows = [(k, self.cookies[k].serialize()) for k in self.cookies]
@@ -98,9 +94,12 @@ class WebClient(object):
 
     def request(self, method, url, data,
                 headers=None,
-                auto_cookies=True,
+                auto_cookies=False,
                 ajax=False,
                 as_form=False):
+        if headers:
+            self.headers.update(headers)
+
         uri = urlparse.urlparse(url)
         netloc = uri.netloc
 
@@ -108,21 +107,20 @@ class WebClient(object):
             self.cookies[netloc] = CookieSet()
         cook = self.cookies[netloc]
 
-
         conn = None
         scheme = uri.scheme.lower()
 
         if scheme == 'https':
-            conn = httplib.HTTPSConnection(uri.hostname, uri.port or 443, 
+            conn = httplib.HTTPSConnection(uri.hostname, uri.port or 443,
                                            timeout=self.timeout)
         else:
             conn = httplib.HTTPConnection(uri.hostname, uri.port or 80,
                                           timeout=self.timeout)
         _headers = {
             'user-agent': self.user_agent,
+
         }
-        if headers:
-            _headers.update(headers)
+        _headers.update(self.headers)
         if as_form and method.upper() == 'POST':
             keys = [k.lower() for k in _headers]
             if 'content-type' not in keys:
@@ -138,8 +136,8 @@ class WebClient(object):
             _data = urllib.urlencode(_data)
         _url = uri.path + '?' + uri.query if uri.query else uri.path
 
-        #for d,x in _headers.items():
-           # print "key:"+d+",value:"+str(x)
+        # for d,x in _headers.items():
+        # print "key:"+d+",value:"+str(x)
 
         conn.request(method, _url, _data, _headers)
         resp = conn.getresponse()
@@ -147,7 +145,7 @@ class WebClient(object):
             headers = resp.getheaders()
             for key, val in headers:
                 if key.lower() == 'set-cookie' and val:
-                   # print 'set-cookie:', val
+                    # print 'set-cookie:', val
                     cook.parse_line(val)
 
         return Response(resp, cook)
