@@ -31,7 +31,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="[%(asctime)s] %(process)s, %(levelname)s: %(message)s",
     # datefmt='%a, %d %b %Y %H:%M:%S',
-    filename=_log_dir + '/shares.log',
+    filename=_log_dir + '/finance.log',
     filemode='w'
 )
 #################################################################################################

@@ -7,7 +7,7 @@ from web.utils import ConfigUtils
 
 config = {
     'host': ConfigUtils.get("mongo", "host"),
-    'port': ConfigUtils.get("mongo", "port"),
+    'port': int(ConfigUtils.get("mongo", "port")),
     'user': ConfigUtils.get("mongo", "name"),
     'pwd': ConfigUtils.get("mongo", "password")
 }

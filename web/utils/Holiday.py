@@ -21,8 +21,8 @@ def get_cur_date():
 def is_trade_date():
     if cur_date['date'] != get_cur_date():
         cur_date['date'] = get_cur_date()
-        day_of_week = datetime.now().weekday()
-        if day_of_week == 0 or day_of_week == 6:
+        day_of_week = datetime.now().isoweekday()
+        if day_of_week > 5:
             cur_date['is_trade'] = False
         else:
             data = client.get(url)
@@ -33,8 +33,9 @@ def is_trade_date():
             else:
                 cur_date['is_trade'] = True
                 logging.error("获取节假日数据异常:%s" % data.status)
-
+        logging.error("当前为交易日：%s" % cur_date['is_trade'])
     return cur_date['is_trade']
 
 
-
+if __name__ == '__main__':
+    print is_trade_date()

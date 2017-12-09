@@ -134,7 +134,7 @@ class StringUtils(object):
         :return:
         """
         if jsonStr:
-            return json.load(jsonStr)
+            return json.loads(jsonStr)
         return None
 
     @staticmethod
@@ -144,7 +144,7 @@ class StringUtils(object):
         :param data:
         :return:
         """
-        if isinstance(data, str):
+        if isinstance(data, type(str)):
             return data
         else:
             return json.dumps(data)
@@ -168,8 +168,7 @@ class StringUtils(object):
 
 if __name__ == '__main__':
     a = ''
-    r, str = StringUtils.is_num(a, 1, 10)
-    print str
+    print isinstance(a, type(str))
 # 随机整数：
 # print random.randint(1, 50)
 # 随机选取0到100间的偶数：

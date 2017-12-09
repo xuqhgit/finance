@@ -5,9 +5,9 @@ from web.utils import ConfigUtils
 # redis 配置参数
 config = {
     'host': ConfigUtils.get("redis", "host"),
-    'port': ConfigUtils.get("redis", "port"),
+    'port': int(ConfigUtils.get("redis", "port")),
     'password': ConfigUtils.get("redis", "password"),
-    'db': ConfigUtils.get("redis", "db")
+    'db': int(ConfigUtils.get("redis", "db"))
 }
 pool = redis.ConnectionPool(host=config['host'], port=config['port'], db=config['db'], password=config['password'])
 

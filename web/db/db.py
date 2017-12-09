@@ -17,7 +17,7 @@ from web.utils import ConfigUtils
 
 Config = {
     'host': ConfigUtils.get("mysql", "host"),
-    'port': ConfigUtils.get("mysql", "port"),
+    'port': int(ConfigUtils.get("mysql", "port")),
     'user': ConfigUtils.get("mysql", "name"),
     'passwd': ConfigUtils.get("mysql", "password"),
     'charset': 'utf8',
