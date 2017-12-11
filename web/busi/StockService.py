@@ -117,8 +117,8 @@ class StockService(object):
             d = center.getStockLast(code)
             if d:
                 h_code = 'hs_%s' % code
-                # last_date = d[h_code]['date']
-                last_date = '20171211'
+                last_date = d[h_code]['date']
+
                 try:
                     stockFile.write_stock_json(d, code, last_date)
                 except Exception, e:
@@ -226,8 +226,7 @@ class StockService(object):
 
             if d:
                 h_code = '48_%s' % code
-                # last_date = d[h_code]['date']
-                last_date = '20171211'
+                last_date = d[h_code]['date']
                 try:
                     stockFile.write_stock_json(d, code, last_date)
                 except Exception, e:
