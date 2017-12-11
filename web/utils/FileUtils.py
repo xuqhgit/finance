@@ -15,6 +15,18 @@ _static_components_path = '%s/static/components/' % _dir
 _template_path = '%s/template/' % _dir
 
 
+def get_file(path):
+    if not os.path.exists(path):
+        return None
+    file_object = open(path)
+    try:
+        content = file_object.read()
+        return content
+    finally:
+        file_object.close()
+    return None
+
+
 def get_static_file(path):
     file_dir = _dir + "/" + file_path + path
     if not os.path.exists(file_dir):
@@ -29,7 +41,7 @@ def get_static_file(path):
 
 
 def write_static_data(path, data):
-    file_dir = _dir+"/"+file_path + path
+    file_dir = _dir + "/" + file_path + path
     _file_dir = os.path.split(file_dir)[0]
     if not os.path.isdir(_file_dir):
         os.makedirs(_file_dir)

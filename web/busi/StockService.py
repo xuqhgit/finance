@@ -1,18 +1,16 @@
 # coding:utf-8
 
-from web.busi import shares
-from web.utils.ExcelUtils import ExcelUtils
 
-from web.utils.StringUtils import StringUtils
+
+
 from web.utils import EmailSend
-from web.utils import CommonUtils
+from web.utils.StockFile import StockFile
 from web.db.dbexec import DBExec
 from web.db.RedisClient import RedisClient
-from web.utils.webclient import WebClient
 from web.dataCenter import THSDataCenter
 from web.busi.StockAnalysis import *
-import thread
 from threading import Thread
+import thread
 import json
 import time
 import logging
@@ -21,6 +19,7 @@ from web.db import MongoDBClient
 QUERY_PATH = 'query/STOCK.xml'
 
 CUR_PUBLIC_NEW_STOCK = {"1970-01-01": []}
+stockFile = StockFile()
 
 
 class StockService(object):
@@ -81,62 +80,53 @@ class StockService(object):
         保存所有股票当日数据 包含资金等
         :return:
         """
-        db = DBExec(QUERY_PATH, "FIND_CUR_STOCK_ALL")
+        db = DBExec(QUERY_PATH, "FIND_STOCK_ALL")
         stock_list = db.execute(None)
         size = len(stock_list)
-        list_len = 200
+        list_len = 500
         if size > 6000:
             list_len = 300
         count = size / list_len + (size % list_len == 0 and 0 or 1)
-        thread_list = []
-        logging.info("下载STOCK_LAST开启线程数:%s" % count)
-        for i in range(0, count):
-            if i == count - 1:
-                t = Thread(target=self.saveDailyStocksLast, args=(stock_list[i * list_len:], None))
-                t.start()
-            else:
-                t = Thread(target=self.saveDailyStocksLast,
-                           args=(stock_list[(i * list_len):((i + 1) * list_len)], None))
-                t.start()
-            thread_list.append(t)
-        for t in thread_list:
-            t.join()
+        # thread_list = []
+        # logging.info("下载STOCK_LAST开启线程数:%s" % count)
+        # for i in range(0, count):
+        #     logging.info(i)
+        #     if i == count - 1:
+        #         t = Thread(target=self.saveDailyStocksLast, args=(stock_list[i * list_len:], None))
+        #         t.start()
+        #     else:
+        #         t = Thread(target=self.saveDailyStocksLast,
+        #                    args=(stock_list[(i * list_len):((i + 1) * list_len)], None))
+        #         t.start()
+        #     thread_list.append(t)
+        # for t in thread_list:
+        #     t.join()
+        self.saveDailyStocksLast(stock_list, None)
         logging.info("下载STOCK_LAST数据完成")
         pass
 
     def saveDailyStocksLast(self, list, result):
         """
-        保存最新股票交易数据到mongo中 还有 资金数据
+        保存最新股票交易数据到file中 还有 资金数据
         :param list:
         :return:
         """
         center = THSDataCenter.THSData()
-        # client = RedisClient().get_client()
-        # key = THSDataCenter.KEY_STOCK_LAST
-        # key_m = THSDataCenter.KEY_STOCK_MONEY_LAST
         for s in list:
             code = s['code']
             d = center.getStockLast(code)
             if d:
                 h_code = 'hs_%s' % code
-                last_date = d[h_code]['date']
-                data_str = d[h_code]['data']
-                id = "%s_%s_%s" % ('LAST', last_date, code)
-                data = {'code': code, 'date': last_date, 'type': 'LAST', 'data': data_str}
+                # last_date = d[h_code]['date']
+                last_date = '20171211'
                 try:
-                    col = THSDataCenter.MONGO_COL_LAST_MIN
-                    MongoDBClient.insert_json(id, data, col)
+                    stockFile.write_stock_json(d, code, last_date)
                 except Exception, e:
                     logging.error(e)
-
                 d = center.getStockMoneyLast(code)
                 if d:
-                    data_str_m = d[h_code]['data']
-                    id = "%s_%s_%s" % ('MONEY', last_date, code)
-                    data = {'code': code, 'date': last_date, 'type': 'MONEY', 'data': data_str_m}
                     try:
-                        col = THSDataCenter.MONGO_COL_MONEY_MIN
-                        MongoDBClient.insert_json(id, data, col)
+                        stockFile.write_stock_money_json(d, code, last_date)
                     except Exception, e:
                         logging.error(e)
             else:
@@ -204,52 +194,47 @@ class StockService(object):
         db = DBExec(QUERY_PATH, "FIND_PLATE_ALL")
         plate_list = db.execute(None)
         size = len(plate_list)
-        list_len = 100
+        list_len = 300
         count = size / list_len + (size % list_len == 0 and 0 or 1)
         thread_list = []
-        logging.info("下载PLATE_LAST开启线程数:%s" % count)
-        for i in range(0, count):
-            if i == count - 1:
-                t = Thread(target=self.saveDailyPlateLast, args=(plate_list[i * list_len:], None))
-                t.start()
-            else:
-                t = Thread(target=self.saveDailyPlateLast,
-                           args=(plate_list[(i * list_len):((i + 1) * list_len)], None))
-                t.start()
-            thread_list.append(t)
-        for t in thread_list:
-            t.join()
+        # logging.info("下载PLATE_LAST开启线程数:%s" % count)
+        # for i in range(0, count):
+        #     if i == count - 1:
+        #         t = Thread(target=self.saveDailyPlateLast, args=(plate_list[i * list_len:], None))
+        #         t.start()
+        #     else:
+        #         t = Thread(target=self.saveDailyPlateLast,
+        #                    args=(plate_list[(i * list_len):((i + 1) * list_len)], None))
+        #         t.start()
+        #     thread_list.append(t)
+        # for t in thread_list:
+        #     t.join()
+        self.saveDailyPlateLast(plate_list, None)
         logging.info("下载PLATE_LAST数据完成")
         return size
 
     def saveDailyPlateLast(self, list, result):
         """
-        保存最新股票板块交易数据到mongo中
+        保存最新股票板块交易数据到file中
         :param list:
         :return:
         """
         center = THSDataCenter.THSData()
-        # client = RedisClient().get_client()
-        # key = THSDataCenter.KEY_PLATE_LAST
-        col = THSDataCenter.MONGO_COL_PLATE_MIN
         for s in list:
             code = s['code']
             d = center.getPlateLast(code)
+
             if d:
                 h_code = '48_%s' % code
-                last_date = d[h_code]['date']
-                data_str = d[h_code]['data']
-                # key_temp = key % (last_date[0:4], last_date[4:6], last_date[6:], s['type'], code)
-                # client.set(key_temp, data_str)
-                id = "%s_%s_%s" % (s['type'], last_date, code)
-                data = {'code': code, 'date': last_date, 'type': s['type'], 'data': data_str}
+                # last_date = d[h_code]['date']
+                last_date = '20171211'
                 try:
-                    MongoDBClient.insert_json(id, data, col)
+                    stockFile.write_stock_json(d, code, last_date)
                 except Exception, e:
                     logging.error(e)
         pass
 
-    def saveStockNew(self):
+    def saveStockNew(self, page=1):
         """
         更新新股
         :return:
@@ -258,7 +243,7 @@ class StockService(object):
         type = ('hszb', 'zxb', 'cyb')
         result = []
         for t in type:
-            r = THSDataCenter.THSDataOther.get_stock_new(type=t, page=1)
+            r = THSDataCenter.THSDataOther.get_stock_new(type=t, page=page)
             if r:
                 result.extend(r)
             pass
@@ -485,7 +470,7 @@ class StockService(object):
 
                     text = "c_stock:%s stock_code:%s,price:%s ,zf:%s ,type:%s    last_data:%s  dp_last:%s" % (
                         stock_data['c_stock'], code, stock_data['price'], stock_data['growth'], type,
-                         str(last), str(cur_type_data))
+                        str(last), str(cur_type_data))
                     result.append(text)
         if len(result) > 0:
             result.append(str(sh))
@@ -505,7 +490,7 @@ class StockService(object):
             result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
             if result:
                 client.set(key, json.dumps(result))
-                client.expire(key, 12*60*60)
+                client.expire(key, 12 * 60 * 60)
         else:
             result = json.loads(str)
         return result
@@ -532,16 +517,16 @@ class StockService(object):
                     else:
                         continue
                 if len(data) == 0:
-                    last_new_list[i]['last_close_price'] = arr[j-1][4]
+                    last_new_list[i]['last_close_price'] = arr[j - 1][4]
                 data.append(arr[j])
-                count = count-1
+                count = count - 1
                 if count <= 0:
                     break
             if len(data) == 0 or len(data) != data_count:
                 stock_data = center.getStockPlateInfoByCode(code)
                 if stock_data:
                     flag = False
-                    if len(data) == 0 :
+                    if len(data) == 0:
                         if stock_data['high_price'] != stock_data['low_price']:
                             flag = True
                         elif stock_data['high_price'] == stock_data['low_price'] and stock_data['growth'] < 0:
@@ -552,14 +537,25 @@ class StockService(object):
                         # 时间, 开, 高, 低, 收, 成交量, 成交额, 换手
                         if len(data) == 0:
                             last_new_list[i]['last_close_price'] = stock_data['close_price']
-                        data.append(['-',stock_data['open_price'],stock_data['high_price'],stock_data['low_price'],stock_data['price'],stock_data['volume_transaction'],stock_data['turnover'],stock_data['turnover_rate']]);
+                        data.append(['-', stock_data['open_price'], stock_data['high_price'], stock_data['low_price'],
+                                     stock_data['price'], stock_data['volume_transaction'], stock_data['turnover'],
+                                     stock_data['turnover_rate']])
             if len(data) != 0:
-                    last_new_list[i]['data'] = data
-                    result.append(last_new_list[i])
+                last_new_list[i]['data'] = data
+                result.append(last_new_list[i])
         return result
 
+
 if __name__ == '__main__':
-    print StockService().getLastNewStockData()
+    # center = THSDataCenter.THSData()
+    # code = "603986"
+    # data = center.getStockMoneyLastgetStockMoneyLast(code)
+    # h_code = 'hs_%s' % code
+    # last_date = data[h_code]['date']
+    # stockFile.write_stock_money_json(data, code+"_money", last_date)
+    # print stockFile.get_stock_money_json(code,last_date)
+    # StockService().saveAllDailyStocksLast()
+    pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')
     # data = data['data']

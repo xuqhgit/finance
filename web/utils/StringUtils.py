@@ -163,6 +163,8 @@ class StringUtils(object):
             code_type = 'sz'
         elif code[0] == '3':
             code_type = 'cy'
+        elif code[0] == '8':
+            code_type = 'bk'
         return code_type
 
 
