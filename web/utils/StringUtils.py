@@ -165,6 +165,10 @@ class StringUtils(object):
             code_type = 'cy'
         elif code[0] == '8':
             code_type = 'bk'
+        elif code[0:2] == '1A':
+            code_type = 'm'
+        else:
+            code_type = 'qt'
         return code_type
 
 
