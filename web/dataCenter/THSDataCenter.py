@@ -167,6 +167,7 @@ class THSData(StockData):
 
             # 股票代码
             result['stock_code'] = u'%s' % code
+            result['name'] = u'%s' % json_data['name']
             # 当前价格
             result['price'] = StringUtils.str_2_float(json_data['10'])
             # 开盘价格
@@ -234,7 +235,7 @@ class THSData(StockData):
             # 总市值
             result['mc'] = StringUtils.str_2_float(json_data['3541450'])
             # 停牌 1为停牌
-            result['stop'] = json_data['stop']
+            result['trade_stop'] = json_data['stop']
 
         except Exception, e:
             logging.info(data.data)
@@ -419,7 +420,7 @@ class THSData(StockData):
         获取股票最后交易数据
         :return:
         """
-        url = 'http://d.10jqka.com.cn/v4/time/hs_%s/last.js' % code
+        url = 'http://d.10jqka.com.cn/v4/time/bk_%s/last.js' % code
         data = self.getData(url)
         if data.status == 200:
             json_str = data.data.split("(", 2)[1][0:-1]
@@ -497,13 +498,13 @@ class THSDataOther(object):
                 tds = tr.select('td')
                 data_json = {}
                 # stock code
-                data_json['code'] = tds[0].a.string
+                data_json['code'] = str(tds[0].a.string)
                 # stock name
-                data_json['name'] = tds[1].a.string
+                data_json['name'] = str(tds[1].a.string)
                 # stock type
                 data_json['type'] = type == 'hszb' and 'sh' or type
                 # 申购代码
-                data_json['buy_code'] = tds[2].string
+                data_json['buy_code'] = str(tds[2].string)
                 # 总发行量
                 data_json['public_volume'] = StringUtils.str_2_float(tds[3].string) * 10000
                 # 网上发行量
@@ -512,7 +513,7 @@ class THSDataOther(object):
                 data_json['buy_limit'] = StringUtils.str_2_float(tds[5].string) * 10000
 
                 # 申购需配市值
-                data_json['buy_c_limit'] = tds[6].string
+                data_json['buy_c_limit'] = str(tds[6].string)
                 # 发行价
                 data_json['public_price'] = StringUtils.str_2_float(tds[7].string)
                 # 发行市盈率
