@@ -86,6 +86,7 @@ def json_view(arg):
         @functools.wraps(view_func)
         def wrapper(*args, **kargs):
             resp = make_response(json_dumps(view_func(*args, **kargs)))
+            resp.headers['Access-Control-Allow-Origin'] = '*'
             return resp
 
         return wrapper

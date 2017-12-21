@@ -4,9 +4,11 @@ import time
 from web import app
 from flask import render_template, request
 from web.busi.shares import Shares
-from ui import json_view, jview
-from web.task import TaskManage
+from ui import json_view
+
 from web.db.RedisClient import RedisClient
+
+
 @app.errorhandler(403)
 def internal_error(error):
     return render_template('html/403.html'), 403

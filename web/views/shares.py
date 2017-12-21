@@ -15,8 +15,8 @@ shares = Blueprint('shares', __name__,
                    static_folder='static', url_prefix='/shares')
 
 
-@shares.route('/getCurMinData', methods=['get', 'post'])
 @json_view
+@shares.route('/getCurMinData', methods=['get', 'post'])
 def getCurMinData():
     args = request.args
     if request.method == 'POST':
@@ -148,3 +148,6 @@ def lastNewStockList():
     :return:
     """
     return StockService().getLastNewStockData()
+
+
+
