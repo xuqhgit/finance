@@ -299,7 +299,7 @@
                         FROM
                             stock_new
                     ),
-                    INTERVAL - 30 DAY
+                    INTERVAL - 10 DAY
                 )
                 AND date_add(
                     (

@@ -481,10 +481,7 @@ class StockService(object):
         pass
 
     def __findLastNewStock(self):
-        result = None
-        if str is None or str == '':
-            result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
-        return result
+        return list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
 
     def getLastNewStockData(self):
         last_new_list = self.__findLastNewStock()
@@ -540,6 +537,8 @@ class StockService(object):
 
 
 if __name__ == '__main__':
+    result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
+    print result
     # center = THSDataCenter.THSData()
     # code = "603986"
     # data = center.getStockMoneyLastgetStockMoneyLast(code)
