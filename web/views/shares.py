@@ -15,8 +15,8 @@ shares = Blueprint('shares', __name__,
                    static_folder='static', url_prefix='/shares')
 
 
-@json_view
 @shares.route('/getCurMinData', methods=['get', 'post'])
+@json_view
 def getCurMinData():
     args = request.args
     if request.method == 'POST':
