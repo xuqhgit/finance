@@ -5,9 +5,6 @@ import sys
 
 from flask import Flask
 
-from web.views.login import login
-from web.views.shares import shares
-
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -17,8 +14,7 @@ app = Flask(__name__)
 app.config['SESSION_TYPE'] = 'memcached'
 app.config['SECRET_KEY'] = 'baidupbgzjx123456'
 
-app.register_blueprint(login)
-app.register_blueprint(shares)
+
 
 _dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 _log_dir = os.path.join(_dir, 'logs')
@@ -44,5 +40,6 @@ logging.getLogger('').addHandler(console)
 
 from web import view
 from web.task import TaskManage
+from web import views
 
-# TaskManage.start()
+TaskManage.start()

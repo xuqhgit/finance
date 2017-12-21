@@ -82,7 +82,6 @@ def json_view(arg):
         return wrapper_maker
     else:
         view_func = arg
-
         @functools.wraps(view_func)
         def wrapper(*args, **kargs):
             resp = make_response(json_dumps(view_func(*args, **kargs)))
