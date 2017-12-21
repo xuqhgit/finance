@@ -481,17 +481,9 @@ class StockService(object):
         pass
 
     def __findLastNewStock(self):
-        client = RedisClient().get_client()
-        key = "FIND_LAST_NEW_STOCK"
-        str = client.get(key)
         result = None
         if str is None or str == '':
             result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
-            if result:
-                client.set(key, json.dumps(result))
-                client.expire(key, 12 * 60 * 60)
-        else:
-            result = json.loads(str)
         return result
 
     def getLastNewStockData(self):
@@ -500,7 +492,7 @@ class StockService(object):
         result = []
         for i in range(0, len(last_new_list)):
             code = last_new_list[i]['code']
-            year_type = center.getStockHistoryDataFromRedis(code, 'last', '01')
+            year_type = center.getStockHistoryData(code, 'last', '01')
             if year_type is None:
                 continue
             year_type_data = year_type['data']

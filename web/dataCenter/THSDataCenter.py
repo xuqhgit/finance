@@ -429,29 +429,6 @@ class THSData(StockData):
             logging.error("同花顺获取板块[%s] LAST数据出错:%s" % (code, data.status))
         return None
 
-    def getStockHistoryDataFromRedis(self, code, year, type):
-        """
-        data数据格式20160415,16.90,17.13,16.75,17.01,12749919,216191310.00,1.369,
-        时间,开,高,低,收,成交量,成交额,换手
-        获取股票历史数据
-        :param code: stock code
-        :param year: 年份  2016 2015
-        :param type: 类型 01 当日  20 月线 10周线 30 5分线 40 半小时线 50 60分钟线 60 分钟线
-        :return:
-        """
-        redis = RedisClient.get_client()
-        key = "stock:history:%s:%s:%s" % (year, type, code)
-        str = redis.get(key)
-        result = None
-        if str is None or str == '':
-            result = self.getStockHistoryData(code, year, type)
-            if result:
-                redis.set(key, json.dumps(result))
-                redis.expire(key, 60 * 60 * 3)
-        else:
-            result = json.loads(str)
-        return result
-
     def getStockHistoryData(self, code, year, type):
         """
         data数据格式20160415,16.90,17.13,16.75,17.01,12749919,216191310.00,1.369,
