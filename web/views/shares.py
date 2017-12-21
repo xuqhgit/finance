@@ -9,6 +9,7 @@ from web.busi.shares import *
 from web.busi.StockService import *
 from web.dataCenter.THSDataCenter import *
 import time
+import json
 
 shares = Blueprint('shares', __name__,
                    template_folder='templates',
@@ -23,7 +24,7 @@ def getCurMinData():
         args = request.form
     code = args['code']
     share = Shares()
-    a = eval(share.getMinDataByCode(code))
+    a = json.loads(share.getMinDataByCode(code))
     b = a['data'][code]['data']['data']
     t = [0 for x in range(0, len(b))]
     price = [0 for x in range(0, len(b))]
