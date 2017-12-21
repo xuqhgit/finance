@@ -490,6 +490,8 @@ class StockService(object):
         last_new_list = self.__findLastNewStock()
         center = THSDataCenter.THSData()
         result = []
+        if last_new_list is None:
+            return None
         for i in range(0, len(last_new_list)):
             code = last_new_list[i]['code']
             year_type = center.getStockHistoryData(code, 'last', '01')
