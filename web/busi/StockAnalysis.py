@@ -3,16 +3,10 @@
 # createTime: 2016/10/26
 
 
-from web.utils.StringUtils import StringUtils
+from web.utils import StringUtils
 from web.utils import CommonUtils
-import json
-import os
-import time
-import thread
-import logging
 import numpy
 import StockService
-import logging
 
 
 class CommonAnalysis(object):
@@ -64,9 +58,10 @@ class CommonAnalysis(object):
     @staticmethod
     def getAvgData(data, avg=[5], r=2):
         """
-        获取平均值
-        :param data: list类型数据
-        :param avg: 平均数分母大小 list
+        获取平均值 均线
+        :param data: list类型数据 每日收盘price集合
+        :param avg: 平均数分母大小 5 10 20 分别对应5日 10日
+        :param r: 小数点长度
         :return: 平均数list
         """
         dlen = len(data)
@@ -177,13 +172,17 @@ class CommonAnalysis(object):
     def getKDJ(data, tc=9):
         """
         获取数据的KDJ值
-        :param data:
+        :param data: list长度[[时间，开，高，低，收，量，额，换]]
+        :param tc: 默认周期为 9日 与同花顺一致
         :return:
         """
         dlen = len(data)
         arr = numpy.array(data)
+        # 默认k值
         k = 50
+        # 默认d值
         d = 50
+        result = []
         for i in range(0, dlen):
             a = arr[tc <= i + 1 and i + 1 - tc or 0:i + 1]
             h = a[:, 2].max()
@@ -193,10 +192,17 @@ class CommonAnalysis(object):
             k = rsv / 3 + 2 * k / 3
             d = k / 3 + 2 * d / 3
             j = 3 * k - 2 * d
-            print arr[i, 0], round(k, 2), round(d, 2), round(j, 2)
+            result.append([int(arr[i, 0]), round(k, 2), round(d, 2), round(j, 2)])
+        return result
 
     @staticmethod
     def getBias(data, tc=[6]):
+        """
+        bias数据
+        :param data: 同kdj
+        :param tc: 周期
+        :return:
+        """
         dlen = len(data)
         arr = []
         tlen = len(tc)
@@ -214,6 +220,12 @@ class CommonAnalysis(object):
 
     @staticmethod
     def getBoll(data, d=20):
+        """
+        boll数据
+        :param data: 同kdj
+        :param d:
+        :return:
+        """
         dlen = len(data)
         mdata = numpy.array(data)
         arr = []
@@ -243,7 +255,14 @@ class CommonAnalysis(object):
 
     @staticmethod
     def getMacd(data, avga=12, avgb=26, avgc=9):
-
+        """
+        macd 指数数据
+        :param data:
+        :param avga:
+        :param avgb:
+        :param avgc:
+        :return:
+        """
         dlen = len(data)
         a = 0
         b = 0
@@ -320,16 +339,17 @@ class BusinessAnalysis(object):
         return result
 
 
-# if __name__ == '__main__':
-#     data = StockService.StockService().getStockHistoryData("603999", "2016", "01")
-#     arr = StringUtils.str_2_arr(data['data'].split(";"))
-#     d = numpy.array(arr)[:, 4]
-#     avg_arr = numpy.array(CommonAnalysis.getAvgData(d, avg=[3, 5, 7, 10, 20, 30]))
-#
-#     result = avg_arr[-10:, 0:4] - avg_arr[-10:, 1:5]
-#     print result
-
 if __name__ == '__main__':
-    data = StockService.StockService().getStockHistoryData("600926", "2016", "01")
-    arr = StringUtils.str_2_arr(data['data'].split(";"))
-    print BusinessAnalysis.analysisPublicData([{'data': arr}])
+    data = StockService.StockService().getStockHistoryData("603999", "last", "01")
+    arr = StringUtils.handle_ths_str_data_to_list(data['data'])
+    d = numpy.array(arr)[:, 4]
+    avg_arr = numpy.array(CommonAnalysis.getAvgData(d, avg=[5, 10]))
+    print avg_arr
+    print CommonAnalysis.getKDJ(arr, tc=9)
+
+
+
+# if __name__ == '__main__':
+#     data = StockService.StockService().getStockHistoryData("600926", "2017", "01")
+#     arr = StringUtils.str_2_arr(data['data'].split(";"))
+#     print BusinessAnalysis.analysisPublicData([{'data': arr}])

@@ -56,5 +56,3 @@ def calculateLgProArray(list, lg):
                 result["%s" % i] = 0
     return result
 
-
-

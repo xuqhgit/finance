@@ -1,20 +1,12 @@
 # coding:utf-8
-
-
-
-
 from web.utils import EmailSend
 from web.utils.StockFile import StockFile
 from web.db.dbexec import DBExec
-from web.db.RedisClient import RedisClient
 from web.dataCenter import THSDataCenter
 from web.busi.StockAnalysis import *
 from threading import Thread
-import thread
-import json
 import time
 import logging
-from web.db import MongoDBClient
 
 QUERY_PATH = 'query/STOCK.xml'
 
@@ -263,17 +255,9 @@ class StockService(object):
         :param type: 类型
         :return:
         """
-        id = "STOCK_H_%s_%s_%s" % (code, year, type)
-        data = MongoDBClient.get_client(THSDataCenter.MONGO_COL_STOCK_HISTORY).find_one({"_id": id})
-        if data:
-            return data
+
         ths = THSDataCenter.THSData()
         data = ths.getStockHistoryData(code, year, type)
-        if data:
-            pass
-            # todo MongoDBClient.insert_json(id, data, THSDataCenter.MONGO_COL_STOCK_HISTORY)
-        else:
-            return None
         return data
 
     def saveStockBlockData(self):

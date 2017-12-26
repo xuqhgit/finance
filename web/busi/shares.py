@@ -4,7 +4,7 @@ import random
 from flask import url_for
 
 from web.utils.webclient import WebClient
-from web.utils.StringUtils import StringUtils
+from web.utils import StringUtils
 from web.utils import FileUtils
 from bs4 import BeautifulSoup
 import json

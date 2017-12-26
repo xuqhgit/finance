@@ -4,7 +4,7 @@
 from web.utils.webclient import WebClient
 import logging
 import xml.dom.minidom
-from web.utils.StringUtils import StringUtils
+from web.utils import StringUtils
 class LotteryDataCenter(object):
 
     def download_gd_115(self, date):

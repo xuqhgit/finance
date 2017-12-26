@@ -4,9 +4,8 @@
 # @date:16/4/29
 
 from web.utils import FileUtils
-from web.utils import Holiday
-from StringUtils import StringUtils
-from web.dataCenter.THSDataCenter import THSData
+import StringUtils
+
 
 stock_file = "stock/%s/%s.json"
 stock_date_file = "stock/history/%s/%s/%s/%s/%s.json"

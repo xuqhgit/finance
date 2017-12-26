@@ -2,9 +2,9 @@
 
 # @author:apple
 # @date:16/4/3
-import xdrlib, sys
+
 import xlrd
-import os
+
 
 class ExcelUtils(object):
     """

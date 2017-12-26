@@ -5,7 +5,9 @@
 import execjs
 
 import FileUtils
-
+"""
+该方法为调用同花顺的的token值
+"""
 e = execjs.compile(open(r"%sths_v.js" % FileUtils._static_components_path).read().decode("utf-8"))
 
 

@@ -2,8 +2,7 @@
 
 # @author:apple
 # @date:16/4/14
-from flask import Blueprint, request, session
-from web.utils.StringUtils import StringUtils
+from flask import Blueprint
 from web.ui import *
 from web.busi.shares import *
 from web.busi.StockService import *

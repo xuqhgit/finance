@@ -35,7 +35,7 @@ def testQuery():
     req.sms_type = "normal"
     req.sms_free_sign_name = "身份验证"
     req.sms_param = "{'code':'金鑫','product':'支付宝'}"
-    req.rec_num = "13767079690"
+    req.rec_num = "13168033213"
     req.sms_template_code = "SMS_4995241"
     try:
         resp = req.getResponse()

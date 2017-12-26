@@ -2,7 +2,7 @@
 
 
 from web.utils.webclient import WebClient
-from web.utils.StringUtils import StringUtils
+from web.utils import StringUtils
 from web.utils import THSUtils
 import json
 import logging
