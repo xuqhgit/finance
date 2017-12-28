@@ -6,7 +6,6 @@
 from web.utils import StringUtils
 from web.utils import CommonUtils
 import numpy
-import StockService
 
 
 class CommonAnalysis(object):
@@ -339,17 +338,51 @@ class BusinessAnalysis(object):
         return result
 
 
-if __name__ == '__main__':
-    data = StockService.StockService().getStockHistoryData("603999", "last", "01")
+def analysisAvgLast(code, year='last', type='01', avg=[5, 10, 20]):
+    """
+    分析日线 最近的数据
+    :param code:
+    :return:
+    """
+    import StockService
+    from web.utils import FitFunction
+    data = StockService.StockService().getStockHistoryData(code, year=year, type=type)
     arr = StringUtils.handle_ths_str_data_to_list(data['data'])
     d = numpy.array(arr)[:, 4]
-    avg_arr = numpy.array(CommonAnalysis.getAvgData(d, avg=[5, 10]))
-    print avg_arr
-    print CommonAnalysis.getKDJ(arr, tc=9)
+    avg_arr = numpy.array(CommonAnalysis.getAvgData(d, avg=avg))
+    result = {}
+    for i in range(len(avg)):
+        a = numpy.array(avg_arr)[:, i]
+        d, r = FitFunction.fit_d_root_or_root_int_simple(a)
+        result[avg[i]] = {'d': d, 'r': r, 'a': a[len(a) - 10:]}
+    return result
+
+
+if __name__ == '__main__':
+    # print analysisAvgLast('002606')
+    from web.dataCenter.THSDataCenter import THSData
+    import StockService
+
+    center = THSData()
+    # data = center.getStockLast("002606")
+
+    data = StockService.StockService().getStockHistoryData("601108", "last", "01")
+    arr = StringUtils.handle_ths_str_data_to_list(data['data'])
+    d = numpy.array(arr)[:, 4]
+
+    avg_arr = numpy.array(CommonAnalysis.getAvgData(d, avg=[1]))
+    print numpy.array(avg_arr)[:, 0]
+    from web.utils import WaveShow
+
+    # WaveShow.show(StringUtils.arr_multiply_2_int(d))
+    a = avg_arr[:, 0]
+    WaveShow.show(numpy.array(a[(len(a) > 30 and len(a)-30 or 0):]), n=16)
 
 
 
-# if __name__ == '__main__':
-#     data = StockService.StockService().getStockHistoryData("600926", "2017", "01")
-#     arr = StringUtils.str_2_arr(data['data'].split(";"))
-#     print BusinessAnalysis.analysisPublicData([{'data': arr}])
+
+
+    # if __name__ == '__main__':
+    #     data = StockService.StockService().getStockHistoryData("600926", "2017", "01")
+    #     arr = StringUtils.str_2_arr(data['data'].split(";"))
+    #     print BusinessAnalysis.analysisPublicData([{'data': arr}])

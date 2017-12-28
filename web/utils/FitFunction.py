@@ -39,7 +39,11 @@ def fit_root(data, n=16, m=1):
     :return:
     """
     d = fit_deriv(data, n=n, m=m)
-    return np.roots(d)
+    r = np.roots(d)
+    if len(r) < 2:
+        new = n * 2
+        return fit_root(data, n=new, m=m)
+    return n
 
 
 def fit_root_format_int(roots):
@@ -54,7 +58,7 @@ def fit_root_format_int(roots):
     return res
 
 
-def fit_root_format_int_simple(roots):
+def fit_root_format_int_simple(roots, dif=6):
     """
     根格式化成int
     :param roots:
@@ -65,7 +69,7 @@ def fit_root_format_int_simple(roots):
     for i in range(len(roots)):
         c = int(np.real(roots[i]))
         if last is not None:
-            if last - c < 6:
+            if last - c < dif:
                 continue
         res.append(c)
         last = c
@@ -73,9 +77,9 @@ def fit_root_format_int_simple(roots):
     return res
 
 
-def fit_d_root_or_root_int_simple(data, n=16, m=1):
+def fit_d_root_or_root_int_simple(data, n=16, m=1, dif=6):
     """
-    获取导数root 以及相应的斜率
+    获取导数root 以及两根之间的斜率
     :param data:
     :param n:
     :param m:
@@ -83,8 +87,26 @@ def fit_d_root_or_root_int_simple(data, n=16, m=1):
     """
     d = fit_deriv(data, n=n, m=m)
     roots = np.roots(d)
-    s_roots = fit_root_format_int_simple(roots)
+    s_roots = fit_root_format_int_simple(roots, dif=dif)
     d_arr = []
-    for i in range(len(s_roots)-1):
-        d_arr.append(d((s_roots[i]+s_roots[i+1])/2))
+    for i in range(len(s_roots) - 1):
+        d_arr.append(round(d((s_roots[i] + s_roots[i + 1]) / 2), 3))
     return d_arr, s_roots
+
+
+def normalization(data, zoom=100, offset=0):
+    """
+    线性归一化
+    :param data:
+    :param zoom: 放大倍数
+    :param offset: 偏移量
+    :return:
+    """
+
+    mi = min(data)
+    dif = max(data) - mi
+    res = []
+    l = len(data)
+    for i in range(l):
+        res.append((data[i] - mi) / dif * zoom + offset)
+    return res

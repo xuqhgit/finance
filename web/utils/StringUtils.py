@@ -194,6 +194,13 @@ def handle_ths_str_data_to_list(data):
     return str_2_arr(data.split(";"))
 
 
+def arr_multiply_2_int(arr, m=100):
+    result = []
+    for i in range(len(arr)):
+        result.append(int(arr[i] * m))
+    return result
+
+
 if __name__ == '__main__':
     a = ''
     print isinstance(a, type(str))
