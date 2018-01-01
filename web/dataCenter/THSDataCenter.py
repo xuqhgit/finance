@@ -8,7 +8,7 @@ import json
 import logging
 from web.dataCenter.StockDataCenter import *
 from bs4 import BeautifulSoup
-from web.db.RedisClient import RedisClient
+
 
 KEY_STOCK_LAST = 'THS:%s:%s:%s:LAST:%s'  # 日期 年 月 日股票代码
 KEY_STOCK_MONEY_LAST = 'THS:%s:%s:%s:MONEY:%s'  # 日期 年 月 日 股票代码

@@ -6,9 +6,9 @@
 from web.utils import FileUtils
 import StringUtils
 
-
 stock_file = "stock/%s/%s.json"
 stock_date_file = "stock/history/%s/%s/%s/%s/%s.json"
+stock_year_file = "stock/history/year/%s/%s/%s.json"
 
 
 class StockFile(object):
@@ -75,7 +75,7 @@ class StockFile(object):
         """
         code_type = StringUtils.stock_code_type(code)
         if type:
-            FileUtils.write_static_data(stock_date_file % (code_type, date[0:4], date[4:6], date[6:], code+"_money"),
+            FileUtils.write_static_data(stock_date_file % (code_type, date[0:4], date[4:6], date[6:], code + "_money"),
                                         StringUtils.json_2_str(data))
         pass
 
@@ -89,5 +89,29 @@ class StockFile(object):
         """
         code_type = StringUtils.stock_code_type(code)
         if code_type:
-            stock_str = FileUtils.get_static_file(stock_date_file % (code_type, date[0:4], date[4:6], date[6:], code+"_money"))
+            stock_str = FileUtils.get_static_file(
+                stock_date_file % (code_type, date[0:4], date[4:6], date[6:], code + "_money"))
             return StringUtils.str_2_json(stock_str)
+
+    @staticmethod
+    def get_stock_year_type_json(code, year, type):
+        """
+        获取指定年份和类型的数据
+        :param code:
+        :param year:
+        :param type:
+        :return:
+        """
+        stock_str = FileUtils.get_static_file(stock_year_file % (year, type, code))
+        return StringUtils.str_2_json(stock_str)
+
+    @staticmethod
+    def save_stock_year_type_json(data, code, year, type):
+        """
+        保存指定年份和类型的数据
+        :param code:
+        :param year:
+        :param type:
+        :return:
+        """
+        FileUtils.write_static_data(stock_year_file % (year, type, code), StringUtils.json_2_str(data))

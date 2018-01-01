@@ -22,9 +22,9 @@ def get_random_string(count=5):
 
 def get_token(type=0, timeout=9999, url=None):
     if url is None:
-        token = "%s%s%04d%d%s" % (type, 0, timeout, int(time.time()), StringUtils.getRandomString(5))
+        token = "%s%s%04d%d%s" % (type, 0, timeout, int(time.time()), get_random_string(5))
     else:
-        token = "%s%s%04d%s%s%s" % (type, 1, timeout, int(time.time()), StringUtils.getRandomString(5), url)
+        token = "%s%s%04d%s%s%s" % (type, 1, timeout, int(time.time()), get_random_string(5), url)
     m = hashlib.md5()
     m.update(token)
     entoken = m.hexdigest()
@@ -72,7 +72,7 @@ def str_2_float(str):
     :param str: 转换的字符串
     :return: 返回相应的float
     """
-    if StringUtils.is_null(str):
+    if is_null(str):
         return 0
     if str == "-":
         return 0
@@ -80,7 +80,7 @@ def str_2_float(str):
 
 
 def is_num(num, minNum=None, maxNum=None):
-    if StringUtils.is_null(num):
+    if is_null(num):
         return False, '请输入数字'
     r = re.compile(r'^\d*$').match(num)
     if r:
@@ -94,7 +94,7 @@ def is_num(num, minNum=None, maxNum=None):
 
 def str_2_arr(data, spt=',', slen=-1):
     """
-    特定的字符串进行切割转成相应的数组
+    特定的字符串进行切割转成相应的数组 数据转换成 float
     :param data: 切割数据
     :param spt: 分割符
     :param slen: 数组长度

@@ -6,7 +6,7 @@ from threading import Thread
 import logging
 
 
-def start_many_thread(list, handleSize=200, result=None, target=None, asyn=False):
+def start_many_thread(list, handleSize=200, result=None, target=None, asyn=True):
     """
     分批处理数据
     :param handleSize:
@@ -18,9 +18,8 @@ def start_many_thread(list, handleSize=200, result=None, target=None, asyn=False
     list_len = handleSize
     if size > 6000:
         list_len = 300
-    count = size / list_len + (size % list_len == 0 and 0 or 1)
+    count = size / list_len + (size % list_len == 0 and 2 or 3)-2
     thread_list = []
-
     for i in range(0, count):
         if i == count - 1:
             t = Thread(target=target, args=(list[i * list_len:], result))

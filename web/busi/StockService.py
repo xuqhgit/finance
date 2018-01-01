@@ -3,10 +3,12 @@ from web.utils import EmailSend
 from web.utils.StockFile import StockFile
 from web.db.dbexec import DBExec
 from web.dataCenter import THSDataCenter
+from web.dataCenter import StockData
 from web.busi.StockAnalysis import *
 from threading import Thread
 import time
 import logging
+
 
 QUERY_PATH = 'query/STOCK.xml'
 
@@ -32,7 +34,7 @@ class StockService(object):
         list_len = 200
         if size > 6000:
             list_len = 300
-        count = size / list_len + (size % list_len == 0 and 0 or 1)
+        count = size / list_len + (size % list_len == 0 and 2 or 3) - 2
         thread_list = []
         logging.info("开启线程数:%s" % count)
         for i in range(0, count):
@@ -52,6 +54,7 @@ class StockService(object):
         db_result = db.execute(result)
         logging.info("插入数据:%s条" % db_result)
         db.commitTrans()
+        StockData.refresh_stock_last_day(result)
         return db_result
 
     def getAllDailyStocks(self, list, result):
@@ -355,7 +358,7 @@ class StockService(object):
         result = []
         db = DBExec(QUERY_PATH, "FIND_STOCK_NEW")
         stock_list = db.execute(None)
-        thread_size = CommonUtils.start_many_thread(stock_list, result=result, target=self.__getBatchCurYearPublic)
+        thread_size = CommonUtils.start_many_thread(stock_list, result=result, target=self.__getBatchCurYearPublic,asyn=False)
         return BusinessAnalysis.analysisPublicData(result)
 
     def __getBatchCurYearPublic(self, list, result):
