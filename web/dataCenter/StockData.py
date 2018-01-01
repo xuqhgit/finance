@@ -38,7 +38,7 @@ def get_stock_last_day(code):
         return old_data
     if Holiday.is_trade_time():
         p_json = thsDataCenter.getStockPlateInfoByCode(code)
-        if p_json:
+        if p_json and p_json['trade_stop'] == 0:
             # 时间,开,高,低,收,成交量,成交额,换手
             old_data.append([int(Holiday.get_cur_date()), p_json['open_price'], p_json['high_price'],
                              p_json['low_price'], p_json['price'], p_json['volume_transaction'],
@@ -61,7 +61,7 @@ def refresh_stock_last_day(thsDataList):
     pass
 
 
-def __save_stock_last_day(ths_data_list,result):
+def __save_stock_last_day(ths_data_list, result):
     """
 
     :return:
@@ -71,8 +71,17 @@ def __save_stock_last_day(ths_data_list,result):
         d_type = "01"
         ths_data = ths_data_list[i]
         code = ths_data['stock_code']
+        if ths_data['trade_stop'] != 0:
+            logging.info("刷新--保存--日交易数据 -->获取日数据 停牌：%s" % code)
+            continue
         try:
             old_data = stockFile.get_stock_year_type_json(code, year, d_type)
+            if ths_data['name'].find('XD') != -1:
+                old_data = None
+                logging.info("刷新--保存--日交易数据 -->获取日数据 除息：%s" % code)
+            if ths_data['name'].find('XR') != -1:
+                old_data = None
+                logging.info("刷新--保存--日交易数据 -->获取日数据 除权：%s" % code)
             if old_data is None:
                 # 目前从THS 获取
                 data = thsDataCenter.getStockHistoryData(code, year, d_type)
@@ -94,6 +103,7 @@ def __save_stock_last_day(ths_data_list,result):
 
 if __name__ == "__main__":
     p_json = thsDataCenter.getStockPlateInfoByCode("002606")
+    p_json['name'] = 'XD除息'
     p_json1 = thsDataCenter.getStockPlateInfoByCode("603300")
     p_json2 = thsDataCenter.getStockPlateInfoByCode("600547")
-    refresh_stock_last_day([p_json,p_json1,p_json2])
+    refresh_stock_last_day([p_json, p_json1, p_json2])
