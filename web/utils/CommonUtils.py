@@ -31,8 +31,8 @@ def start_many_thread(list, handleSize=200, result=None, target=None, asyn=True)
     if asyn is False:
         for t in thread_list:
             t.join()
-        logging.info("[__startManyThread] 同步执行")
-    logging.info("[__startManyThread] 开启线程数:%s" % len(thread_list))
+        logging.info("[__startManyThread] 同步执行完成")
+    logging.info("[__startManyThread] 开启线程数:%s 单个处理:%s 总处理:%s" % (len(thread_list),list_len,size))
     return len(thread_list)
 
 
