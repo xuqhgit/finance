@@ -20,11 +20,8 @@ def start_many_thread(list, handleSize=200, args=(), target=None, asyn=True, nam
     """
     if name is None:
         name = '多线程任务'
-
     size = len(list)
     list_len = handleSize
-    if size > 6000:
-        list_len = 300
     count = size / list_len + (size % list_len == 0 and 2 or 3) - 2
     thread_list = []
     for i in range(0, count):
