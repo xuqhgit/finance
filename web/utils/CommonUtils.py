@@ -6,7 +6,7 @@ from threading import Thread
 import logging
 
 
-def start_many_thread(list, handleSize=200, args=(), target=None, asyn=True, name=None):
+def start_many_thread(list, handleSize=200, args=(), target=None, asyn=True, name='多线程任务'):
     """
     分批处理数据
 
@@ -18,8 +18,6 @@ def start_many_thread(list, handleSize=200, args=(), target=None, asyn=True, nam
     :param name: 任务名称
     :return:
     """
-    if name is None:
-        name = '多线程任务'
     size = len(list)
     list_len = handleSize
     count = size / list_len + (size % list_len == 0 and 2 or 3) - 2
