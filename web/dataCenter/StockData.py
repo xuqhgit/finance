@@ -54,16 +54,17 @@ def refresh_stock_last_day(thsDataList):
     :return:
     """
     try:
-        CommonUtils.start_many_thread(thsDataList, handleSize=300, target=__save_stock_last_day)
+        CommonUtils.start_many_thread(thsDataList, handleSize=300,  target=__save_stock_last_day,
+                                      name='日交易数据刷新任务')
     except Exception, e:
         logging.error("刷新日交易数据 -->异常")
         logging.error(e)
     pass
 
 
-def __save_stock_last_day(ths_data_list, result):
+def __save_stock_last_day(ths_data_list):
     """
-
+    保存stock 交易数据
     :return:
     """
     for i in range(len(ths_data_list)):

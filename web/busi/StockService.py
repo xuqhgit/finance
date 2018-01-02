@@ -6,9 +6,9 @@ from web.dataCenter import THSDataCenter
 from web.dataCenter import StockData
 from web.busi.StockAnalysis import *
 from threading import Thread
+from web.utils import Holiday
 import time
 import logging
-
 
 QUERY_PATH = 'query/STOCK.xml'
 
@@ -337,7 +337,7 @@ class StockService(object):
         :param code:
         :return:
         """
-        data = self.getStockHistoryData(code, "2016", "01")
+        data = self.getStockHistoryData(code, Holiday.get_cur_year(), "01")
         if data is None:
             return None
         arr = StringUtils.str_2_arr(data['data'].split(";"))
@@ -352,13 +352,14 @@ class StockService(object):
 
     def getCurYearPublicList(self):
         """
-        保存每个Stock 概念数据
+
         :return:
         """
         result = []
         db = DBExec(QUERY_PATH, "FIND_STOCK_NEW")
         stock_list = db.execute(None)
-        thread_size = CommonUtils.start_many_thread(stock_list, result=result, target=self.__getBatchCurYearPublic,asyn=False)
+        CommonUtils.start_many_thread(stock_list, args=(result,), target=self.__getBatchCurYearPublic,
+                                      asyn=False, name='获取当年的new stock')
         return BusinessAnalysis.analysisPublicData(result)
 
     def __getBatchCurYearPublic(self, list, result):
