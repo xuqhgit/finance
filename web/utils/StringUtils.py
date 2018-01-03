@@ -109,7 +109,11 @@ def str_2_arr(data, spt=',', slen=-1):
             a = []
             for j in range(0, l):
                 if s[j] and s[j] != '':
-                    a.append(float(s[j]))
+
+                    if s[j].find('.') > -1:
+                        a.append(float(s[j]))
+                    else:
+                        a.append(int(s[j]))
                 else:
                     a.append(0)
             if len(a) == l:

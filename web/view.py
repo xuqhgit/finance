@@ -49,7 +49,7 @@ def to():
     if request.method == 'POST':
         args = request.form
     p = args["p"]
-    return render_template('html/'+p+'.html', name='hope')
+    return render_template('html/'+p+'.html', params=p)
 
 @app.route('/loc', methods=['get', 'post'])
 def loc():
