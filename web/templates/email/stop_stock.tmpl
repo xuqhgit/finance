@@ -1,0 +1,30 @@
+<table>
+    <tr>
+        <th>c_stock</th>
+        <th>code</th>
+        <th>当前价格</th>
+        <th>涨幅</th>
+        <th>换</th>
+        <th>last-时间</th>
+        <th>last-开</th>
+        <th>last-高</th>
+        <th>last-低</th>
+        <th>last-收</th>
+        <th>last-量</th>
+        <th>last-额</th>
+        <th>last-换</th>
+    </tr>
+    <tbody>
+    {% for s in data %}
+    <tr>
+        <td><a href="http://m.10jqka.com.cn/stockpage/hs_{{ s.stock_code }}/#&atab=geguNews" target="_blank">{{ s.stock_code }}</a></td>
+        <td>{{ s.price }}</td>
+        <td>{{ s.growth }}</td>
+        <td>{{ s.turnover_rate }}</td>
+        {% for t in s.last %}
+        <td>{{ t }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>

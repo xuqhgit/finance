@@ -43,8 +43,7 @@ def get_stock_last_day(code):
             old_data.append([int(Holiday.get_cur_date()), p_json['open_price'], p_json['high_price'],
                              p_json['low_price'], p_json['price'], p_json['volume_transaction'],
                              p_json['turnover'], p_json['turnover_rate']])
-        return old_data
-    return None
+    return old_data
 
 
 def refresh_stock_last_day(thsDataList):
@@ -132,6 +131,6 @@ if __name__ == "__main__":
     # p_json1 = thsDataCenter.getStockPlateInfoByCode("603300")
     # p_json2 = thsDataCenter.getStockPlateInfoByCode("600547")
     # refresh_stock_last_day([p_json, p_json1, p_json2])
-    data = get_stock_cur_last("002606")
-
+    # data = get_stock_cur_last("603506")
+    data = thsDataCenter.getPlateLast('885354')
     print data

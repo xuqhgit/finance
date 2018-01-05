@@ -1,6 +1,7 @@
 # coding:utf-8
 from web.utils import EmailSend
 from web.utils.StockFile import StockFile
+from web.utils import TemplateUtils
 from web.db.dbexec import DBExec
 from web.dataCenter import THSDataCenter
 from web.dataCenter import StockData
@@ -214,19 +215,21 @@ class StockService(object):
         :param list:
         :return:
         """
-        center = THSDataCenter.THSData()
-        for s in list:
-            code = s['code']
-            d = center.getPlateLast(code)
-
-            if d:
-                h_code = '48_%s' % code
-                last_date = d[h_code]['date']
-                try:
-                    stockFile.write_stock_json(d, code, last_date)
-                except Exception, e:
-                    logging.error(e)
-        pass
+        try:
+            center = THSDataCenter.THSData()
+            for s in list:
+                code = s['code']
+                plate_data = center.getPlateLast(code)
+                if plate_data:
+                    h_code = 'bk_%s' % code
+                    last_date = plate_data[h_code]['date']
+                    try:
+                        stockFile.write_stock_json(plate_data, code, last_date)
+                    except Exception, e:
+                        logging.error(e)
+        except Exception, e:
+            logging.error("保存板块信息异常")
+            logging.error(e)
 
     def saveStockNew(self, page=1):
         """
@@ -402,7 +405,7 @@ class StockService(object):
                 data = CUR_PUBLIC_NEW_STOCK[cur_date]
                 size = len(data)
         logging.info(str(CUR_PUBLIC_NEW_STOCK))
-        text_arr = []
+        stock_arr = []
         for i in range(0, size):
             d = data[i]
             if d['code'] is None:
@@ -412,61 +415,49 @@ class StockService(object):
                 high_end = stock_data['high_end']
                 cur_price = stock_data['price']
                 if cur_price != high_end:
-                    text = "public volume:%s stock_code:%s,price:%s ,zf:%s ,type:%s high_count:%s" % (
-                        d['public_volume'], d['code'], stock_data['price'], stock_data['growth'], d['type'],
-                        d['high_count'])
-                    logging.info(text)
-                    text_arr.append(text)
+                    stock_data['high_count'] = d['high_count']
+                    logging.info(stock_data)
+                    stock_arr.append(stock_data)
                     d['code'] = None
             except Exception, e:
                 logging.error("%s" % e)
-        if len(text_arr) > 0:
-            logging.info(str(text_arr))
-            EmailSend.send_txt(str(text_arr), 'PUBLIC STOCK')
+        if len(stock_arr) > 0:
+            logging.info(str(stock_arr))
+            email_content = TemplateUtils.get_email("new_stock", stock_arr)
+            if email_content:
+                try:
+                    EmailSend.send(email_content, 'PUBLIC', subtype='html')
+                except Exception, e:
+                    logging.error("发送邮件失败：%s" % e)
+            else:
+                logging.error("发送邮件内容异常")
         pass
 
     def checkStopStockCode(self):
         stop_list = list(DBExec(QUERY_PATH, "FIND_STOP_STOCK").execute(None))
+        # stop_list = [{'code':'002606'}]
         center = THSDataCenter.THSData()
         # 获取当前上证指数 当前中小板指数
         sh = center.getStockPlateInfoByCode('1A0001')
         sz = center.getStockPlateInfoByCode('399001')
-        z_cache = {}
         type_code = {'zxb': '399001', 'sh': '1A0001'}
         result = []
         for i in range(0, len(stop_list)):
             code = stop_list[i]['code']
-            type = stop_list[i]['type']
             stock_data = center.getStockPlateInfoByCode(code)
-            if stock_data:
-                data = center.getStockHistoryData(code, 'last', '01')['data']
+            if stock_data and stock_data['trade_stop'] == 0:
+                data = StockData.get_stock_last_day(code)
                 if data:
-                    arr = StringUtils.str_2_arr(data.split(";"))
-                    last = arr[-1]
-                    year = str(last[0])[0:4]
-                    cur_type_data = None
-                    if z_cache.has_key('%s_%s' % (type, year)) is not True:
-                        year_type_data = center.getStockHistoryData(type_code[type], 'last', '01')['data']
-                        z_cache['%s_%s' % (type, year)] = StringUtils.str_2_arr(year_type_data.split(";"))
-                        pass
-                    z_data = z_cache['%s_%s' % (type, year)]
-                    for j in range(0, len(z_data)):
-                        if last[0] == z_data[j][0]:
-                            cur_type_data = z_data[j]
-                            break
-
-                    text = "c_stock:%s stock_code:%s,price:%s ,zf:%s ,type:%s    last_data:%s  dp_last:%s" % (
-                        stock_data['c_stock'], code, stock_data['price'], stock_data['growth'], type,
-                        str(last), str(cur_type_data))
-                    result.append(text)
+                    arr = data[len(data) > 1 and len(data)-2 or len(data)-1]
+                    stock_data['c_stock'] = int(stock_data['c_stock'] / 10000)
+                    stock_data['last'] = arr
+                    result.append(stock_data)
         if len(result) > 0:
-            result.append(str(sh))
-            result.append(str(sz))
-            logging.info(str(result))
-            EmailSend.send_txt(str(result), 'STOP STOCK')
-        else:
-            logging.info("no stop data")
-        pass
+            # result.append(str(sh))
+            # result.append(str(sz))
+            content = TemplateUtils.get_email("stop_stock", result)
+            if content:
+                EmailSend.send(content, 'STOP', subtype='html')
 
     def __findLastNewStock(self):
         return list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
@@ -525,8 +516,8 @@ class StockService(object):
 
 
 if __name__ == '__main__':
-    result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
-    print result
+    # result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
+    # print result
     # center = THSDataCenter.THSData()
     # code = "603986"
     # data = center.getStockMoneyLastgetStockMoneyLast(code)
@@ -535,6 +526,7 @@ if __name__ == '__main__':
     # stockFile.write_stock_money_json(data, code+"_money", last_date)
     # print stockFile.get_stock_money_json(code,last_date)
     # StockService().saveAllDailyStocksLast()
+    StockService().checkStopStockCode()
     pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

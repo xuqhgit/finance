@@ -3,6 +3,7 @@
 # createTime: 16/10/6
 import smtplib
 from email.mime.text import MIMEText
+import logging
 
 config = {
     'host': 'smtp.gogohou.com',  # 设置服务器
@@ -11,17 +12,19 @@ config = {
 }
 
 
-def send_txt(content, sub, to_list=['294797097@qq.com']):
+def send(content, sub="finance 邮件", to_list=['294797097@qq.com'],subtype='plain'):
     """
     发送文本邮件 默认为294797097邮箱
     :param content: 发送内容
     :param sub: 发送主题
     :param to_list: 发送对象 list
+    :param subtype: 发送类型 plain 文本 html 网页
     :return: 成功返回True 失败返回False
     """
+
     me = "A-Finance" + "<" + config['user'] + ">"
     # _subtype='html' 为发送html格式
-    msg = MIMEText(content, _subtype='plain', _charset='utf-8')
+    msg = MIMEText(content, _subtype=subtype, _charset='utf-8')
     msg['Subject'] = sub
     msg['From'] = me
     msg['To'] = ";".join(to_list)
@@ -33,9 +36,8 @@ def send_txt(content, sub, to_list=['294797097@qq.com']):
         server.close()
         return True
     except Exception, e:
-        print str(e)
-        return False
-
+        logging.error("发送邮件失败sub：【】，error：" % (sub,e))
+    return False
 
 if __name__ == '__main__':
-    send_txt("test", "finance")
+    send("test", sub="finance")

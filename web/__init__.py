@@ -14,9 +14,8 @@ app = Flask(__name__)
 app.config['SESSION_TYPE'] = 'memcached'
 app.config['SECRET_KEY'] = 'baidupbgzjx123456'
 
-
-
 _dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+web_dir = os.path.dirname(__file__)
 _log_dir = os.path.join(_dir, 'logs')
 
 if not os.path.isdir(_log_dir):

@@ -1,0 +1,22 @@
+<table>
+    <tr>
+        <th>code</th>
+        <th>量</th>
+        <th>额</th>
+        <th>当前价格</th>
+        <th>涨幅</th>
+        <th>次数</th>
+    </tr>
+    <tbody>
+    {% for s in data %}
+    <tr>
+        <td><a href="http://m.10jqka.com.cn/stockpage/hs_{{ s.stock_code }}/#&atab=geguNews" target="_blank">{{ s.stock_code }}</a></td>
+        <td>{{ s.c_stock/10000}}</td>
+        <td>{{ s.c_amt/10000 }}</td>
+        <td>{{ s.price }}</td>
+        <td>{{ s.growth }}</td>
+        <td>{{ s.high_count }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
