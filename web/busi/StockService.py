@@ -449,7 +449,6 @@ class StockService(object):
                 data = StockData.get_stock_last_day(code)
                 if data:
                     arr = data[len(data) > 1 and len(data)-2 or len(data)-1]
-                    stock_data['c_stock'] = int(stock_data['c_stock'] / 10000)
                     stock_data['last'] = arr
                     result.append(stock_data)
         if len(result) > 0:

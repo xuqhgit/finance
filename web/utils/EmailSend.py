@@ -34,9 +34,10 @@ def send(content, sub="finance 邮件", to_list=['294797097@qq.com'],subtype='pl
         server.login(config['user'], config['password'])
         server.sendmail(me, to_list, msg.as_string())
         server.close()
+        logging.error("发送邮件：【%s】" % sub)
         return True
     except Exception, e:
-        logging.error("发送邮件失败sub：【】，error：" % (sub,e))
+        logging.error("发送邮件失败sub：【%s】，error：%s" % (sub,e))
     return False
 
 if __name__ == '__main__':
