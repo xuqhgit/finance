@@ -90,3 +90,4 @@ def start():
     schedudler.add_job(checkStopStock, 'cron', minute='32', hour='9', day_of_week='0-4')
 
     schedudler.start()
+

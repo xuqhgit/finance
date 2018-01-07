@@ -18,25 +18,31 @@ def start_many_thread(list, handleSize=200, args=(), target=None, asyn=True, nam
     :param name: 任务名称
     :return:
     """
+
+
     size = len(list)
     list_len = handleSize
     count = size / list_len + (size % list_len == 0 and 2 or 3) - 2
     thread_list = []
+    logging.info("【%s】 ->>>[__startManyThread] 开启线程数:%s 单个处理:%s 总处理:%s" % (name, count, list_len, size))
     for i in range(0, count):
         if i == count - 1:
             new_args = (list[i * list_len:],) + args
-            t = Thread(target=target, args=new_args, name=name)
+            t = Thread(target=target, args=new_args, name=i)
             t.start()
         else:
             new_args = (list[(i * list_len):((i + 1) * list_len)],) + args
-            t = Thread(target=target, args=new_args, name=name)
+            t = Thread(target=target, args=new_args, name=i)
             t.start()
         thread_list.append(t)
     if asyn is False:
         for t in thread_list:
+            logging.info("【%s】 ->>>[__startManyThread] 线程名: %s 处理中..." % (name, t.getName()))
             t.join()
+            logging.info("【%s】 ->>>[__startManyThread] 线程名: %s 处理完成..." % (name, t.getName()))
         logging.info("【%s】 ->>> [__startManyThread] 同步执行完成" % name)
-    logging.info("【%s】 ->>>[__startManyThread] 开启线程数:%s 单个处理:%s 总处理:%s" % (name, len(thread_list), list_len, size))
+    else:
+        logging.info("【%s】 ->>>[__startManyThread] 正在处理中...")
     return len(thread_list)
 
 

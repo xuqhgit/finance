@@ -2,7 +2,7 @@
 
 import os
 import re
-
+import logging
 from jinja2 import Template
 
 from web.utils.xmlutils import XmlUtils
@@ -42,7 +42,8 @@ class SqlHandle(object):
             sql = Template(sql_tmpl).render(**param)
             sql, arr = SqlHandle.sql_regex_handle(sql)
             return 0, sql and sql.strip().replace("\r", " ").replace("\t", " ") or None, arr and arr or None
-        return None
+        logging.error("获取sql异常：%s ---> %s" % (tmplUrl, id))
+        return -1, None, None
 
     @staticmethod
     def sql_regex_handle(sql):
@@ -53,8 +54,10 @@ class SqlHandle(object):
         """
         arr = re.findall(r'(?<=\[).*?(?=\])', sql)
         result, num = re.subn(r'\[.*?\]', '%s', sql)
-        result, num = re.subn(r'\?', '%s', result
-                              )
+        result, num = re.subn(r'\?', '%s', result)
+        if arr and len(arr) > 0:
+            for i in range(len(arr)):
+                arr[i] = arr[i].strip()
         return result, arr
 
 

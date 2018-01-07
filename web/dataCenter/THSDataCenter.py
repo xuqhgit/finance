@@ -9,7 +9,6 @@ import logging
 from web.dataCenter.StockDataCenter import *
 from bs4 import BeautifulSoup
 
-
 KEY_STOCK_LAST = 'THS:%s:%s:%s:LAST:%s'  # 日期 年 月 日股票代码
 KEY_STOCK_MONEY_LAST = 'THS:%s:%s:%s:MONEY:%s'  # 日期 年 月 日 股票代码
 KEY_BOND_LAST = 'THS:%s:%s:%s:BOND:%s'  # 日期 年 月 日 股票代码
@@ -468,16 +467,16 @@ class THSDataOther(object):
         list = []
         if data.status == 200:
             html = data.data.decode('gbk').encode('UTF-8')
-            trs = BeautifulSoup(html).find(id='maintable').select("[class~=m_tbd] tr")
+            trs = BeautifulSoup(html, "html.parser").find(id='maintable').select("[class~=m_tbd] tr")
             for tr in trs:
                 if tr is None:
                     continue
                 tds = tr.select('td')
                 data_json = {}
                 # stock code
-                data_json['code'] = str(tds[0].a.string)
+                data_json['code'] = tds[0].a.text.strip()
                 # stock name
-                data_json['name'] = str(tds[1].a.string)
+                data_json['name'] = tds[1].a.text.strip()
                 # stock type
                 data_json['type'] = type == 'hszb' and 'sh' or type
                 # 申购代码
@@ -517,7 +516,36 @@ class THSDataOther(object):
             logging.error("同花顺获取stock new [%s] 数据出错:%s" % (type, data.status))
         return None
 
+    @staticmethod
+    def get_stock_important_event(code):
+        client = WebClient()
+        url = "http://basic.10jqka.com.cn/mobile/%s/reminddetailn.html" % code
+        data = client.get(url)
+        result = []
+        if data.status == 200:
+            html = data.data.decode('gbk').encode('UTF-8')
+            bs = BeautifulSoup(html.replace("</h1> </a>", "</h1>").replace("</a> </a>", "</a>"), "html.parser")
+            div_list = bs.select("[class~=yearlist]")
+            for div in div_list:
+                data_json = {}
+                mdate = str(div.select("[class~=mdate]")[0].string).strip()
+                myear = str(div.select("[class~=myear]")[0].string).strip()
+                data_json['stock_code'] = code
+                data_json['event_code'] = '000000'
+                data_json['event_date'] = '%s%s' % (myear, mdate.replace("-", ""))
+                data_json['type'] = div.attrs['flag']
+                if div.h1:
+                    data_json['name'] = div.h1.string.strip()
+                elif div.a:
+                    data_json['name'] = div.a.string.strip()
+                if div.p:
+                    data_json['content'] = div.p.text.replace('\r', '').replace('\t', '').replace('\n', '').strip()
+                result.append(data_json)
+        else:
+            logging.error("同花顺获取stock event [%s] 数据出错:%s" % (code, data.status))
+        return result
+
 
 if __name__ == '__main__':
-    print json.dumps(THSDataOther.get_stock_new())
-    pass
+    print THSDataOther.get_stock_important_event("002606")
+    # pass

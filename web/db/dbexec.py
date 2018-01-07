@@ -57,16 +57,13 @@ class DBExec(object):
         self.tmplUrl = tmplUrl
         self.id = id
 
-    def execute(self, data, **sqlParam):
+    def execute(self, data, print_param=False, **sqlParam):
 
-        status, str, arr = SqlHandle.get_sql(self.tmplUrl, self.id, **sqlParam)
+        status, sql_str, arr = SqlHandle.get_sql(self.tmplUrl, self.id, **sqlParam)
         if status == 0:
-            sql = str.strip()
+            sql = sql_str.strip()
             logging.info(sql)
             flag = re.match(r'select', sql, re.I)
-
-            if data:
-                logging.info(data)
             _data = []
             if arr and data:
                 logging.info(arr)
@@ -93,13 +90,13 @@ class DBExec(object):
                             _data.append(data[a])
                         else:
                             _data.append('')
-                logging.info(_data)
+                if print_param:
+                    logging.info(_data)
             if len(_data) is 0:
                 _data = None
             if flag:
                 page = 0
                 pageSize = 12
-
                 if data and "page" in data and int(data["page"]) > 0:
                     page = int(data["page"])
                     if "pageSize" in data and int(data["pageSize"]) > 0:

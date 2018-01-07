@@ -19,6 +19,8 @@ stockFile = StockFile()
 
 class StockService(object):
     def __init__(self):
+        self.thsData = THSDataCenter.THSData()
+        self.thsDataOther = THSDataCenter.THSDataOther()
         pass
 
     def saveAllDailyStocks(self):
@@ -448,7 +450,7 @@ class StockService(object):
             if stock_data and stock_data['trade_stop'] == 0:
                 data = StockData.get_stock_last_day(code)
                 if data:
-                    arr = data[len(data) > 1 and len(data)-2 or len(data)-1]
+                    arr = data[len(data) > 1 and len(data) - 2 or len(data) - 1]
                     stock_data['last'] = arr
                     result.append(stock_data)
         if len(result) > 0:
@@ -513,6 +515,48 @@ class StockService(object):
                 result.append(last_new_list[i])
         return result
 
+    def update_all_stock_event(self):
+        """
+        更新所有stock事件
+        :return:
+        """
+        db = DBExec(QUERY_PATH, "FIND_STOCK_ALL")
+        stock_list = db.execute(None)
+        # stock_list = [{'code':'002606'}]
+        result = []
+        logging.info("开始获取 stock事件 更新并发处理--->获取stock个数:%s" % (stock_list and len(stock_list) or 0))
+        try:
+            CommonUtils.start_many_thread(stock_list,handleSize=200, target=self.get_stock_event_batch,
+                                          args=(result,), name="stock事件 更新并发处理", asyn=False)
+        except Exception, e:
+            logging.error("stock事件 更新并发处理--->失败:%s" % e)
+        if len(result) > 0:
+            db.set(QUERY_PATH, "INSERT_STOCK_EVENT")
+            logging.info("开始保存stock事件 --->处理个数：%s" % len(result))
+            for res in result:
+                db.execute(res)
+                db.commitTrans()
+            logging.info("开始保存stock事件 --->处理完成")
+        else:
+            logging.info("stock事件 更新并发处理--->未能获取stock事件")
+
+    def get_stock_event_batch(self, stock_list, result):
+        """
+        批量获取 时间
+        :param stock_list:
+        :param result:
+        :return:
+        """
+        logging.info("获取stock事件 --->开始 预计获取个数：%s" % len(stock_list))
+        count = 0
+        for stock in stock_list:
+            res = self.thsDataOther.get_stock_important_event(stock['code'])
+            if res:
+                count += 1
+                result.append(res)
+        logging.info("获取stock事件 --->结束 获取个数：%s" % count)
+        pass
+
 
 if __name__ == '__main__':
     # result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
@@ -525,7 +569,7 @@ if __name__ == '__main__':
     # stockFile.write_stock_money_json(data, code+"_money", last_date)
     # print stockFile.get_stock_money_json(code,last_date)
     # StockService().saveAllDailyStocksLast()
-    StockService().checkStopStockCode()
+    StockService().update_all_stock_event()
     pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

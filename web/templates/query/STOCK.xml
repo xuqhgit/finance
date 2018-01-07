@@ -54,7 +54,7 @@
         </sql>
     </query>
 
-     <query id="FIND_CUR_STOCK_ALL" type="">
+    <query id="FIND_CUR_STOCK_ALL" type="">
         <sql>
             <![CDATA[
                select stock_code code from stock_daily where trade_date=DATE_FORMAT(curdate(),"%Y%m%d")
@@ -97,8 +97,8 @@
     </query>
 
     <query id="SAVE_STOCK_NEW_TEMP" type="">
-       <sql>
-           <![CDATA[
+        <sql>
+            <![CDATA[
               insert into stock_new_temp ( buy_date, lot_date, public_date, create_time, bank_pe, high_count,
                type, public_pe, code, public_volume_online, income, buy_code, public_price, buy_limit, buy_c_limit,
                 public_volume, name, lot_winning_rate)
@@ -106,27 +106,27 @@
                 [bank_pe], [high_count], [type], [public_pe], [code], [public_volume_online], [income], [buy_code],
                  [public_price], [buy_limit], [buy_c_limit], [public_volume], [name], [lot_winning_rate])
             ]]>
-    </sql>
+        </sql>
     </query>
 
     <query id="CLEAR_STOCK_NEW_TEMP" type="">
-       <sql>
-           <![CDATA[
+        <sql>
+            <![CDATA[
             delete from stock_new_temp where 1=1
             ]]>
-       </sql>
+        </sql>
     </query>
     <query id="SAVE_STOCK_PLATE_TEMP" type="">
-       <sql>
-           <![CDATA[
+        <sql>
+            <![CDATA[
               insert into stock_plate_temp(stock_code,plate_code) values([stock_code],[plate_code])
             ]]>
-       </sql>
+        </sql>
     </query>
 
     <query id="INSERT_STOCK_PLATE" type="">
-       <sql>
-           <![CDATA[
+        <sql>
+            <![CDATA[
             INSERT INTO stock_plate SELECT
                 s.stock_code,
                 s.plate_code,
@@ -146,11 +146,11 @@
                     AND s.plate_code = plate_code
                 )
             ]]>
-       </sql>
+        </sql>
     </query>
     <query id="UPDATE_STOCK_PLATE" type="">
-       <sql>
-           <![CDATA[
+        <sql>
+            <![CDATA[
             UPDATE stock_plate s
                 SET state = 2,update_time=now()
                 WHERE
@@ -173,41 +173,41 @@
                 )
                 and s.state=1
             ]]>
-       </sql>
+        </sql>
     </query>
 
     <query id="CLEAR_STOCK_PLATE_TEMP" type="">
-       <sql>
-           <![CDATA[
+        <sql>
+            <![CDATA[
               delete from stock_plate_temp where 1=1
             ]]>
-       </sql>
+        </sql>
     </query>
     <query id="COUNT_STOCK_DAILY" type="">
-       <sql>
-           <![CDATA[
+        <sql>
+            <![CDATA[
               select count(*) as ct from stock_daily where trade_date=[date]
             ]]>
-       </sql>
+        </sql>
     </query>
     <query id="COUNT_PLATE_DAILY" type="">
-       <sql>
-           <![CDATA[
+        <sql>
+            <![CDATA[
               select count(*) as ct from plate_daily where trade_date=[date]
             ]]>
-       </sql>
+        </sql>
     </query>
 
     <query id="TEST" type="">
-       <sql>
-           <![CDATA[
+        <sql>
+            <![CDATA[
             SELECT * FROM plate
             WHERE 1=1
             {% if code %}
                and code = [code]
             {% endif%}
             ]]>
-       </sql>
+        </sql>
     </query>
 
     <query id="FIND_STOCK_NEW" type="">
@@ -315,6 +315,17 @@
             ]]>
         </sql>
     </query>
-
+    <query id="INSERT_STOCK_EVENT">
+        <sql>
+            <![CDATA[
+				INSERT INTO stock_event(
+					stock_code,event_date,event_code,type,name,content,create_time
+				)
+				VALUES(
+				    [ stock_code ] ,  [ event_date ] ,  [ event_code ] ,  [ type ] ,  [ name ] ,  [ content ] ,  now()
+				)
+            ]]>
+        </sql>
+    </query>
 
 </query-config>
