@@ -42,7 +42,7 @@ def start_many_thread(list, handleSize=200, args=(), target=None, asyn=True, nam
             logging.info("【%s】 ->>>[__startManyThread] 线程名: %s 处理完成..." % (name, t.getName()))
         logging.info("【%s】 ->>> [__startManyThread] 同步执行完成" % name)
     else:
-        logging.info("【%s】 ->>>[__startManyThread] 正在处理中...")
+        logging.info("【%s】 ->>>[__startManyThread] 正在处理中..." % name)
     return len(thread_list)
 
 

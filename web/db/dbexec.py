@@ -5,7 +5,6 @@
 from sqlhandle import SqlHandle
 import re
 from web.db import db
-import functools
 import logging
 
 
@@ -42,6 +41,7 @@ import logging
 #     return innerTrans
 
 
+
 class DBExec(object):
     """
         db执行器
@@ -56,17 +56,27 @@ class DBExec(object):
     def set(self, tmplUrl, id):
         self.tmplUrl = tmplUrl
         self.id = id
+        return self
 
-    def execute(self, data, print_param=False, **sqlParam):
+    def setId(self, id):
+        self.id = id
+        return self
+
+    def setTmplUrl(self, tmplUrl):
+        self.tmplUrl = tmplUrl
+        return self
+
+    def execute(self, data, print_param=False, print_sql=True, **sqlParam):
 
         status, sql_str, arr = SqlHandle.get_sql(self.tmplUrl, self.id, **sqlParam)
         if status == 0:
             sql = sql_str.strip()
-            logging.info(sql)
+            if print_sql:
+                logging.info(sql)
+                logging.info(arr)
             flag = re.match(r'select', sql, re.I)
             _data = []
             if arr and data:
-                logging.info(arr)
                 if type(data) == list:
                     for d in data:
                         _d = []

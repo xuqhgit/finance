@@ -1,0 +1,3 @@
+# coding:utf-8
+QUERY_STOCK = 'STOCK'
+QUERY_STOCK_EVENT = 'STOCK_EVENT'

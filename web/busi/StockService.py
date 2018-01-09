@@ -6,12 +6,9 @@ from web.db.dbexec import DBExec
 from web.dataCenter import THSDataCenter
 from web.dataCenter import StockData
 from web.busi.StockAnalysis import *
-from threading import Thread
 from web.utils import Holiday
-import time
 import logging
-
-QUERY_PATH = 'query/STOCK.xml'
+from web.db import Query
 
 CUR_PUBLIC_NEW_STOCK = {"1970-01-01": []}
 stockFile = StockFile()
@@ -21,6 +18,7 @@ class StockService(object):
     def __init__(self):
         self.thsData = THSDataCenter.THSData()
         self.thsDataOther = THSDataCenter.THSDataOther()
+        self.db = DBExec(Query.QUERY_STOCK, "")
         pass
 
     def saveAllDailyStocks(self):
@@ -28,42 +26,20 @@ class StockService(object):
         保存daily stock 数据
         :return:
         """
-
-        db = DBExec(QUERY_PATH, "FIND_STOCK_ALL")
-        stock_list = db.execute(None)
-        size = len(stock_list)
+        stock_list = self.db.setId("FIND_STOCK_ALL").execute(None)
         result = []
-
-        list_len = 200
-        if size > 6000:
-            list_len = 300
-        count = size / list_len + (size % list_len == 0 and 2 or 3) - 2
-        thread_list = []
-        logging.info("开启线程数:%s" % count)
-        for i in range(0, count):
-            if i == count - 1:
-                t = Thread(target=self.getAllDailyStocks, args=(stock_list[i * list_len:], result))
-                t.start()
-            else:
-                t = Thread(target=self.getAllDailyStocks,
-                           args=(stock_list[(i * list_len):((i + 1) * list_len)], result))
-                t.start()
-            thread_list.append(t)
-        for t in thread_list:
-            t.join()
-        logging.info("线程数 %s 执行完成" % count)
-        db.set(QUERY_PATH, "SAVE_DAILY_STOCK")
-        logging.info("应插入数据:%s条" % size)
-        db_result = db.execute(result)
+        CommonUtils.start_many_thread(stock_list, handleSize=300, args=(result,), target=self.getAllDailyStocks,
+                                      asyn=False, name='保存stock daily 数据')
+        db_result = self.db.setId("SAVE_DAILY_STOCK").execute(result)
         logging.info("插入数据:%s条" % db_result)
-        db.commitTrans()
+        self.db.commitTrans()
         StockData.refresh_stock_last_day(result)
         return db_result
 
     def getAllDailyStocks(self, list, result):
         center = THSDataCenter.THSData()
         r = []
-        cur_date = time.strftime('%Y%m%d', time.localtime(time.time()))
+        cur_date = Holiday.get_cur_date()
         for s in list:
             code = s['code']
             d = center.getStockPlateInfoByCode(code)
@@ -78,32 +54,12 @@ class StockService(object):
         保存所有股票当日数据 包含资金等
         :return:
         """
-        db = DBExec(QUERY_PATH, "FIND_STOCK_ALL")
-        stock_list = db.execute(None)
-        size = len(stock_list)
-        list_len = 500
-        if size > 6000:
-            list_len = 300
-        count = size / list_len + (size % list_len == 0 and 0 or 1)
-        # thread_list = []
-        # logging.info("下载STOCK_LAST开启线程数:%s" % count)
-        # for i in range(0, count):
-        #     logging.info(i)
-        #     if i == count - 1:
-        #         t = Thread(target=self.saveDailyStocksLast, args=(stock_list[i * list_len:], None))
-        #         t.start()
-        #     else:
-        #         t = Thread(target=self.saveDailyStocksLast,
-        #                    args=(stock_list[(i * list_len):((i + 1) * list_len)], None))
-        #         t.start()
-        #     thread_list.append(t)
-        # for t in thread_list:
-        #     t.join()
-        self.saveDailyStocksLast(stock_list, None)
-        logging.info("下载STOCK_LAST数据完成")
+        stock_list = self.db.setId("FIND_STOCK_ALL").execute(None)
+        CommonUtils.start_many_thread(stock_list, handleSize=500, target=self.saveDailyStocksLast,
+                                      name='保存stock last and money 数据', asyn=False)
         pass
 
-    def saveDailyStocksLast(self, list, result):
+    def saveDailyStocksLast(self, list):
         """
         保存最新股票交易数据到file中 还有 资金数据
         :param list:
@@ -136,33 +92,13 @@ class StockService(object):
         保存所有板块日数据 包含 区域 行业 概念
         :return:
         """
-        db = DBExec(QUERY_PATH, "FIND_PLATE_ALL")
-        plate_list = db.execute(None)
-
-        size = len(plate_list)
+        plate_list = self.db.setId("FIND_PLATE_ALL").execute(None)
         result = []
-
-        list_len = 100
-        count = size / list_len + (size % list_len == 0 and 0 or 1)
-        thread_list = []
-        logging.info("[saveAllDailyPlate]开启线程数:%s" % count)
-        for i in range(0, count):
-            if i == count - 1:
-                t = Thread(target=self.getAllDailyPlate, args=(plate_list[i * list_len:], result))
-                t.start()
-            else:
-                t = Thread(target=self.getAllDailyPlate,
-                           args=(plate_list[(i * list_len):((i + 1) * list_len)], result))
-                t.start()
-            thread_list.append(t)
-        for t in thread_list:
-            t.join()
-        logging.info("[saveAllDailyPlate]线程数 %s 执行完成" % count)
-        db.set(QUERY_PATH, "SAVE_DAILY_PLATE")
-        logging.info("[saveAllDailyPlate]应插入数据:%s条" % size)
-        db_result = db.execute(result)
+        CommonUtils.start_many_thread(plate_list, handleSize=100, args=(result,), target=self.getAllDailyPlate,
+                                      asyn=False, name='所有板块daily日数据')
+        db_result = self.db.setId("SAVE_DAILY_PLATE").execute(result)
         logging.info("[saveAllDailyPlate]插入数据:%s条" % db_result)
-        db.commitTrans()
+        self.db.commitTrans()
         return db_result
 
     def getAllDailyPlate(self, list, result):
@@ -174,7 +110,7 @@ class StockService(object):
         """
         center = THSDataCenter.THSData()
         r = []
-        cur_date = time.strftime('%Y%m%d', time.localtime(time.time()))
+        cur_date = Holiday.get_cur_date()
         for s in list:
             code = s['code']
             d = center.getStockPlateDailyByCode(code)
@@ -189,29 +125,11 @@ class StockService(object):
         保存所有股票当日数据 包含资金等
         :return:
         """
-        db = DBExec(QUERY_PATH, "FIND_PLATE_ALL")
-        plate_list = db.execute(None)
-        size = len(plate_list)
-        list_len = 300
-        count = size / list_len + (size % list_len == 0 and 0 or 1)
-        thread_list = []
-        # logging.info("下载PLATE_LAST开启线程数:%s" % count)
-        # for i in range(0, count):
-        #     if i == count - 1:
-        #         t = Thread(target=self.saveDailyPlateLast, args=(plate_list[i * list_len:], None))
-        #         t.start()
-        #     else:
-        #         t = Thread(target=self.saveDailyPlateLast,
-        #                    args=(plate_list[(i * list_len):((i + 1) * list_len)], None))
-        #         t.start()
-        #     thread_list.append(t)
-        # for t in thread_list:
-        #     t.join()
-        self.saveDailyPlateLast(plate_list, None)
+        plate_list = self.db.setId("FIND_PLATE_ALL").execute(None)
+        self.saveDailyPlateLast(plate_list)
         logging.info("下载PLATE_LAST数据完成")
-        return size
 
-    def saveDailyPlateLast(self, list, result):
+    def saveDailyPlateLast(self, list):
         """
         保存最新股票板块交易数据到file中
         :param list:
@@ -246,13 +164,11 @@ class StockService(object):
             if r:
                 result.extend(r)
             pass
-        db = DBExec(QUERY_PATH, "SAVE_STOCK_NEW_TEMP")
-        count = db.execute(result)
-        db.commitTrans()
+        count = self.db.setId("SAVE_STOCK_NEW_TEMP").execute(result)
+        self.db.commitTrans()
         # 清空表
-        db.set(QUERY_PATH, 'CLEAR_STOCK_NEW_TEMP')
-        db.execute(None)
-        db.commitTrans()
+        self.db.setId('CLEAR_STOCK_NEW_TEMP').execute(None)
+        self.db.commitTrans()
         return count
 
     def getStockHistoryData(self, code, year, type):
@@ -273,49 +189,26 @@ class StockService(object):
         保存每个Stock 概念数据
         :return:
         """
-        db = DBExec(QUERY_PATH, "FIND_STOCK_ALL")
-        stock_list = db.execute(None)
-        size = len(stock_list)
+        stock_list = self.db.setId("FIND_STOCK_ALL").execute(None)
         result = []
+        CommonUtils.start_many_thread(stock_list, args=(result,), target=self.getStockBlockData,
+                                      asyn=False, name='获取Stock 概念数据')
 
-        list_len = 200
-        if size > 6000:
-            list_len = 300
-        count = size / list_len + (size % list_len == 0 and 0 or 1)
-        thread_list = []
-        logging.info("[STOCK BLOCK] 开启线程数:%s" % count)
-        for i in range(0, count):
-            if i == count - 1:
-                t = Thread(target=self.getStockBlockData, args=(stock_list[i * list_len:], result))
-                t.start()
-            else:
-                t = Thread(target=self.getStockBlockData,
-                           args=(stock_list[(i * list_len):((i + 1) * list_len)], result))
-                t.start()
-            thread_list.append(t)
-        for t in thread_list:
-            t.join()
-        logging.info("[STOCK BLOCK] 线程数 %s 执行完成" % count)
-        db.set(QUERY_PATH, "SAVE_STOCK_PLATE_TEMP")
         logging.info("[STOCK BLOCK] 应插入数据:%s条" % len(result))
-        db_result = db.execute(result)
+        db_result = self.db.setId("SAVE_STOCK_PLATE_TEMP").execute(result)
         logging.info("[STOCK BLOCK] 插入数据:%s条" % db_result)
         # 插入 stock_plate
-        db.set(QUERY_PATH, "INSERT_STOCK_PLATE")
-        insert_count = db.execute(None)
+        insert_count = self.db.setId("INSERT_STOCK_PLATE").execute(None)
         logging.info("[STOCK BLOCK] 插入STOCK_PLATE数据:%s条" % insert_count)
 
         # 更新 stock_plate
-        db.set(QUERY_PATH, "UPDATE_STOCK_PLATE")
-        update_count = db.execute(None)
+        update_count = self.db.setId("UPDATE_STOCK_PLATE").execute(None)
         logging.info("[STOCK BLOCK] 更新STOCK_PLATE数据:%s条" % update_count)
 
         # 清理 stock_plate_temp
-        db.set(QUERY_PATH, "CLEAR_STOCK_PLATE_TEMP")
-        clear_count = db.execute(None)
+        clear_count = self.db.setId("CLEAR_STOCK_PLATE_TEMP").execute(None)
         logging.info("[STOCK BLOCK] 清理STOCK_PLATE数据:%s条" % clear_count)
-
-        db.commitTrans()
+        self.db.commitTrans()
         return db_result
 
     def getStockBlockData(self, list, result):
@@ -361,8 +254,7 @@ class StockService(object):
         :return:
         """
         result = []
-        db = DBExec(QUERY_PATH, "FIND_STOCK_NEW")
-        stock_list = db.execute(None)
+        stock_list = self.db.setId("FIND_STOCK_NEW").execute(None)
         CommonUtils.start_many_thread(stock_list, args=(result,), target=self.__getBatchCurYearPublic,
                                       asyn=False, name='获取当年的new stock')
         return BusinessAnalysis.analysisPublicData(result)
@@ -384,18 +276,15 @@ class StockService(object):
         pass
 
     def curTaskExecuteInfo(self):
-        cur_date = time.strftime('%Y%m%d', time.localtime(time.time()))
-        db = DBExec(QUERY_PATH, "COUNT_STOCK_DAILY")
-        result = {"date": "%s" % cur_date}
-        result['stock_daily_count'] = db.execute({'date': cur_date})
-        db.set(QUERY_PATH, "COUNT_PLATE_DAILY")
+        cur_date = Holiday.get_cur_date()
 
-        result['plate_daily_count'] = db.execute({'date': cur_date})
-
+        result = {"date": "%s" % cur_date,
+                  "stock_daily_count": self.db.setId("COUNT_STOCK_DAILY").execute({'date': cur_date}),
+                  "plate_daily_count": self.db.setId("COUNT_PLATE_DAILY").execute({'date': cur_date})}
         return result
 
     def checkPublicNewStockStatus(self):
-        cur_date = time.strftime('%Y%m%d', time.localtime(time.time()))
+        cur_date = Holiday.get_cur_date()
         data = None
         center = THSDataCenter.THSData()
         size = 0
@@ -403,7 +292,7 @@ class StockService(object):
             data = CUR_PUBLIC_NEW_STOCK[code]
             if code != cur_date:
                 del (CUR_PUBLIC_NEW_STOCK[code])
-                CUR_PUBLIC_NEW_STOCK[cur_date] = list(DBExec(QUERY_PATH, "FIND_PUBLIC_NEW_STOCK").execute(None))
+                CUR_PUBLIC_NEW_STOCK[cur_date] = list(self.db.setId("FIND_PUBLIC_NEW_STOCK").execute(None))
                 data = CUR_PUBLIC_NEW_STOCK[cur_date]
                 size = len(data)
         logging.info(str(CUR_PUBLIC_NEW_STOCK))
@@ -436,7 +325,7 @@ class StockService(object):
         pass
 
     def checkStopStockCode(self):
-        stop_list = list(DBExec(QUERY_PATH, "FIND_STOP_STOCK").execute(None))
+        stop_list = list(self.db.setId("FIND_STOP_STOCK").execute(None))
         # stop_list = [{'code':'002606'}]
         center = THSDataCenter.THSData()
         # 获取当前上证指数 当前中小板指数
@@ -461,7 +350,7 @@ class StockService(object):
                 EmailSend.send(content, 'STOP', subtype='html')
 
     def __findLastNewStock(self):
-        return list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
+        return list(self.db.setId("FIND_LAST_NEW_STOCK").execute(None))
 
     def getLastNewStockData(self):
         last_new_list = self.__findLastNewStock()
@@ -489,7 +378,7 @@ class StockService(object):
                 if len(data) == 0:
                     last_new_list[i]['last_close_price'] = arr[j - 1][4]
                 data.append(arr[j])
-                count = count - 1
+                count -= 1
                 if count <= 0:
                     break
             if len(data) == 0 or len(data) != data_count:
@@ -515,48 +404,6 @@ class StockService(object):
                 result.append(last_new_list[i])
         return result
 
-    def update_all_stock_event(self):
-        """
-        更新所有stock事件
-        :return:
-        """
-        db = DBExec(QUERY_PATH, "FIND_STOCK_ALL")
-        stock_list = db.execute(None)
-        # stock_list = [{'code':'002606'}]
-        result = []
-        logging.info("开始获取 stock事件 更新并发处理--->获取stock个数:%s" % (stock_list and len(stock_list) or 0))
-        try:
-            CommonUtils.start_many_thread(stock_list,handleSize=200, target=self.get_stock_event_batch,
-                                          args=(result,), name="stock事件 更新并发处理", asyn=False)
-        except Exception, e:
-            logging.error("stock事件 更新并发处理--->失败:%s" % e)
-        if len(result) > 0:
-            db.set(QUERY_PATH, "INSERT_STOCK_EVENT")
-            logging.info("开始保存stock事件 --->处理个数：%s" % len(result))
-            for res in result:
-                db.execute(res)
-                db.commitTrans()
-            logging.info("开始保存stock事件 --->处理完成")
-        else:
-            logging.info("stock事件 更新并发处理--->未能获取stock事件")
-
-    def get_stock_event_batch(self, stock_list, result):
-        """
-        批量获取 时间
-        :param stock_list:
-        :param result:
-        :return:
-        """
-        logging.info("获取stock事件 --->开始 预计获取个数：%s" % len(stock_list))
-        count = 0
-        for stock in stock_list:
-            res = self.thsDataOther.get_stock_important_event(stock['code'])
-            if res:
-                count += 1
-                result.append(res)
-        logging.info("获取stock事件 --->结束 获取个数：%s" % count)
-        pass
-
 
 if __name__ == '__main__':
     # result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
@@ -568,8 +415,8 @@ if __name__ == '__main__':
     # last_date = data[h_code]['date']
     # stockFile.write_stock_money_json(data, code+"_money", last_date)
     # print stockFile.get_stock_money_json(code,last_date)
-    # StockService().saveAllDailyStocksLast()
-    StockService().update_all_stock_event()
+    s = StockService()
+    print s.db.setId("FIND_LAST_NEW_STOCK").execute(None)
     pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')
@@ -581,9 +428,3 @@ if __name__ == '__main__':
     # if z_cache.has_key('%s_%s' % (type, year)) is not True:
     #     print False
     # print year
-    #
-    # 603986
-    # 600189
-    # 603838
-    # 600725
-    # 600768

@@ -4,10 +4,8 @@ import os
 import re
 import logging
 from jinja2 import Template
-
+import web
 from web.utils.xmlutils import XmlUtils
-
-_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
 
 class SqlHandle(object):
@@ -29,7 +27,7 @@ class SqlHandle(object):
             return -1, "未获取到sql-模板路径", None
         if id is None or id == '':
             return -1, '未获取到id', None
-        path = os.path.join(_dir, 'templates/%s' % tmplUrl)
+        path = os.path.join(web.web_dir, 'templates/query/%s.xml' % tmplUrl)
         element = XmlUtils(path).getElementById(id, "query")
         sql_tmpl = None
         if element:

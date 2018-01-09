@@ -315,17 +315,7 @@
             ]]>
         </sql>
     </query>
-    <query id="INSERT_STOCK_EVENT">
-        <sql>
-            <![CDATA[
-				INSERT INTO stock_event(
-					stock_code,event_date,event_code,type,name,content,create_time
-				)
-				VALUES(
-				    [ stock_code ] ,  [ event_date ] ,  [ event_code ] ,  [ type ] ,  [ name ] ,  [ content ] ,  now()
-				)
-            ]]>
-        </sql>
-    </query>
+
+
 
 </query-config>
