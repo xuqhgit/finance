@@ -25,14 +25,20 @@
                     e.content AS content,
                     e.name AS NAME,
                     e.type AS type,
-                    e.code AS code,
+                    e.event_code AS event_code,
                     e.id AS id,
                     e.stock_code AS stock_code
                 FROM
                     stock_event e
                 WHERE
-                    e.event_date > date_sub(curdate(), INTERVAL 1 DAY)
-                AND e.stock_code = [ stock_code ]
+                    e.event_date >=(SELECT
+                        max(event_date) AS event_date
+                    FROM
+                        stock_event
+                    WHERE
+                        stock_code = [ stock_code ]
+                    AND event_date < date_sub(curdate(), INTERVAL 1 DAY))
+                AND e.stock_code = [ stock_code ] and e.status=1 order by e.event_date desc
             ]]>
         </sql>
     </query>
@@ -45,10 +51,10 @@
         </sql>
     </query>
 
-    <query id="UPDATE_STOCK_EVENT">
+    <query id="UPDATE_DAILY_STOCK_DEL">
         <sql>
             <![CDATA[
-				update stock_event set content=[content] where id=[id]
+				update stock_event set status=0 where id=[id]
             ]]>
         </sql>
     </query>
