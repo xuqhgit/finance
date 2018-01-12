@@ -78,7 +78,7 @@ def commonTask():
     schedudler.add_job(getCurPlateLastData, 'cron', minute='30', hour='17', day_of_week='0-4')
 
     # 更新事件
-    schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='9')
+    schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='9', day_of_week='0-4')
     schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='22')
 
 
