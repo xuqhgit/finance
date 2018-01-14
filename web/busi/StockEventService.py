@@ -24,11 +24,11 @@ class StockEventService(object):
         :return:
         """
         stock_list = DBExec(Query.QUERY_STOCK, "FIND_STOCK_ALL").execute(None)
-        # stock_list = [{'code': '603848'}]
+        # stock_list = [{'code': '300002'}]
         result = []
         logging.info("开始获取 stock事件 更新并发处理--->获取stock个数:%s" % (stock_list and len(stock_list) or 0))
         try:
-            CommonUtils.start_many_thread(stock_list, handleSize=300, target=self.get_stock_event_batch,
+            CommonUtils.start_many_thread(stock_list, handleSize=900, target=self.get_stock_event_batch,
                                           args=(result,), name="stock事件 更新并发处理", asyn=False)
         except Exception, e:
             logging.error("stock事件 更新并发处理--->失败:%s" % e)
@@ -101,6 +101,8 @@ class StockEventService(object):
                 c_old_json = old_json[a]
                 # 过滤当天类型
                 for b in c_new_json:
+                    if b == '__all':
+                        continue
                     if b not in c_old_json:
                         # 当原事件不包含当天的事件 新增
                         new_event.extend(c_new_json[b])
@@ -122,7 +124,7 @@ class StockEventService(object):
                         t_old_arr = []
                         for ta in c_old_arr:
                             if ta['flag'] == 0:
-                                t_new_arr.append(ta)
+                                t_old_arr.append(ta)
                         delete_event.extend(t_old_arr)
         for x in old_json:
             if x not in new_json:
@@ -167,4 +169,5 @@ if __name__ == '__main__':
     # s.save_stock_event(result[0])
     # s.update_all_stock_event()
     # print len({'a':'','b':''}.keys())
+    StockEventService().update_all_stock_event()
     print '--------'

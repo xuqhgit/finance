@@ -517,11 +517,16 @@ class THSDataOther(object):
         return None
 
     @staticmethod
-    def get_stock_important_event(code):
-        client = WebClient()
-        url = "http://basic.10jqka.com.cn/mobile/%s/reminddetailn.html" % code
-        data = client.get(url)
+    def get_stock_important_event(code, url=None, count=0):
         result = []
+        if count > 1:
+            return result
+
+        client = WebClient()
+        if url is None:
+            url = "http://basic.10jqka.com.cn/mobile/%s/reminddetailn.html" % code
+        data = client.get(url)
+
         if data.status == 200:
             html = data.data.decode('gbk').encode('UTF-8')
             bs = BeautifulSoup(html.replace("</h1> </a>", "</h1>").replace("</a> </a>", "</a>"), "html.parser")
@@ -543,6 +548,11 @@ class THSDataOther(object):
                 result.append(data_json)
         else:
             logging.error("同花顺获取stock event [%s] 数据出错:%s" % (code, data.status))
+            if count == 0:
+                logging.error("同花顺获取stock event [%s] 切换地址" % code)
+                THSDataOther.get_stock_important_event(code,
+                                                       url="http://basic.10jqka.com.cn/mobile/%s/pubn.html#jumpaction=iframe" % code,
+                                                       count=count + 1)
         return result
 
 

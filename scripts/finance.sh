@@ -31,6 +31,13 @@ then
 	kill_process
 fi
 
+# 关闭程序
+if [[ 'log' == $1 ]]
+then
+	echo "finance log..."
+	tail -f /data/app/finance/logs/finance.log
+fi
+
 
 
 
