@@ -58,4 +58,20 @@
             ]]>
         </sql>
     </query>
+
+     <query id="GET_STOCK_EVENT" type="list">
+        <sql>
+            <![CDATA[
+				select * from stock_event where stock_code=[stock_code]
+            ]]>
+        </sql>
+    </query>
+
+    <query id="GET_STOCK_TP_EVENT" type="list">
+        <sql>
+            <![CDATA[
+				select * from stock_event where type in ('fpts','tpts')
+            ]]>
+        </sql>
+    </query>
 </query-config>

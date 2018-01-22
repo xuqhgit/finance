@@ -4,11 +4,12 @@ from web.utils.StockFile import StockFile
 from web.utils import TemplateUtils
 from web.db.dbexec import DBExec
 from web.dataCenter import THSDataCenter
-from web.dataCenter import StockData
+from web.busi import HandleLogService
 from web.busi.StockAnalysis import *
 from web.utils import Holiday
 import logging
 from web.db import Query
+import re
 
 
 class StockEventService(object):
@@ -59,6 +60,7 @@ class StockEventService(object):
             if bool(new_event):
                 self.db.setId("INSERT_STOCK_EVENT").execute(new_event, print_sql=False)
                 new_event_json[stock_code] = new_event
+                self.important_event_handle(new_event)
             if bool(delete_event):
                 self.db.setId("UPDATE_DAILY_STOCK_DEL").execute(delete_event, print_sql=False)
                 del_event_json[stock_code] = delete_event
@@ -162,12 +164,59 @@ class StockEventService(object):
                 res_json[trade_date] = {a['type']: [a], '__all': [a]}
         return res_json, res_arr
 
+    def __extract_data(self, regex, content):
+        p = re.compile(regex)
+        m = p.search(content, re.S)
+        if m:
+            return m.groupdict()
+
+    def important_event_handle(self, event_arr):
+        cur_date = int(Holiday.get_cur_date())
+        for event in event_arr:
+            if event['type'] == 'tpts' or event['fpts']:
+                regex = [r'停牌自(?P<tp>.*)起.*复牌日期(?P<fp>.{10,16})', r'”停牌(?P<tp>.*)，.*复牌日期(?P<fp>.{10,16})',
+                         r'停牌自(?P<tp>.*)起.*']
+                for r in regex:
+                    result_json = self.__extract_data(r, str(event['content']))
+                    if result_json:
+                        if result_json['tp'] == '全天' or result_json['tp'] == '1天':
+                            result_json['tp'] = str(event['content'])[0:10]
+                        break
+                if result_json is None:
+                    logging.info("解析重要事件---》无法解析 tfp：%s" % str(event['content']))
+                    HandleLogService.insert({'content': str(event['content']), 'type': 'important_event_handle'})
+                    continue
+                result_json['code'] = event['stock_code']
+                if 'fp' not in result_json:
+                    result_json['fp'] = None
+                if result_json['fp']:
+                    fp_date = result_json['fp'].split(" ")[0].replace("-", "")
+                    # print fp_date
+                    if int(fp_date) > cur_date:
+                        DBExec(Query.QUERY_STOCK, "UPDATE_STOP_STOCK").execute(result_json)
+                        pass
+                else:
+                    DBExec(Query.QUERY_STOCK, "UPDATE_STOP_STOCK").execute(result_json)
+                    pass
+
 
 if __name__ == '__main__':
     # s = StockEventService()
     # s.get_stock_event_batch([{'code': '002606'}], result)
     # s.save_stock_event(result[0])
     # s.update_all_stock_event()
-    # print len({'a':'','b':''}.keys())
-    StockEventService().update_all_stock_event()
-    print '--------'
+    print len({'a':'','b':''}.keys())
+    # HandleLogService.insert({'content': '11', 'type': 'important_event_handle'})
+    # s = StockEventService()
+    # event_list = s.db.setId("GET_STOCK_TP_EVENT").execute(None)
+    # StockEventService().important_event_handle(event_list)
+    # content_arr = ['2017-10-20因“盘中临时停牌”停牌09:30:00-10:00:00，复牌日期2017-10-20 10:00',
+    #                '2017-01-12因“临时停牌”停牌自2017-01-12起连续停牌，复牌日期2017-01-13 09:30[查看公告]',
+    #                '2017-11-01因“临时停牌”停牌自2017-11-01起连续停牌[查看公告]', ]
+    # regex = r'停牌自(?P<tp>.*)起.*'
+    # p = re.compile(regex)
+    # for c in content_arr:
+    #     m = p.search(c, re.S)
+    #     print c
+    #     if m:
+    #         print m.groupdict()

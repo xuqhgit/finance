@@ -316,6 +316,13 @@
         </sql>
     </query>
 
-
+    <query id="UPDATE_STOP_STOCK" type="">
+        <sql>
+            <![CDATA[
+              update stock set stop_time=[tp],resumption_time=[ fp ] where code=[code]
+               and (stop_time<=str_to_date([tp],'%Y-%m-%d') or stop_time is NULL)
+            ]]>
+        </sql>
+    </query>
 
 </query-config>

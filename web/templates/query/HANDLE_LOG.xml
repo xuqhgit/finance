@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+@description:stock event 事件
+@author apple
+@date 2018/1/9
+-->
+<query-config>
+
+    <query id="INSERT_HANDLE_LOG">
+        <sql>
+            <![CDATA[
+				INSERT INTO handle_log(
+					content,type
+				)
+				VALUES(
+					    [ content ] ,  [ type ]
+				)
+            ]]>
+        </sql>
+    </query>
+</query-config>
