@@ -198,6 +198,9 @@ class StockEventService(object):
                 else:
                     DBExec(Query.QUERY_STOCK, "UPDATE_STOP_STOCK").execute(result_json)
                     pass
+            if event['type'] == 'fpfa':
+                # 分配方案
+                pass
 
 
 if __name__ == '__main__':

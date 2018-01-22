@@ -256,23 +256,10 @@
         </sql>
     </query>
 
-    <query id="FIND_STOP_STOCK">
+    <query id="FIND_RESUMPTION_STOCK">
         <sql>
             <![CDATA[
-                SELECT
-                    code,type
-                FROM
-                    stock
-                WHERE
-                    CODE NOT IN (
-                        SELECT
-                            stock_code
-                        FROM
-                            stock_daily
-                        WHERE
-                            trade_date = (select max(trade_date) from stock_daily)
-                    )
-                AND state = '1' and type in ('sh','zxb')
+                select * from stock s where date(s.resumption_time)=CURDATE()
             ]]>
         </sql>
     </query>

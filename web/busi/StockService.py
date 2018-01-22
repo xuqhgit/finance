@@ -325,7 +325,7 @@ class StockService(object):
         pass
 
     def checkStopStockCode(self):
-        stop_list = list(self.db.setId("FIND_STOP_STOCK").execute(None))
+        stop_list = list(self.db.setId("FIND_RESUMPTION_STOCK").execute(None))
         # stop_list = [{'code':'002606'}]
         center = THSDataCenter.THSData()
         # 获取当前上证指数 当前中小板指数
