@@ -24,8 +24,8 @@ class StockEventService(object):
         更新所有stock事件
         :return:
         """
-        stock_list = DBExec(Query.QUERY_STOCK, "FIND_STOCK_ALL").execute(None)
-        # stock_list = [{'code': '300002'}]
+        # stock_list = DBExec(Query.QUERY_STOCK, "FIND_STOCK_ALL").execute(None)
+        stock_list = [{'code': '300624'}]
         result = []
         logging.info("开始获取 stock事件 更新并发处理--->获取stock个数:%s" % (stock_list and len(stock_list) or 0))
         try:
@@ -167,55 +167,100 @@ class StockEventService(object):
                 res_json[trade_date] = {a['type']: [a], '__all': [a]}
         return res_json, res_arr
 
-    def __extract_data(self, regex, content):
-        p = re.compile(regex)
-        m = p.search(content, re.S)
-        if m:
-            return m.groupdict()
-
     def important_event_handle(self, event_arr):
-        cur_date = int(Holiday.get_cur_date())
-        for event in event_arr:
-            if event['type'] == 'tpts' or event['type'] == 'fpts':
-                regex = [r'停牌自(?P<tp>.*)起.*复牌日期(?P<fp>.{10,16})', r'”停牌(?P<tp>.*)，.*复牌日期(?P<fp>.{10,16})',
-                         r'停牌自(?P<tp>.*)起.*']
-                for r in regex:
-                    result_json = self.__extract_data(r, str(event['content']))
-                    if result_json:
-                        if result_json['tp'] == '全天' or result_json['tp'] == '1天':
-                            result_json['tp'] = str(event['content'])[0:10]
-                        break
-                if result_json is None:
-                    logging.info("解析重要事件---》无法解析 tfp：%s" % str(event['content']))
-                    HandleLogService.insert({'content': str(event['content']), 'type': 'event_tp'})
-                    continue
-                result_json['code'] = event['stock_code']
-                if 'fp' not in result_json:
-                    result_json['fp'] = None
-                if result_json['fp']:
-                    fp_date = result_json['fp'].split(" ")[0].replace("-", "")
-                    # print fp_date
-                    if int(fp_date) > cur_date:
+        try:
+            cur_date = int(Holiday.get_cur_date())
+            for event in event_arr:
+                if event['type'] == 'tpts' or event['type'] == 'fpts':
+                    result_json = get_tfp(str(event['content']))
+                    if result_json is None:
+                        logging.info("解析重要事件---》无法解析 event_tp：%s" % event)
+                        HandleLogService.insert({'content': str(event['content']), 'type': 'event_tp'})
+                        continue
+                    result_json['code'] = event['stock_code']
+                    if 'fp' not in result_json:
+                        result_json['fp'] = None
+                    if result_json['fp']:
+                        fp_date = result_json['fp'].split(" ")[0].replace("-", "")
+                        # print fp_date
+                        if int(fp_date) > cur_date:
+                            DBExec(Query.QUERY_STOCK, "UPDATE_STOP_STOCK").execute(result_json)
+                            pass
+                    else:
                         DBExec(Query.QUERY_STOCK, "UPDATE_STOP_STOCK").execute(result_json)
                         pass
-                else:
-                    DBExec(Query.QUERY_STOCK, "UPDATE_STOP_STOCK").execute(result_json)
+                if event['type'] == 'fpfa':
+                    result_json = get_gqdj(str(event['content']))
+                    if result_json:
+                        DBExec(Query.QUERY_STOCK, "UPDATE_DJ_STOCK").execute(
+                            {'code': event['stock_code'], 'dj_time': result_json['dj']})
+
+                if event['type'] == 'xgts':
+                    result_json = get_public(str(event['content']))
+                    if result_json:
+                        DBExec(Query.QUERY_STOCK, "UPDATE_PUBLIC_STOCK").execute(
+                            {'code': event['stock_code'], 'public_time': result_json['public_time']})
+                    else:
+                        logging.info("解析重要事件---》无法解析 event_public：%s" % event)
+                        HandleLogService.insert({'content': str(event['content']), 'type': 'event_public'})
                     pass
-            if event['type'] == 'fpfa':
-                # 分配方案
-                pass
-            if event['type'] == 'xgts':
-                regex = r'上市时间：(?P<public_time>.{10})，'
-                result_json = self.__extract_data(regex, str(event['content']))
-                if result_json:
-                    DBExec(Query.QUERY_STOCK, "UPDATE_PUBLIC_STOCK").execute(
-                        {'code': event['stock_code'], 'public_time': result_json['public_time']})
-                else:
-                    HandleLogService.insert({'content': str(event['content']), 'type': 'event_public'})
-                pass
-            if event['type'] == 'xgjj':
-                # 分配方案
-                pass
+        except Exception, e:
+            logging.info("解析重要事件---》异常：%s，错误信息：" % (event_arr, e))
+
+
+def extract_data(regex_str, content):
+    """
+    获取数据
+    :param regex_str:
+    :param content:
+    :return:
+    """
+    p = re.compile(regex_str)
+    m = p.search(content, re.S)
+    if m:
+        return m.groupdict()
+
+
+def get_tfp(content):
+    """
+    获取停复牌
+    :param content:
+    :return:
+    """
+    regex_arr = [r'停牌自(?P<tp>.*)起.*复牌日期(?P<fp>.{10,16})', r'”停牌(?P<tp>.*)，.*复牌日期(?P<fp>.{10,16})',
+                 r'停牌自(?P<tp>.*)起.*']
+    for r in regex_arr:
+        result_json = extract_data(r, content)
+        if result_json:
+            if result_json['tp'] == '全天' or result_json['tp'] == '1天':
+                result_json['tp'] = content[0:10]
+            return result_json
+    return None
+
+
+def get_public(content):
+    """
+    获取发行时间
+    :param content:
+    :return:
+    """
+    regex_str = r'上市时间：(?P<public_time>.{10})，'
+    result_json = extract_data(regex_str, content)
+    return result_json
+
+
+def get_gqdj(content):
+    """
+    获取除权出息
+    :param content:
+    :return:
+    """
+    regex_str = r'股权登记日为(?P<dj>.{10})，除权除息日为(?P<cq>.{10})，派息日为(?P<ps>.{10})'
+    result_json = extract_data(regex_str, content)
+    if result_json:
+        result_json['fa'] = content.split('，', 2)[0]
+        return result_json
+    return None
 
 
 if __name__ == '__main__':
@@ -224,15 +269,16 @@ if __name__ == '__main__':
     # , result)
     # s.save_stock_event(result[0])
     # s.update_all_stock_event()
-    # print len({'a': '', 'b': ''}.keys())
+    print len({'a': '', 'b': ''}.keys())
     # HandleLogService.insert({'content': '11', 'type': 'important_event_handle'})
-    s = StockEventService()
-    event_list = s.db.setId("GET_STOCK_EVENT_BY_TYPE").execute({'type': 'xgts'})
-    StockEventService().important_event_handle(event_list)
-    # content_arr = ['申购时间：2017-09-13            ，上市时间：2017-09-25，发行价格：8.41元，发行数量：5477.00万股' ]
-    # regex = r'上市时间：(?P<public_time>.{10})，'
+    # s = StockEventService()
+    # event_list = s.db.setId("GET_STOCK_EVENT_BY_TYPE").execute({'type': 'fpfa'})
+    # StockEventService().important_event_handle(event_list)
+    # content_arr = ['10派3.00元(含税)，股权登记日为2017-06-07，除权除息日为2017-06-08，派息日为2017-06-08']
+    # regex = r'股权登记日为(?P<dj>.{10})，除权除息日为(?P<cq>.{10})，派息日为(?P<ps>.{10})'
     # p = re.compile(regex)
     # for c in content_arr:
+    #     c.sp
     #     m = p.search(c, re.S)
     #     print c
     #     if m:
