@@ -320,4 +320,13 @@
         </sql>
     </query>
 
+     <query id="UPDATE_DJ_STOCK" type="">
+        <sql>
+            <![CDATA[
+              update stock set dj_time=[dj_time] where code=[code]
+              and (dj_time<=str_to_date([dj_time],'%Y-%m-%d') or dj_time is NULL)
+            ]]>
+        </sql>
+    </query>
+
 </query-config>
