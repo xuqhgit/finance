@@ -74,4 +74,13 @@
             ]]>
         </sql>
     </query>
+
+        <query id="GET_STOCK_EVENT_BY_TYPE" type="list">
+        <sql>
+            <![CDATA[
+				select * from stock_event where type=[type]
+            ]]>
+        </sql>
+    </query>
+
 </query-config>

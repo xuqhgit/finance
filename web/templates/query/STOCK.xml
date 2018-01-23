@@ -312,4 +312,12 @@
         </sql>
     </query>
 
+    <query id="UPDATE_PUBLIC_STOCK" type="">
+        <sql>
+            <![CDATA[
+              update stock set public_time=[public_time] where code=[code] and public_time is NULL
+            ]]>
+        </sql>
+    </query>
+
 </query-config>

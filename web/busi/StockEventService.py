@@ -65,7 +65,10 @@ class StockEventService(object):
                 self.db.setId("UPDATE_DAILY_STOCK_DEL").execute(delete_event, print_sql=False)
                 del_event_json[stock_code] = delete_event
             self.db.commitTrans()
-        pass
+        else:
+            self.db.setId("INSERT_STOCK_EVENT").execute(result, print_sql=False)
+            new_event_json[stock_code] = result
+            self.important_event_handle(result)
 
     def get_stock_event_batch(self, stock_list, result):
         """
@@ -173,7 +176,7 @@ class StockEventService(object):
     def important_event_handle(self, event_arr):
         cur_date = int(Holiday.get_cur_date())
         for event in event_arr:
-            if event['type'] == 'tpts' or event['fpts']:
+            if event['type'] == 'tpts' or event['type'] == 'fpts':
                 regex = [r'停牌自(?P<tp>.*)起.*复牌日期(?P<fp>.{10,16})', r'”停牌(?P<tp>.*)，.*复牌日期(?P<fp>.{10,16})',
                          r'停牌自(?P<tp>.*)起.*']
                 for r in regex:
@@ -184,7 +187,7 @@ class StockEventService(object):
                         break
                 if result_json is None:
                     logging.info("解析重要事件---》无法解析 tfp：%s" % str(event['content']))
-                    HandleLogService.insert({'content': str(event['content']), 'type': 'important_event_handle'})
+                    HandleLogService.insert({'content': str(event['content']), 'type': 'event_tp'})
                     continue
                 result_json['code'] = event['stock_code']
                 if 'fp' not in result_json:
@@ -201,22 +204,33 @@ class StockEventService(object):
             if event['type'] == 'fpfa':
                 # 分配方案
                 pass
+            if event['type'] == 'xgts':
+                regex = r'上市时间：(?P<public_time>.{10})，'
+                result_json = self.__extract_data(regex, str(event['content']))
+                if result_json:
+                    DBExec(Query.QUERY_STOCK, "UPDATE_PUBLIC_STOCK").execute(
+                        {'code': event['stock_code'], 'public_time': result_json['public_time']})
+                else:
+                    HandleLogService.insert({'content': str(event['content']), 'type': 'event_public'})
+                pass
+            if event['type'] == 'xgjj':
+                # 分配方案
+                pass
 
 
 if __name__ == '__main__':
-    # s = StockEventService()
-    # s.get_stock_event_batch([{'code': '002606'}], result)
+    # StockEventService().update_all_stock_event()
+    # s.get_stock_event_batch([{'code': '002606'}]
+    # , result)
     # s.save_stock_event(result[0])
     # s.update_all_stock_event()
-    print len({'a':'','b':''}.keys())
+    # print len({'a': '', 'b': ''}.keys())
     # HandleLogService.insert({'content': '11', 'type': 'important_event_handle'})
-    # s = StockEventService()
-    # event_list = s.db.setId("GET_STOCK_TP_EVENT").execute(None)
-    # StockEventService().important_event_handle(event_list)
-    # content_arr = ['2017-10-20因“盘中临时停牌”停牌09:30:00-10:00:00，复牌日期2017-10-20 10:00',
-    #                '2017-01-12因“临时停牌”停牌自2017-01-12起连续停牌，复牌日期2017-01-13 09:30[查看公告]',
-    #                '2017-11-01因“临时停牌”停牌自2017-11-01起连续停牌[查看公告]', ]
-    # regex = r'停牌自(?P<tp>.*)起.*'
+    s = StockEventService()
+    event_list = s.db.setId("GET_STOCK_EVENT_BY_TYPE").execute({'type': 'xgts'})
+    StockEventService().important_event_handle(event_list)
+    # content_arr = ['申购时间：2017-09-13            ，上市时间：2017-09-25，发行价格：8.41元，发行数量：5477.00万股' ]
+    # regex = r'上市时间：(?P<public_time>.{10})，'
     # p = re.compile(regex)
     # for c in content_arr:
     #     m = p.search(c, re.S)
