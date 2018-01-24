@@ -59,7 +59,7 @@ def checkPublicNewStockStatus():
     if Holiday.is_trade_date():
         cur_time = time.strftime('%H%M', time.localtime(time.time()))
         cur_time = int(cur_time)
-        if 930 < cur_time < 1130 or 1300 < cur_time < 1500:
+        if 930 <= cur_time < 1130 or 1300 < cur_time < 1500:
             logging.info("开始检测 public new stock status")
             StockService().checkPublicNewStockStatus()
 def update_all_stock_event():
