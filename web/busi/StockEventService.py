@@ -24,8 +24,8 @@ class StockEventService(object):
         更新所有stock事件
         :return:
         """
-        # stock_list = DBExec(Query.QUERY_STOCK, "FIND_STOCK_ALL").execute(None)
-        stock_list = [{'code': '300624'}]
+        stock_list = DBExec(Query.QUERY_STOCK, "FIND_STOCK_ALL").execute(None)
+        # stock_list = [{'code': '601229'}]
         result = []
         logging.info("开始获取 stock事件 更新并发处理--->获取stock个数:%s" % (stock_list and len(stock_list) or 0))
         try:
@@ -204,6 +204,9 @@ class StockEventService(object):
                         logging.info("解析重要事件---》无法解析 event_public：%s" % event)
                         HandleLogService.insert({'content': str(event['content']), 'type': 'event_public'})
                     pass
+                if event['type'] == 'xgjj':
+                    DBExec(Query.QUERY_STOCK, "UPDATE_JJ_STOCK").execute(
+                        {'code': event['stock_code'], 'jj_time': event['event_date']})
         except Exception, e:
             logging.info("解析重要事件---》异常：%s，错误信息：" % (event_arr, e))
 
