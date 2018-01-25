@@ -94,24 +94,36 @@ class StockFile(object):
             return StringUtils.str_2_json(stock_str)
 
     @staticmethod
-    def get_stock_year_type_json(code, year, type):
+    def get_stock_year_type_json(code, year, code_type):
         """
         获取指定年份和类型的数据
         :param code:
         :param year:
-        :param type:
+        :param code_type:
         :return:
         """
-        stock_str = FileUtils.get_static_file(stock_year_file % (year, type, code))
+        stock_str = FileUtils.get_static_file(stock_year_file % (year, code_type, code))
         return StringUtils.str_2_json(stock_str)
 
     @staticmethod
-    def save_stock_year_type_json(data, code, year, type):
+    def del_stock_year_type_json(code, year, code_type):
         """
-        保存指定年份和类型的数据
+        删除指定年份和类型的数据
         :param code:
         :param year:
-        :param type:
+        :param code_type:
         :return:
         """
-        FileUtils.write_static_data(stock_year_file % (year, type, code), StringUtils.json_2_str(data))
+        FileUtils.del_static_file(stock_year_file % (year, code_type, code))
+
+    @staticmethod
+    def save_stock_year_type_json(data, code, year, code_type):
+        """
+        保存指定年份和类型的数据
+        :param data:
+        :param code:
+        :param year:
+        :param code_type:
+        :return:
+        """
+        FileUtils.write_static_data(stock_year_file % (year, code_type, code), StringUtils.json_2_str(data))

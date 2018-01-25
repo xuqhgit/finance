@@ -4,6 +4,7 @@
 # @date:16/4/29
 
 import os
+import logging
 
 file_path = 'static/file/'
 
@@ -40,6 +41,11 @@ def get_static_file(path):
     return None
 
 
+def del_static_file(path):
+    file_dir = _dir + "/" + file_path + path
+    del_file(file_dir)
+
+
 def write_static_data(path, data):
     file_dir = _dir + "/" + file_path + path
     _file_dir = os.path.split(file_dir)[0]
@@ -48,3 +54,11 @@ def write_static_data(path, data):
     file_object = open(file_dir, 'w')
     file_object.write(data)
     file_object.close()
+
+
+def del_file(path):
+    # if os.path.exist(path):
+    try:
+        os.remove(path)
+    except Exception, e:
+        logging.error("删除文件[%s]失败：%s" % (path, e))

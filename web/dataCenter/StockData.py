@@ -6,7 +6,8 @@ from web.utils import StringUtils
 from web.utils import CommonUtils
 from web.utils import Holiday
 import logging
-
+from web.db import Query
+from web.db.dbexec import DBExec
 import json
 from web.utils.StockFile import StockFile
 
@@ -53,7 +54,7 @@ def refresh_stock_last_day(thsDataList):
     :return:
     """
     try:
-        CommonUtils.start_many_thread(thsDataList, handleSize=300, target=__save_stock_last_day,
+        CommonUtils.start_many_thread(thsDataList, handleSize=300, target=__save_stock_last_data,
                                       name='日交易数据刷新任务')
     except Exception, e:
         logging.error("刷新日交易数据 -->异常")
@@ -61,7 +62,7 @@ def refresh_stock_last_day(thsDataList):
     pass
 
 
-def __save_stock_last_day(ths_data_list):
+def __save_stock_last_data(ths_data_list):
     """
     保存stock 交易数据
     :return:
@@ -101,6 +102,18 @@ def __save_stock_last_day(ths_data_list):
             logging.error(e)
 
 
+def clear_invalid_last_data():
+    year = "last"
+    d_type = "01"
+    stock_list = DBExec(Query.QUERY_STOCK, "GET_CUR_DJ_STOCK").execute(None)
+    if isinstance(stock_list, dict):
+        stock_list = [stock_list]
+    for s in stock_list:
+        logging.info("股权登记--清理--日交易数据 -->code：%s" % s['code'])
+        stockFile.del_stock_year_type_json(s['code'], year, d_type)
+    pass
+
+
 def get_stock_cur_last(code, date=None):
     """
     获取stock 当前的最后交易数据
@@ -132,5 +145,5 @@ if __name__ == "__main__":
     # p_json2 = thsDataCenter.getStockPlateInfoByCode("600547")
     # refresh_stock_last_day([p_json, p_json1, p_json2])
     # data = get_stock_cur_last("603506")
-    data = thsDataCenter.getPlateLast('885354')
-    print data
+    clear_invalid_last_data()
+    # print data

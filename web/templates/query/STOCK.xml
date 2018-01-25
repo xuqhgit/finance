@@ -329,6 +329,15 @@
         </sql>
     </query>
 
+
+    <query id="GET_CUR_DJ_STOCK" type="list">
+        <sql>
+            <![CDATA[
+              select * from stock where dj_time=CURDATE()
+            ]]>
+        </sql>
+    </query>
+
     <query id="UPDATE_JJ_STOCK" type="">
         <sql>
             <![CDATA[
