@@ -4,10 +4,10 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from web.busi.StockService import StockService
 from web.busi.StockEventService import StockEventService
+from web.dataCenter import StockData
 import logging
 import time
 from web.utils import Holiday
-
 
 schedudler = BackgroundScheduler(daemonic=False)
 
@@ -62,10 +62,13 @@ def checkPublicNewStockStatus():
         if 930 <= cur_time < 1130 or 1300 < cur_time < 1500:
             logging.info("开始检测 public new stock status")
             StockService().checkPublicNewStockStatus()
+
+
 def update_all_stock_event():
     # if Holiday.get_cur_date():
     logging.info("开始获取 stock event  数据")
     StockEventService().update_all_stock_event()
+
 
 def commonTask():
     # 获取当前stock daily数据
@@ -96,4 +99,8 @@ def start():
     # 检测停牌数据
     schedudler.add_job(checkStopStock, 'cron', minute='32', hour='9', day_of_week='0-4')
 
+    # 清理股权登记last数据
+    schedudler.add_job(StockData.clear_invalid_last_data, 'cron', minute='30', hour='9', day_of_week='0-4')
+
     schedudler.start()
+
