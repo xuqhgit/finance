@@ -404,6 +404,31 @@ class StockService(object):
                 result.append(last_new_list[i])
         return result
 
+    def get_stock_buy_data(self):
+        """
+        获取购买数据
+        :return:
+        """
+        data = DBExec(Query.QUERY_STOCK_BUY, "GET_STOCK_BUY").execute(None)
+        if type(data) != list:
+            data = [data]
+        result = []
+        sh = self.thsData.getStockPlateInfoByCode('1A0001')
+        sz = self.thsData.getStockPlateInfoByCode('399001')
+        result.append({"p": sh['price'], "h": sh['high_price'], "k": sh['open_price'], "l": sh['low_price'],
+                       "s": sh['turnover_rate'], "z": sh['growth'], "t": "h", 'a': round(sh['amt']/100000000,2)})
+        result.append({"p": sz['price'], "h": sz['high_price'], "k": sz['open_price'], "l": sz['low_price'],
+                       "s": sz['turnover_rate'], "z": sh['growth'], "t": "h", 'a': round(sz['amt']/100000000,2)})
+        for d in data:
+            stock_code = d['stock_code']
+            stock_data = self.thsData.getStockPlateInfoByCode(stock_code)
+            # 当前价格 当前换手 当前涨幅 营收
+            result.append(
+                {"p": stock_data['price'], "h": stock_data['high_price'], "k": stock_data['open_price'],
+                 "l": stock_data['low_price'], "s": stock_data['turnover_rate'], "z": stock_data['growth'],
+                 'ys': round((stock_data['price'] - float(d['buy_price'])) * d['quantity'], 3)})
+        return result
+
 
 if __name__ == '__main__':
     # result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
@@ -416,7 +441,7 @@ if __name__ == '__main__':
     # stockFile.write_stock_money_json(data, code+"_money", last_date)
     # print stockFile.get_stock_money_json(code,last_date)
     s = StockService()
-    print s.db.setId("FIND_LAST_NEW_STOCK").execute(None)
+    print s.get_stock_buy_data()
     pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

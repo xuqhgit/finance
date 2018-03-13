@@ -150,4 +150,11 @@ def lastNewStockList():
     return StockService().getLastNewStockData()
 
 
-
+@shares.route('/b', methods=['get', 'post'])
+@json_view
+def stockBuy():
+    """
+    获取购买stock数据
+    :return:
+    """
+    return StockService().get_stock_buy_data()
