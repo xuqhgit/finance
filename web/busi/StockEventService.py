@@ -236,7 +236,7 @@ def get_tfp(content):
     :return:
     """
     regex_arr = [r'停牌自(?P<tp>.*)起.*复牌日期(?P<fp>.{10,16})', r'”停牌(?P<tp>.*)，.*复牌日期(?P<fp>.{10,16})',
-                 r'停牌自(?P<tp>.*)起.*']
+                 r'停牌自(?P<tp>.*)起.*', r'停牌自(?P<tp>.*)\[查看公告\]', r'停牌(?P<tp>.*)\s.*']
     for r in regex_arr:
         result_json = extract_data(r, content)
         if result_json:
@@ -279,15 +279,14 @@ if __name__ == '__main__':
     # s.update_all_stock_event()
     print len({'a': '', 'b': ''}.keys())
     # HandleLogService.insert({'content': '11', 'type': 'important_event_handle'})
-    s = StockEventService()
-    event_list = s.db.setId("GET_STOCK_EVENT_BY_TYPE").execute({'type': 'tebie'})
-    StockEventService().important_event_handle(event_list)
-    # content_arr = ['10派3.00元(含税)，股权登记日为2017-06-07，除权除息日为2017-06-08，派息日为2017-06-08']
-    # regex = r'股权登记日为(?P<dj>.{10})，除权除息日为(?P<cq>.{10})，派息日为(?P<ps>.{10})'
-    # p = re.compile(regex)
-    # for c in content_arr:
-    #     c.sp
-    #     m = p.search(c, re.S)
-    #     print c
-    #     if m:
-    #         print m.groupdict()
+    # s = StockEventService()
+    # event_list = s.db.setId("GET_STOCK_EVENT_BY_TYPE").execute({'type': 'tebie'})
+    # StockEventService().important_event_handle(event_list)
+    content_arr = ['2018-02-02因“重要事项未公告”停牌全天 09:30[查看公告]']
+    regex = r'停牌(?P<tp>.*)\s.*'
+    p = re.compile(regex)
+    for c in content_arr:
+        m = p.search(c, re.S)
+        print c
+        if m:
+            print u'%s' % m.groupdict()['tp']
