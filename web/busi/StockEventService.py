@@ -207,6 +207,11 @@ class StockEventService(object):
                 if event['type'] == 'xgjj':
                     DBExec(Query.QUERY_STOCK, "UPDATE_JJ_STOCK").execute(
                         {'code': event['stock_code'], 'jj_time': event['event_date']})
+
+                if event['type'] == 'tbcl' or event['type'] == 'tebie':
+                    if str(event['content']) == '新上市':
+                        DBExec(Query.QUERY_STOCK, "UPDATE_PUBLIC_STOCK").execute(
+                            {'code': event['stock_code'], 'public_time': event['event_date']})
         except Exception, e:
             logging.info("解析重要事件---》异常：%s，错误信息：" % (event_arr, e))
 
@@ -274,9 +279,9 @@ if __name__ == '__main__':
     # s.update_all_stock_event()
     print len({'a': '', 'b': ''}.keys())
     # HandleLogService.insert({'content': '11', 'type': 'important_event_handle'})
-    # s = StockEventService()
-    # event_list = s.db.setId("GET_STOCK_EVENT_BY_TYPE").execute({'type': 'fpfa'})
-    # StockEventService().important_event_handle(event_list)
+    s = StockEventService()
+    event_list = s.db.setId("GET_STOCK_EVENT_BY_TYPE").execute({'type': 'tebie'})
+    StockEventService().important_event_handle(event_list)
     # content_arr = ['10派3.00元(含税)，股权登记日为2017-06-07，除权除息日为2017-06-08，派息日为2017-06-08']
     # regex = r'股权登记日为(?P<dj>.{10})，除权除息日为(?P<cq>.{10})，派息日为(?P<ps>.{10})'
     # p = re.compile(regex)
