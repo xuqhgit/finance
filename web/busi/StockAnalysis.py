@@ -5,7 +5,9 @@
 
 from web.utils import StringUtils
 from web.utils import CommonUtils
+from web.dataCenter import StockData
 import numpy
+import logging
 
 
 class CommonAnalysis(object):
@@ -21,7 +23,7 @@ class CommonAnalysis(object):
             s = data[i][4]
             pres = data[i - 1][4]
             r = s - pres
-            print "%s=%s - %s" % (r, s, pres)
+            # print "%s=%s - %s" % (r, s, pres)
             arr.append(r)
         rarr = []
 
@@ -36,7 +38,7 @@ class CommonAnalysis(object):
             suma = round(sum(lista), 3)
             sumb = round(abs(sum(listb)), 3)
             if suma + sumb > 0:
-                print suma / (suma + sumb)
+                # print suma / (suma + sumb)
                 rarr.append(round(suma / (suma + sumb) * 100, 3))
         return rarr
 
@@ -103,25 +105,37 @@ class CommonAnalysis(object):
             elif downDif == 0:
                 return 'L'
             else:
-                return 'Y'
+                return '+'
         # 无上影线下影线
         if upDif == 0 and downDif == 0:
             return 'C'
         # 无上影线
         if upDif == 0:
             if downDif / abs(midDif) >= 2:
+                # 锤子
                 return 'q'
             else:
                 return 'p'
         # 无下影线
         if downDif == 0:
             if upDif / abs(midDif) >= 2:
+                # 锤子
                 return 'd'
             else:
                 return 'b'
-        # 类似十字星
-        if abs(midDif) / maxDif <= 0.3:
-            return 'Y'
+
+        upPre = upDif / maxDif
+        downPre = downDif / maxDif
+        midPre = abs(midDif) / maxDif
+        preDif = upPre - downPre
+        absPreDif = abs(preDif)
+        if midPre <= 0.15:
+            if absPreDif <= 0.1:
+                return "+"
+            return preDif > 0 and "L" or "T"
+        elif 0.15 < midPre <= 0.33:
+            if absPreDif > 0.1:
+                return preDif > 0 and "d" or "q"
         return 'H'
 
     @staticmethod
@@ -176,7 +190,7 @@ class CommonAnalysis(object):
         :return:
         """
         dlen = len(data)
-        arr = numpy.array(data)
+        arr = data
         # 默认k值
         k = 50
         # 默认d值
@@ -248,7 +262,6 @@ class CommonAnalysis(object):
             up = mb + 2 * md
             dn = mb - 2 * md
             r.extend([avg, md, up, dn])
-            print r
         arr.append(r)
         return arr
 
@@ -265,16 +278,27 @@ class CommonAnalysis(object):
         dlen = len(data)
         a = 0
         b = 0
-        aArr = []
-        bArr = []
-        for i in range(0, dlen):
-            a = a * (avga - 1) / (avga + 1) + 2 * data[i] / (avga + 1)
-            b = b * (avgb - 1) / (avgb + 1) + 2 * data[i] / (avgb + 1)
-            aArr.append(a)
-            bArr.append(b)
-        dif = numpy.array(aArr) - numpy.array(bArr)
+        c = 0
+        result = []
+        # aArr = []
+        # bArr = []
+        for i in range(1, dlen):
+            if i != 1:
+                a = (a * (avga - 1) / (avga + 1)) + (2 * data[i] / (avga + 1))
+                b = (b * (avgb - 1) / (avgb + 1)) + (2 * data[i] / (avgb + 1))
+            else:
+                a = data[i - 1] + (data[i] - data[i - 1]) * 2 / (avga + 1)
+                b = data[i - 1] + (data[i] - data[i - 1]) * 2 / (avgb + 1)
 
-        print dif
+            dif = round(a - b, 4)
+
+            c = (c * (avgc - 1) / (avgc + 1)) + (2 * dif / (avgc + 1))
+
+            result.append([round(((dif - c) * 2), 2), round(dif, 2), round(c, 2)])
+
+        # dif = numpy.array(aArr) - numpy.array(bArr)
+
+        return result
 
 
 class BusinessAnalysis(object):
@@ -358,25 +382,212 @@ def analysisAvgLast(code, year='last', type='01', avg=[5, 10, 20]):
     return result
 
 
+def analysis(param, codeList=[]):
+    """
+    数据分析
+    :param param:
+    :return:
+    """
+    # 日属性
+    # param[''] = None
+    # 值为 * 占位表示任意
+    # xt：形态
+    # k：高开h 低l 持平e  （在百分比为0.005为界限划分）
+    # rg：收红还是收绿 红 r  绿g
+    # zd: 涨z 跌d 相对昨天涨跌
+    # hs: 相对换手率 相对昨天几倍 数值型 0 0.5 1 2 3 4 一位小数点
+    stock_property = {'xt': ['+'], 'k': '*', 'rg': '*', 'zd': '*', 'hs': ''}
+    stock_property_arr = [{'xt': ['T', 'q', 'p'], 'k': '*', 'rg': '*', 'zd': '*', 'hs': ''}, stock_property]
+    stock_property_arr_len = len(stock_property_arr)
+    pro_index = 9
+    for i in range(len(codeList)):
+        handle_data = handle_stock_daily_data(codeList[i])
+        if handle_data is None:
+            continue
+        handle_data_len = len(handle_data)
+        for j in range(handle_data_len):
+
+            for k in range(stock_property_arr_len):
+                prop = stock_property_arr[k]
+                if j + k >= handle_data_len:
+                    logging.info("匹配数据超出数据长度...")
+                    break
+                stock_data = handle_data[j + k][pro_index]
+                if (prop['xt'] == '*' or prop['xt'] == stock_data['xt'] or stock_data['xt'] in prop['xt']) is False:
+                    break
+                if (prop['k'] == '*' or prop['k'] == stock_data['k'] or stock_data['k'] in prop['k']) is False:
+                    break
+                if (prop['rg'] == '*' or prop['rg'] == stock_data['rg'] or stock_data['rg'] in prop['rg']) is False:
+                    break
+                if (prop['zd'] == '*' or prop['zd'] == stock_data['zd'] or stock_data['zd'] in prop['zd']) is False:
+                    break
+                if k + 1 == stock_property_arr_len:
+                    # 匹配
+                    logging.info("数据匹配成功")
+                    r = handle_data[j + k:handle_data_len - j - k > 10 and j + k + 10 or handle_data_len]
+                    if len(r) > 0:
+                        close_price = r[0]['data'][4]
+                        temp_result = []
+                        for m in range(1, len(r)):
+                            c_price_pre = round((r[m]['data'][4] - close_price) / close_price, 2)
+                            r[m]['xdzf'] = c_price_pre
+                            temp_result.append(c_price_pre)
+                        logging.info(temp_result)
+    return None
+
+
+def handle_stock_daily_data(code, avg=[5]):
+    """
+    将stock日数据进行解析 得出相应的数据
+    :param code:
+    :return:
+    """
+    data = StockData.get_stock_last_day(code)
+    if bool(data) is False:
+        return None
+    kdj_result = CommonAnalysis.getKDJ(numpy.array(data))
+    avg_result = CommonAnalysis.getAvgData(numpy.array(data)[:, 4], avg=avg)
+    macd_result = CommonAnalysis.getMacd(numpy.array(data)[:, 4])
+    rsi_result = CommonAnalysis.getrsi(data)
+    print avg_result
+    # boll_result = CommonAnalysis.getBoll(numpy.array(data)[:, 4])
+    result = []
+    for i in range(1, len(data)):
+        pre = data[i - 1]
+        cur = data[i]
+        xt = CommonAnalysis.Ktype(cur=cur[4], openp=cur[1], hp=cur[2], lp=cur[3])
+        k = pre[4] - cur[1] > 0 and 'l' or 'h'
+        rg = cur[1] - cur[4] > 0 and 'g' or 'r'
+        zd = pre[4] - cur[4] > 0 and 'd' or 'z'
+        # TODO 换手率暂时不做计算
+
+        r = {'xt': xt, 'k': k, 'rg': rg, 'zd': zd, 'data': cur, 'kdj': kdj_result[i], 'avg': avg_result[i],
+             'macd': macd_result[i - 1], 'rsi': rsi_result[i - 1]}
+        result.append(r)
+    return result
+
+
+def get_avg(code, data=[], avg=[5]):
+    """
+    获取日线数据
+    :param code:
+    :return:
+    """
+    data = bool(data) and data or StockData.get_stock_last_day(code)
+
+    avg_result = CommonAnalysis.getAvgData(numpy.array(data)[:, 4], avg=avg)
+
+    avg_len = len(avg_result)
+    data_len = len(data)
+    for i in range(avg_len):
+        data[data_len - i - 1].append(avg_result[data_len - i - 1])
+    for i in range(0, data_len - avg_len):
+        data[i] = []
+    return data
+
+
+def get_boll(code, data=[], d=20):
+    """
+    获取boll数据
+    :param code:
+    :return:
+    """
+    data = bool(data) and data or StockData.get_stock_last_day(code)
+
+    boll_result = CommonAnalysis.getBoll(numpy.array(data)[:, 4], d=d)
+
+    boll_len = len(boll_result)
+    data_len = len(data)
+    for i in range(boll_len):
+        data[data_len - i - 1].append(boll_result[data_len - i - 1])
+    for i in range(0, data_len - boll_len):
+        data[i] = []
+    return data
+
+
+def get_kdj(code, data=[], tc=9):
+    """
+    获取 kdj
+    :param code:
+    :return:
+    """
+    data = bool(data) and data or StockData.get_stock_last_day(code)
+
+    kdj_result = CommonAnalysis.getKDJ(numpy.array(data), tc=tc)
+
+    kdj_len = len(kdj_result)
+    data_len = len(data)
+    for i in range(kdj_len):
+        data[data_len - i - 1].append(kdj_result[data_len - i - 1])
+    for i in range(0, data_len - kdj_len):
+        data[i] = []
+    return data
+
+
+def get_macd(code, data=[], avga=12, avgb=26, avgc=9):
+    """
+    获取 macd
+    :param code:
+    :return:
+    """
+    data = bool(data) and data or StockData.get_stock_last_day(code)
+    macd_result = CommonAnalysis.getMacd(numpy.array(data)[:, 4], avga=avga, avgb=avgb, avgc=avgc)
+    macd_len = len(macd_result)
+    data_len = len(data)
+    for i in range(macd_len):
+        data[data_len - i - 1].append(macd_result[data_len - i - 1])
+    for i in range(0, data_len - macd_len):
+        data[i] = []
+    return data
+
+
+def get_rsi(code, data=[], avg=6, r=2):
+    """
+    获取 rsi
+    :param code:
+    :return:
+    """
+    data = bool(data) and data or StockData.get_stock_last_day(code)
+    rsi_result = CommonAnalysis.getrsi(numpy.array(data), avg=avg, r=r)
+    rsi_len = len(rsi_result)
+    data_len = len(data)
+    for i in range(rsi_len):
+        data[data_len - i - 1].append(rsi_result[data_len - i - 1])
+    for i in range(0, data_len - rsi_len):
+        data[i] = []
+    return data
+
+
 if __name__ == '__main__':
-    # print analysisAvgLast('002606')
-    from web.dataCenter.THSDataCenter import THSData
-    import StockService
+    print handle_stock_daily_data("601838", avg=[5, 10, 20, 30, 60])
+    # l = [[1, 3, 4, {'a': [1, 2, 3]}], [9, 4, 6, {'a': [1, 2, 3]}]]
+    # #
+    # print numpy.array(l)[:, 1]
 
-    center = THSData()
-    # data = center.getStockLast("002606")
 
-    data = StockService.StockService().getStockHistoryData("601108", "last", "01")
-    arr = StringUtils.handle_ths_str_data_to_list(data['data'])
-    d = numpy.array(arr)[:, 4]
 
-    avg_arr = numpy.array(CommonAnalysis.getAvgData(d, avg=[1]))
-    print numpy.array(avg_arr)[:, 0]
-    from web.utils import WaveShow
 
-    # WaveShow.show(StringUtils.arr_multiply_2_int(d))
-    a = avg_arr[:, 0]
-    WaveShow.show(numpy.array(a[(len(a) > 30 and len(a)-30 or 0):]), n=16)
+
+    # ----------画图------------
+
+    # from web.dataCenter.THSDataCenter import THSData
+    #
+    # import StockService
+    #
+    # center = THSData()
+    #
+    # data = StockService.StockService().getStockHistoryData("601108", "last", "01")
+    # arr = StringUtils.handle_ths_str_data_to_list(data['data'])
+    # d = numpy.array(arr)[:, 4]
+    # avg_arr = numpy.array(CommonAnalysis.getAvgData(d, avg=[3]))
+    # # print numpy.array(avg_arr)[:, 0]
+    # from web.utils import WaveShow
+    # a = avg_arr[:, 0]
+    # for i in range(0, 5):
+    #     f = 30 + (i * 5)
+    #     t = 60 + (i * 5)
+    #
+    #     WaveShow.show(numpy.array(a[f:t]), n=8)
 
 
 

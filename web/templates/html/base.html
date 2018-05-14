@@ -9,6 +9,7 @@
     <!--统一引用的css-->
     <!--<link rel="stylesheet" type="text/css" href="">-->
             <link href="/static/components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" >
+            <link href="/static/components/bootstrap/ext/select/bootstrap-select.min.css" rel="stylesheet" type="text/css" >
     {% endblock %}
     {% block css %}
     <!--自定义的css-->
@@ -20,7 +21,11 @@
     {% block script %}
     <!--自己定义js-->
     {% endblock %}
-
+    <style type="text/css">
+        .form-group{
+            margin-top: 5px;
+        }
+    </style>
 </head>
 <body>
 {% block content %}
@@ -30,6 +35,7 @@
 {% block endScript %}
     <script src="/static/components/jquery/1.11.3/jquery.min.js"></script>
     <script src="/static/components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/static/components/bootstrap/ext/select/bootstrap-select.min.js"></script>
     <script src="/static/components/common/js/jsrender.min.js"></script>
     <script src="/static/components/common/js/common.js"></script>
 {% endblock %}

@@ -1,0 +1,142 @@
+{% extends "html/base.html"%}
+{% block title %}查询页面{% endblock %}
+{% block script %}
+
+{% endblock %}
+
+{% block content%}
+<div class="container" style="margin-top: 20px">
+    <div class="row">
+        <form id="searchForm" class="form-inline">
+            <div class="form-group">
+                <label>代码：</label>
+                <input type="text" class="form-control" name="code">
+            </div>
+            <div class="form-group">
+                <label>名称：</label>
+                <input type="text" class="form-control" name="name">
+            </div>
+            <br>
+            <div class="form-group control-label">
+                <label>板块类型：</label>
+            </div>
+            <div class="form-group">
+                <select class="selectpicker " multiple>
+                    <option value="sh">沪市</option>
+                    <option value="sz">深市</option>
+                    <option value="cy">创业</option>
+                </select>
+            </div>
+            <div class="form-group control-label">  <label>区域：</label></div>
+            <div class="form-group">
+
+                <select id="area_select" name="area" class="selectpicker" multiple
+                        data-live-search="true"></select>
+            </div>
+             <div class="form-group control-label">  <label>板块：</label></div>
+            <div class="form-group">
+
+                <select id="concept_select" name="concept" class="selectpicker" multiple
+                        data-live-search="true"></select>
+            </div>
+            <div class="form-group">
+                <a href="javascript:void(0);" onclick="search()" class="btn btn-primary">搜索</a>
+            </div>
+        </form>
+        <table class="table table-hover  table-condensed" id="table_search">
+            <thead>
+            <tr>
+                <th>
+                </th>
+                <th>
+                    序号
+                </th>
+                <th>
+                    代码
+                </th>
+                <th>
+                    名称
+                </th>
+                <th>
+                    当前价格
+                </th>
+                <th>
+                    换手
+                </th>
+                <th>
+                    涨幅
+                </th>
+                <th>
+                    板块
+                </th>
+                <th>
+                    操作
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock%}
+
+{% block footScript %}
+<script src="https://cdn.bootcss.com/template_js/0.7.1/template.min.js"></script>
+<script id="STOCK_LIST_TPL" type="text/html">
+    <%for(var i = 0; i < list.length; i++) { %>
+    <tr>
+        <th scope="row"><input type="checkbox" value="<%:=list[i].code%>"></th>
+        <th><%:=i+1 %></th>
+        <td><%:=list[i].code%></td>
+        <td><%:=list[i].name%></td>
+        <td><%:=list[i].price%></td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+        <td>
+            <div class="btn-toolbar" role="toolbar" aria-label="...">
+                <div class="btn-group glyphicon glyphicon-edit" role="group"></div>
+                <div class="btn-group glyphicon glyphicon-remove-circle" role="group"></div>
+            </div>
+        </td>
+    </tr>
+    <%  }%>
+</script>
+<script type="text/javascript">
+    window.template();
+    function init() {
+        $.form.serialExtend
+        request("/shares/plate", null, function (data) {
+            console.info(data)
+            var area = "";
+            var concept="";
+            for(var i=0;i<data.length;i++){
+                var d = data[i];
+                if(d.type=='AREA'){
+                    area+="<option value='"+d.code+"'>"+d.name+"</option>>"
+                }
+                else{
+                    concept+="<option value='"+d.code+"'>"+d.name+"</option>>"
+                }
+            }
+            $('#area_select').empty().append(area).selectpicker('refresh');
+            $('#concept_select').empty().append(concept).selectpicker('refresh');
+        }, null);
+//        $('#area_select').selectpicker('refresh');
+//        $('#concept_select').selectpicker('refresh');
+    }
+    init();
+    function search() {
+        request("/shares/stockSearch?"+$("form").serialize(),null , function (data) {
+            var tpl = document.getElementById('STOCK_LIST_TPL').innerHTML;
+            $("#table_data tbody").empty().append(template(tpl, data));
+        }, null)
+    }
+
+</script>
+
+
+{% endblock%}

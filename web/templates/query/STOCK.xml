@@ -119,7 +119,7 @@
     <query id="SAVE_STOCK_PLATE_TEMP" type="">
         <sql>
             <![CDATA[
-              insert into stock_plate_temp(stock_code,plate_code) values([stock_code],[plate_code])
+              insert into stock_plate_temp(stock_code,plate_code,plate_name) values([stock_code],[plate_code],[plate_name])
             ]]>
         </sql>
     </query>
@@ -346,5 +346,56 @@
             ]]>
         </sql>
     </query>
+
+    <query id="SYN_INSERT_PLATE" type="">
+        <sql>
+            <![CDATA[
+                INSERT INTO plate (CODE, NAME, type, create_time) SELECT
+                    plate_code,
+                    plate_name,
+                    'CONCEPT',
+                    now()
+                FROM
+                    (
+                        SELECT DISTINCT
+                            plate_code,
+                            plate_name
+                        FROM
+                            stock_plate_temp t
+                        WHERE
+                            t.plate_code NOT IN (SELECT CODE FROM plate)
+                    ) t
+
+
+            ]]>
+        </sql>
+    </query>
+
+    <query id="GET_PLATE_BY_PARAMS" type="">
+        <sql>
+            <![CDATA[
+                select * from plate p where state=1
+                {% if type %}
+                    type = [type]
+                {% endif%}
+
+            ]]>
+        </sql>
+    </query>
+
+    <query id="STOCK_SEARCH" type="">
+        <sql>
+            <![CDATA[
+                select * from plate p where state=1
+                {% if type %}
+                    type = [type]
+                {% endif%}
+
+            ]]>
+        </sql>
+    </query>
+
+
+
 
 </query-config>

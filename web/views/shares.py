@@ -158,3 +158,29 @@ def stockBuy():
     :return:
     """
     return StockService().get_stock_buy_data()
+
+
+@shares.route('/plate', methods=['get', 'post'])
+@json_view
+def plate():
+    """
+    获取购买stock数据
+    :return:
+    """
+    args = request.args
+    if request.method == 'POST':
+        args = request.form
+    return StockService().get_plate(args)
+
+
+@shares.route('/stockSearch', methods=['get', 'post'])
+@json_view
+def stockSearch():
+    """
+    获取购买stock数据
+    :return:
+    """
+    args = request.args
+    if request.method == 'POST':
+        args = request.form
+    return StockService().search(args)

@@ -166,6 +166,22 @@ def stock_code_type(code):
     return code_type
 
 
+def stock_code_type_int(code):
+    """
+    根据stock代码 获取stock类型 1 2 3
+    :param code:
+    :return:
+    """
+    code_type = None
+    if code[0] == '6':
+        code_type = '1'
+    elif code[0] == '0':
+        code_type = '2'
+    elif code[0] == '3':
+        code_type = '3'
+    return code_type
+
+
 def str_remove_point_int(s):
     """
     字符串去掉小数点转int

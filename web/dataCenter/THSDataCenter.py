@@ -235,6 +235,7 @@ class THSData(StockData):
             result['mc'] = StringUtils.str_2_float(json_data['3541450'])
             # 停牌 1为停牌
             result['trade_stop'] = json_data['stop']
+            result['rs'] = 'ths'
 
         except Exception, e:
             logging.info(data.data)

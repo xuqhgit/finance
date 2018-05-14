@@ -205,10 +205,16 @@ class StockService(object):
         update_count = self.db.setId("UPDATE_STOCK_PLATE").execute(None)
         logging.info("[STOCK BLOCK] 更新STOCK_PLATE数据:%s条" % update_count)
 
+        # 同步 plate
+        insert_count = self.db.setId("SYN_INSERT_PLATE").execute(None)
+        logging.info("[STOCK BLOCK] 同步SYN_INSERT_PLATE数据:%s条" % insert_count)
+
         # 清理 stock_plate_temp
         clear_count = self.db.setId("CLEAR_STOCK_PLATE_TEMP").execute(None)
         logging.info("[STOCK BLOCK] 清理STOCK_PLATE数据:%s条" % clear_count)
+        #
         self.db.commitTrans()
+
         return db_result
 
     def getStockBlockData(self, list, result):
@@ -225,7 +231,7 @@ class StockService(object):
             d = center.getStockConceptByCode(code)
             if d:
                 for item in d:
-                    r.append({'stock_code': code, "plate_code": item["id"]})
+                    r.append({'stock_code': code, "plate_code": item["id"], "plate_name": item["name"]})
         result.extend(r)
         pass
 
@@ -416,9 +422,9 @@ class StockService(object):
         sh = self.thsData.getStockPlateInfoByCode('1A0001')
         sz = self.thsData.getStockPlateInfoByCode('399001')
         result.append({"p": sh['price'], "h": sh['high_price'], "k": sh['open_price'], "l": sh['low_price'],
-                       "s": sh['turnover_rate'], "z": sh['growth'], "t": "h", 'a': round(sh['amt']/100000000,2)})
+                       "s": sh['turnover_rate'], "z": sh['growth'], "t": "h", 'a': round(sh['amt'] / 100000000, 2)})
         result.append({"p": sz['price'], "h": sz['high_price'], "k": sz['open_price'], "l": sz['low_price'],
-                       "s": sz['turnover_rate'], "z": sh['growth'], "t": "h", 'a': round(sz['amt']/100000000,2)})
+                       "s": sz['turnover_rate'], "z": sh['growth'], "t": "h", 'a': round(sz['amt'] / 100000000, 2)})
         for d in data:
             stock_code = d['stock_code']
             stock_data = self.thsData.getStockPlateInfoByCode(stock_code)
@@ -428,6 +434,17 @@ class StockService(object):
                  "l": stock_data['low_price'], "s": stock_data['turnover_rate'], "z": stock_data['growth'],
                  'ys': round((stock_data['price'] - float(d['buy_price'])) * d['quantity'], 3)})
         return result
+
+    def get_plate(self, params):
+        """
+
+        :param params:
+        :return:
+        """
+        return self.db.setId("GET_PLATE_BY_PARAMS").execute(params)
+
+    def search(self, params):
+        return self.db.setId("STOCK_SEARCH").execute(params)
 
 
 if __name__ == '__main__':
