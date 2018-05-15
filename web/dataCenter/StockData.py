@@ -11,11 +11,29 @@ from web.db.dbexec import DBExec
 
 from web.utils.StockFile import StockFile
 
+import BaiduDataCenter
+import EastmoneyDataCenter
+import HexunDataCenter
+import JRJDataCenter
+import SohuDataCenter
+import SsajaxDataCenter
+import TCDataCenter
+import XgbDataCenter
+
 """
 根据业务获取数据
 """
 thsDataCenter = THSDataCenter.THSData()
 stockFile = StockFile()
+
+baiduData = BaiduDataCenter.BaiduData()
+eastmoneyData = EastmoneyDataCenter.EastmoneyData()
+hexunData = HexunDataCenter.HexunData()
+jrjData = JRJDataCenter.JRJData()
+sohuData = SohuDataCenter.SohuData()
+ssajaxData = SsajaxDataCenter.SsajaxData()
+tcData = TCDataCenter.TCData()
+xgbData = XgbDataCenter.XgbData()
 
 
 def get_stock_last_day(code):
@@ -138,6 +156,40 @@ def get_stock_cur_last(code, date=None):
     return None
 
 
+def get_stock_cur_trade(code, count=8):
+    """
+    获取当前信息
+    :param code:
+    :return:
+    """
+    code_int = int(code) + count
+    result = None
+    try:
+        if code_int % 8 == 0:
+            result = baiduData.getCurData([code])
+        elif code_int % 8 == 1:
+            result = eastmoneyData.getCurData(code)
+        elif code_int % 8 == 2:
+            result = hexunData.getCurData([code])
+        elif code_int % 8 == 3:
+            result = jrjData.getCurData([code])
+        elif code_int % 8 == 4:
+            result = sohuData.getCurData(code)
+        elif code_int % 8 == 5:
+            result = ssajaxData.getCurData(code)
+        elif code_int % 8 == 6:
+            result = tcData.getCurData(code)
+        elif code_int % 8 == 7:
+            result = xgbData.getCurData([code])
+    except Exception, e:
+        logging.error("获取Stock当前信息错误：%s-->%s" % (code_int % 8,e))
+    if count == 0:
+        return result
+    if result is None:
+        return get_stock_cur_trade(code, count=count - 1)
+    return result
+
+
 if __name__ == "__main__":
     # p_json = thsDataCenter.getStockPlateInfoByCode("002606")
     # p_json['name'] = 'XD除息'
@@ -145,5 +197,6 @@ if __name__ == "__main__":
     # p_json2 = thsDataCenter.getStockPlateInfoByCode("600547")
     # refresh_stock_last_day([p_json, p_json1, p_json2])
     # data = get_stock_cur_last("603506")
-    clear_invalid_last_data()
+    # clear_invalid_last_data()
     # print data
+    pass

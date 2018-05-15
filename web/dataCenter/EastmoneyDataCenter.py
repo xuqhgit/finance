@@ -28,6 +28,9 @@ class EastmoneyData(object):
             da = resp.data.split("(", 2)[1]
             data = json.loads(da[0:len(da) - 1])
             d = data['Value']
+            if bool(d) is False:
+                logging.error("eastmoney 获取数据错误：%s" % code)
+                return None
             res = {
                 'high_end': float(d[23]),  # 涨停
                 'low_end': float(d[24]),  # 跌停
@@ -41,7 +44,7 @@ class EastmoneyData(object):
                 'growth': float(d[29]),  # 涨幅
                 'amplitude': float(d[50]),  # 振动幅度
                 'volume_transaction': float(d[31]),  # 成交量
-                'turnover': float(d[35].replace('万', '')),  # 成交额
+                'turnover': float(d[35].replace('万', '').replace('亿', '')),  # 成交额
                 'stock_code': d[1],
                 'chg': d[27],
                 'rs': 'eastmoney'

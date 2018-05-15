@@ -34,6 +34,9 @@ class TCData(object):
             da = da[0:len(da) - 1].replace("~~~", "~~").decode("gbk").encode("utf-8")
             strs = da.split('~~', 2)
             b = strs[0].split('~', 7)
+            if len(b) < 2:
+                logging.error("【tc】获取【%s】数据【%s】错误：%s" % (code, req.data, '数据不完整'))
+                return None
             if float(b[3]) == 0 or float(b[5]) == 0:
                 return None
             c = b[7].split('~', 34)
@@ -56,7 +59,7 @@ class TCData(object):
                           'chg': float(c[24])  # 涨跌
                           }
             except Exception, e:
-                logging("【tc】获取【%s】数据【%s】错误：%s" % (code, req.data, e))
+                logging.error("【tc】获取【%s】数据【%s】错误：%s" % (code, req.data, e))
                 return None
             return result
         else:

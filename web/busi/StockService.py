@@ -444,18 +444,29 @@ class StockService(object):
         return self.db.setId("GET_PLATE_BY_PARAMS").execute(params)
 
     def search(self, params):
-        result = self.db.setId("STOCK_SEARCH").execute(params,params)
+        result = self.db.setId("STOCK_SEARCH").execute(params, params)
         temp = {}
-        code_list=[]
-        for i in range(0,len(result)):
+        code_list = []
+        for i in range(0, len(result)):
             code_list.append(result[i]['code'])
             temp[result[i]['code']] = result[i]
         plate_list = self.db.setId("STOCK_PLATE_LIST").execute(code_list)
-        for i in range(0,len(plate_list)):
+        for i in range(0, len(plate_list)):
             c = temp[plate_list[i]['stock_code']]
-            c['plate_name']=plate_list[i]['plate_name']
-            c['plate_code']=plate_list[i]['plate_code']
+            c['plate_name'] = plate_list[i]['plate_name']
+            c['plate_code'] = plate_list[i]['plate_code']
+        code_len = len(code_list)
+        CommonUtils.start_many_thread(code_list, handleSize=int(code_len / (code_len > 7 and 8 or code_len)),
+                                      args=(temp,),
+                                      target=self.__get_stock_cur_trade,
+                                      asyn=False, name='获取stock 当前信息')
         return result
+
+    def __get_stock_cur_trade(self, code_list, temp):
+        for i in range(0, len(code_list)):
+            s = StockData.get_stock_cur_trade(code_list[i])
+            if s:
+                temp[code_list[i]]['cur'] = s
 
 
 if __name__ == '__main__':
