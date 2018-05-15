@@ -39,7 +39,7 @@ class SqlHandle(object):
             if sql_tmpl is None or sql_tmpl == '':
                 return -1, "未获取到sql语句", None
 
-            sql = Template(sql_tmpl).render(param)
+            sql = Template(sql_tmpl).render(type(param) == list and {"list":param} or param)
             sql, arr = SqlHandle.sql_regex_handle(sql)
             return 0, sql and sql.strip().replace("\r", " ").replace("\t"," ") or None,\
                    arr and arr or None, element.getAttribute('type')

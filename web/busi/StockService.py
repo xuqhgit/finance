@@ -444,7 +444,18 @@ class StockService(object):
         return self.db.setId("GET_PLATE_BY_PARAMS").execute(params)
 
     def search(self, params):
-        return self.db.setId("STOCK_SEARCH").execute(params,params)
+        result = self.db.setId("STOCK_SEARCH").execute(params,params)
+        temp = {}
+        code_list=[]
+        for i in range(0,len(result)):
+            code_list.append(result[i]['code'])
+            temp[result[i]['code']] = result[i]
+        plate_list = self.db.setId("STOCK_PLATE_LIST").execute(code_list)
+        for i in range(0,len(plate_list)):
+            c = temp[plate_list[i]['stock_code']]
+            c['plate_name']=plate_list[i]['plate_name']
+            c['plate_code']=plate_list[i]['plate_code']
+        return result
 
 
 if __name__ == '__main__':
@@ -458,7 +469,7 @@ if __name__ == '__main__':
     # stockFile.write_stock_money_json(data, code+"_money", last_date)
     # print stockFile.get_stock_money_json(code,last_date)
     s = StockService()
-    print s.search({'name':'平安','plate': ['882007', '885657'], 'plate_count': 2})
+    print s.search(None)
     pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

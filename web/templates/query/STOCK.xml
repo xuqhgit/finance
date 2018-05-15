@@ -421,6 +421,22 @@
             ]]>
         </sql>
     </query>
+     <query id="STOCK_PLATE_LIST" type="list">
+        <sql>
+            <![CDATA[
+                SELECT
+                    group_concat(t. NAME) as plate_name,
+                    GROUP_CONCAT(t. CODE) as plate_code,
+                    p.stock_code
+                FROM
+                    stock_plate p
+                JOIN plate t ON p.plate_code = t.`code` where  p.state=1
+                 and p.stock_code in ({% for c in list %}'{{ c }}'{% if not loop.last %},{% endif %}{% endfor %}) group by p.stock_code
+             ]]>
+        </sql>
+    </query>
+
+
 
 
 
