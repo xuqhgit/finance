@@ -25,7 +25,7 @@ class TaskService(object):
         se = StockEventService()
         # 获取未获取的事件的 stock
         stock_list = self.db.setId("GET_TASK_LIST").execute(
-            {"busi_type": "stock", "task_1": 0,
+            {"busi_type": "stock", "task_1": 2,
              "limit": int(ConfigUtils.get_val('task', 'eventLimit', default_val=25))})
         se.update_all_stock_event(stock_list=stock_list)
         self.db.setId("UPDATE_TASK").execute({"busi_type": "stock", "task_1": 1, "code_list": stock_list})

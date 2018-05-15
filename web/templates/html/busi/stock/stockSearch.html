@@ -71,16 +71,13 @@
                     涨幅
                 </th>
                  <th>
-                    开
+                    开/昨收
                 </th>
                  <th>
-                    高
+                    高/低
                 </th>
-                 <th>
-                    低
-                </th>
-                 <th>
-                    昨收
+                <th>
+                    事件日期
                 </th>
 
                 <th>
@@ -112,10 +109,18 @@
         <td><%:=list[i].cur.price%></td>
         <td><%:=list[i].cur.turnover_rate%></td>
         <td><%:=list[i].cur.growth%></td>
-        <td><%:=list[i].cur.open_price%></td>
-        <td><%:=list[i].cur.high_price%></td>
-        <td><%:=list[i].cur.low_price%></td>
-        <td><%:=list[i].cur.close_price%></td>
+        <td>
+            开：<%:=list[i].cur.open_price%><br/>
+            昨：<%:=list[i].cur.close_price%>
+        </td>
+        <td>
+            高：<%:=list[i].cur.high_price%><br/>
+            低：<%:=list[i].cur.low_price%>
+        </td>
+        <td>
+            解禁：<%:=list[i].jj_time%><br/>
+            登记：<%:=list[i].dj_time%>
+        </td>
         <td style="max-width: 200px;"><%:=list[i].plate_name%></td>
         <td>
             <div class="btn-toolbar" role="toolbar" aria-label="...">

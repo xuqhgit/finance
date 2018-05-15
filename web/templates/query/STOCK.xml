@@ -386,7 +386,9 @@
     <query id="STOCK_SEARCH" type="list">
         <sql>
             <![CDATA[
-                select s.code,s.name,'0' as price from stock s
+                select s.code,s.name,date_format(s.jj_time, '%Y%m%d') AS jj_time
+                 ,date_format(s.dj_time, '%Y%m%d') AS dj_time
+                 from stock s
                 {% if plate %}
                 join (SELECT
                         stock_code
