@@ -66,9 +66,9 @@ class DBExec(object):
         self.tmplUrl = tmplUrl
         return self
 
-    def execute(self, data, print_param=False, print_sql=True, **sqlParam):
+    def execute(self, data, print_param=False, print_sql=True):
 
-        status, sql_str, arr = SqlHandle.get_sql(self.tmplUrl, self.id, **sqlParam)
+        status, sql_str, arr, result_type = SqlHandle.get_sql(self.tmplUrl, self.id, data)
         if status == 0:
             sql = sql_str.strip()
             if print_sql:
@@ -111,7 +111,7 @@ class DBExec(object):
                     page = int(data["page"])
                     if "pageSize" in data and int(data["pageSize"]) > 0:
                         pageSize = int(data["pageSize"])
-                return self.__query(sql, _data, page=page, pageSize=pageSize)
+                return self.__query(sql, _data, page=page, pageSize=pageSize, resulType=result_type)
             else:
                 if type(data) == list:
                     return self.__saveDetch(sql, _data)
@@ -161,7 +161,7 @@ class DBExec(object):
         count = self.db.saveMany(sql, param)
         return count
 
-    def __query(self, sql, param, page=0, pageSize=13):
+    def __query(self, sql, param, page=0, pageSize=13, resulType='obj'):
         """
 
         :param sql: 执行sql
@@ -186,7 +186,7 @@ class DBExec(object):
                 res = []
             return {"total": total, "pageSum": pageSum, "curPage": page, "pageSize": pageSize, "rows": res}
         result = self.db.getAll(sql, param)
-        if result and len(result) == 1:
+        if result and len(result) == 1 and resulType != 'list':
             return result[0]
         else:
             return result

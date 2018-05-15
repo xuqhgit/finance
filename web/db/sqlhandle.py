@@ -15,7 +15,7 @@ class SqlHandle(object):
         pass
 
     @staticmethod
-    def get_sql(tmplUrl, id, **param):
+    def get_sql(tmplUrl, id, param):
         """
         :param tmplUrl: 模板的路径
         :param id: 获取ele的id
@@ -37,11 +37,12 @@ class SqlHandle(object):
             sql_tmpl = sqlNode[0].firstChild.wholeText
             if sql_tmpl is None or sql_tmpl == '':
                 return -1, "未获取到sql语句", None
-            sql = Template(sql_tmpl).render(**param)
+            sql = Template(sql_tmpl).render(param)
             sql, arr = SqlHandle.sql_regex_handle(sql)
-            return 0, sql and sql.strip().replace("\r", " ").replace("\t", " ") or None, arr and arr or None
+            return 0, sql and sql.strip().replace("\r", " ").replace("\t"," ") or None,\
+                   arr and arr or None, element.getAttribute('type')
         logging.error("获取sql异常：%s ---> %s" % (tmplUrl, id))
-        return -1, None, None
+        return -1, None, None, None
 
     @staticmethod
     def sql_regex_handle(sql):

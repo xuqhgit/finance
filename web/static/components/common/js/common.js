@@ -24,6 +24,7 @@ var request = function(url,param,callback,settings){
 		  url: url,
 		  data: param,
 		  dataType: 'json',
+		  traditional: true,
 		  success: function(data, status){
 			  $("#"+rid).remove();
 			  if(status=='success'){

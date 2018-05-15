@@ -383,13 +383,40 @@
         </sql>
     </query>
 
-    <query id="STOCK_SEARCH" type="">
+    <query id="STOCK_SEARCH" type="list">
         <sql>
             <![CDATA[
-                select * from plate p where state=1
-                {% if type %}
-                    type = [type]
+                select s.code,s.name,'0' as price from stock s
+                {% if plate %}
+                join (SELECT
+                        stock_code
+                    FROM
+                        (
+                            SELECT
+                                stock_code
+                            FROM
+                                stock_plate p
+                            WHERE
+                                p.plate_code IN ({% for p in plate %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
+                            AND p.state = 1
+                        ) s
+                    GROUP BY
+                        s.stock_code
+                    HAVING(count(stock_code)) >= {{ plate_count }}
+                    ORDER BY
+                        stock_code) tp on  s.code =tp.stock_code
+                 {% endif%}
+                where state=1
+                {% if code %}
+                    and s.code = [code]
                 {% endif%}
+                {% if name %}
+                    and s.name like concat("%",[name],"%")
+                {% endif%}
+                {% if type %}
+                    and s.type=[type]
+                {% endif%}
+
 
             ]]>
         </sql>

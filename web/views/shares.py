@@ -183,4 +183,16 @@ def stockSearch():
     args = request.args
     if request.method == 'POST':
         args = request.form
-    return StockService().search(args)
+
+    plate=[]
+    if args['area']:
+        plate.extend( args['area'].split(","))
+    if args['concept']:
+        plate.extend( args['concept'].split(","))
+
+    params={}
+    for a in args:
+        params[a]=args[a]
+    params['plate'] = plate
+    data = StockService().search(params)
+    return data

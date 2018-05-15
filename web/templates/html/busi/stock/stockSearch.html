@@ -16,15 +16,19 @@
                 <label>名称：</label>
                 <input type="text" class="form-control" name="name">
             </div>
+             <div class="form-group">
+                <label>最少匹配：</label>
+                <input type="number" class="form-control" name="plate_count" value="1" min="1">
+            </div>
             <br>
             <div class="form-group control-label">
                 <label>板块类型：</label>
             </div>
             <div class="form-group">
-                <select class="selectpicker " multiple>
+                <select class="selectpicker" name="type" multiple>
                     <option value="sh">沪市</option>
                     <option value="sz">深市</option>
-                    <option value="cy">创业</option>
+                    <option value="sz">创业</option>
                 </select>
             </div>
             <div class="form-group control-label">  <label>区域：</label></div>
@@ -40,7 +44,7 @@
                         data-live-search="true"></select>
             </div>
             <div class="form-group">
-                <a href="javascript:void(0);" onclick="search()" class="btn btn-primary">搜索</a>
+                <a href="javascript:void(0);" onclick="stockSearch()" class="btn btn-primary">搜索</a>
             </div>
         </form>
         <table class="table table-hover  table-condensed" id="table_search">
@@ -84,7 +88,7 @@
 {% endblock%}
 
 {% block footScript %}
-<script src="https://cdn.bootcss.com/template_js/0.7.1/template.min.js"></script>
+
 <script id="STOCK_LIST_TPL" type="text/html">
     <%for(var i = 0; i < list.length; i++) { %>
     <tr>
@@ -108,9 +112,7 @@
 <script type="text/javascript">
     window.template();
     function init() {
-        $.form.serialExtend
         request("/shares/plate", null, function (data) {
-            console.info(data)
             var area = "";
             var concept="";
             for(var i=0;i<data.length;i++){
@@ -129,10 +131,16 @@
 //        $('#concept_select').selectpicker('refresh');
     }
     init();
-    function search() {
-        request("/shares/stockSearch?"+$("form").serialize(),null , function (data) {
+    function stockSearch() {
+        var params = $("#searchForm").getJsonData();
+        request("/shares/stockSearch",params , function (data) {
+            $("#table_search tbody").empty();
+            if(data.length==0){
+                 $("#table_search tbody").append("<tr><td>无数据</td></tr>");
+            }
+
             var tpl = document.getElementById('STOCK_LIST_TPL').innerHTML;
-            $("#table_data tbody").empty().append(template(tpl, data));
+            $("#table_search tbody").append(template(tpl, {"list":data}));
         }, null)
     }
 
