@@ -41,4 +41,4 @@ from web import view
 from web.task import TaskManage
 from web import views
 
-# TaskManage.start()
+TaskManage.start()

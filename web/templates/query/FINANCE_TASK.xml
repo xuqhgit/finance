@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+@description:finance task
+@author apple 
+-->
+<query-config>
+    <query id="GET_TASK_LIST" type="list">
+        <sql>
+            <![CDATA[
+                select busi_code as code from finance_task t where t.status=1
+                and t.busi_type=[busi_type]
+                {% if task_1 %}
+                   and  t.task_1 = [task_1]
+                {% endif%}
+                order by rand()
+                limit [limit]
+            ]]>
+        </sql>
+    </query>
+
+    <query id="UPDATE_TASK" >
+        <sql>
+            <![CDATA[
+                update finance_task t set
+                t.update_time=now()
+                {% if task_1 %}
+                    ,t.task_1 = [task_1]
+                {% endif%}
+                where t.busi_type=[busi_type]
+                 {% if code_list %}
+                    and t.busi_code in ({% for c in code_list %}'{{ c.code }}'{% if not loop.last %},{% endif %}{% endfor %})
+                 {% endif%}
+            ]]>
+        </sql>
+    </query>
+</query-config>

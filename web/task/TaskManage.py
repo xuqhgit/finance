@@ -8,6 +8,7 @@ from web.dataCenter import StockData
 import logging
 import time
 from web.utils import Holiday
+import TaskService
 
 schedudler = BackgroundScheduler(daemonic=False)
 
@@ -64,10 +65,15 @@ def checkPublicNewStockStatus():
             StockService().checkPublicNewStockStatus()
 
 
-def update_all_stock_event():
-    # if Holiday.get_cur_date():
-    logging.info("开始获取 stock event  数据")
-    StockEventService().update_all_stock_event()
+def handle_stock_event():
+    logging.info("执行 stock event 事件")
+    ts = TaskService.TaskService()
+    ts.stock_event()
+
+def task_reset():
+    logging.info("执行 任务重置 事件")
+    ts = TaskService.TaskService()
+    ts.reset_stock_event()
 
 
 def commonTask():
@@ -81,7 +87,10 @@ def commonTask():
     schedudler.add_job(getCurPlateLastData, 'cron', minute='15', hour='16', day_of_week='0-4')
 
     # 更新事件
-    schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='9', day_of_week='0-4')
+
+    # schedudler.add_job(handle_stock_event, 'cron', minute='*/3', hour='23', day_of_week='0-5')
+
+    schedudler.add_job(task_reset, 'cron', minute='25', hour='9', day_of_week='0-4')
     # schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='21')
 
 
@@ -94,7 +103,7 @@ def start():
     schedudler.add_job(saveStockNewData, 'cron', minute='00', hour='18', day_of_week='0-4')
 
     # 检测新股数据
-    schedudler.add_job(checkPublicNewStockStatus, 'cron', minute='*/5', hour='9-11', day_of_week='0-4')
+    schedudler.add_job(checkPublicNewStockStatus, 'cron', minute='35', hour='9', day_of_week='0-4')
 
     # 检测停牌数据
     schedudler.add_job(checkStopStock, 'cron', minute='32', hour='9', day_of_week='0-4')
@@ -103,4 +112,3 @@ def start():
     schedudler.add_job(StockData.clear_invalid_last_data, 'cron', minute='30', hour='9', day_of_week='0-4')
 
     schedudler.start()
-

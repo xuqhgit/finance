@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block content%}
-<div class="container" style="margin-top: 20px">
-    <div class="row">
-        <form id="searchForm" class="form-inline">
+<div class="container" style="margin-top: 20px;">
+    <div class="row" style="min-width: 960px;">
+        <form id="searchForm" class="form-inline" style="min-width: 960px;">
             <div class="form-group">
                 <label>代码：</label>
                 <input type="text" class="form-control" name="code">
@@ -47,7 +47,7 @@
                 <a href="javascript:void(0);" onclick="stockSearch()" class="btn btn-primary">搜索</a>
             </div>
         </form>
-        <table class="table table-hover  table-condensed" id="table_search">
+        <table class="table  table-bordered table-hover  table-condensed" id="table_search">
             <thead>
             <tr>
                 <th>
@@ -70,6 +70,19 @@
                 <th>
                     涨幅
                 </th>
+                 <th>
+                    开
+                </th>
+                 <th>
+                    高
+                </th>
+                 <th>
+                    低
+                </th>
+                 <th>
+                    昨收
+                </th>
+
                 <th>
                     板块
                 </th>
@@ -96,9 +109,13 @@
         <th><%:=i+1 %></th>
         <td><%:=list[i].code%></td>
         <td><%:=list[i].name%></td>
-        <td><%:=list[i].price%></td>
-        <td>-</td>
-        <td>-</td>
+        <td><%:=list[i].cur.price%></td>
+        <td><%:=list[i].cur.turnover_rate%></td>
+        <td><%:=list[i].cur.growth%></td>
+        <td><%:=list[i].cur.open_price%></td>
+        <td><%:=list[i].cur.high_price%></td>
+        <td><%:=list[i].cur.low_price%></td>
+        <td><%:=list[i].cur.close_price%></td>
         <td style="max-width: 200px;"><%:=list[i].plate_name%></td>
         <td>
             <div class="btn-toolbar" role="toolbar" aria-label="...">

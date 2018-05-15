@@ -166,13 +166,13 @@ def get_stock_cur_trade(code, count=8):
     result = None
     try:
         if code_int % 8 == 0:
-            result = baiduData.getCurData([code])
+            result = baiduData.getCurData([code])[0]
         elif code_int % 8 == 1:
             result = eastmoneyData.getCurData(code)
         elif code_int % 8 == 2:
-            result = hexunData.getCurData([code])
+            result = hexunData.getCurData([code])[0]
         elif code_int % 8 == 3:
-            result = jrjData.getCurData([code])
+            result = jrjData.getCurData([code])[0]
         elif code_int % 8 == 4:
             result = sohuData.getCurData(code)
         elif code_int % 8 == 5:
@@ -180,7 +180,7 @@ def get_stock_cur_trade(code, count=8):
         elif code_int % 8 == 6:
             result = tcData.getCurData(code)
         elif code_int % 8 == 7:
-            result = xgbData.getCurData([code])
+            result = xgbData.getCurData([code])[0]
     except Exception, e:
         logging.error("获取Stock当前信息错误：%s-->%s" % (code_int % 8,e))
     if count == 0:

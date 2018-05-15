@@ -19,17 +19,21 @@ class StockEventService(object):
         self.db = DBExec(Query.QUERY_STOCK_EVENT, "")
         pass
 
-    def update_all_stock_event(self):
+    def update_all_stock_event(self, stock_list=[], all=False):
         """
         更新所有stock事件
         :return:
         """
-        stock_list = DBExec(Query.QUERY_STOCK, "FIND_STOCK_ALL").execute(None)
+        if len(stock_list) == 0 and all is True:
+            stock_list = DBExec(Query.QUERY_STOCK, "FIND_STOCK_ALL").execute(None)
+        if len(stock_list) == 0:
+            logging.info("开始获取 stock事件 无数据处理")
+            return
         # stock_list = [{'code': '601229'}]
         result = []
         logging.info("开始获取 stock事件 更新并发处理--->获取stock个数:%s" % (stock_list and len(stock_list) or 0))
         try:
-            CommonUtils.start_many_thread(stock_list, handleSize=900, target=self.get_stock_event_batch,
+            CommonUtils.start_many_thread(stock_list, handleSize=100, target=self.get_stock_event_batch,
                                           args=(result,), name="stock事件 更新并发处理", asyn=False)
         except Exception, e:
             logging.error("stock事件 更新并发处理--->失败:%s" % e)

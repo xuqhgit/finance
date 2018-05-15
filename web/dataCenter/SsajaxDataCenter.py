@@ -27,16 +27,16 @@ class SsajaxData(object):
             print data
             d = data[0]
             res = {
-                'high_price': d['high'],  # 最高
-                'low_price': d['low'],  # 最低
-                'price': d['close'],  # 当前价
-                'open_price': d['open'],  # 开盘价
-                'turnover_rate': d['change'],  # 换手
-                'close_price': d['preclose'],  # 昨收
-                'growth': d['updownper'],  # 涨幅
-                'amplitude': d['swing'],  # 振动幅度
-                'volume_transaction': d['volume'],  # 成交量
-                'turnover': d['value'],  # 成交额
+                'high_price': round(d['high'],3),  # 最高
+                'low_price': round(d['low'],3),  # 最低
+                'price': round(d['close'],3),  # 当前价
+                'open_price': round(d['open'],3),  # 开盘价
+                'turnover_rate': round(d['change'],3),  # 换手
+                'close_price': round(d['preclose'],3),  # 昨收
+                'growth': round(d['updownper'],3),  # 涨幅
+                'amplitude': round(d['swing'],3),  # 振动幅度
+                'volume_transaction': round(d['volume'],3),  # 成交量
+                'turnover': round(d['value'],3),  # 成交额
                 'stock_code': code,
                 'chg': d['updown'],
                 'rs': 'Ssajax'

@@ -445,6 +445,8 @@ class StockService(object):
 
     def search(self, params):
         result = self.db.setId("STOCK_SEARCH").execute(params, params)
+        if len(result) == 0:
+            return result
         temp = {}
         code_list = []
         for i in range(0, len(result)):
