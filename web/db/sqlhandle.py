@@ -22,7 +22,8 @@ class SqlHandle(object):
         :param param: 参数dict
         :return:
         """
-
+        if param is None:
+            param={}
         if tmplUrl is None or tmplUrl == '':
             return -1, "未获取到sql-模板路径", None
         if id is None or id == '':
@@ -37,6 +38,7 @@ class SqlHandle(object):
             sql_tmpl = sqlNode[0].firstChild.wholeText
             if sql_tmpl is None or sql_tmpl == '':
                 return -1, "未获取到sql语句", None
+
             sql = Template(sql_tmpl).render(param)
             sql, arr = SqlHandle.sql_regex_handle(sql)
             return 0, sql and sql.strip().replace("\r", " ").replace("\t"," ") or None,\
