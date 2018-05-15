@@ -467,8 +467,7 @@ class StockService(object):
     def __get_stock_cur_trade(self, code_list, temp):
         for i in range(0, len(code_list)):
             s = StockData.get_stock_cur_trade(code_list[i])
-            if s:
-                temp[code_list[i]]['cur'] = s
+            temp[code_list[i]]['cur'] = s and s or {}
 
 
 if __name__ == '__main__':
