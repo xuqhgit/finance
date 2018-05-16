@@ -444,7 +444,18 @@ class StockService(object):
         return self.db.setId("GET_PLATE_BY_PARAMS").execute(params)
 
     def search(self, params):
-        result = self.db.setId("STOCK_SEARCH").execute(params, params)
+        param_flag = False
+        for k in params:
+            if k != 'plate_count' and bool(params[k]):
+                param_flag = True
+                break
+        if param_flag:
+            result = self.db.setId("STOCK_SEARCH").execute(params, params)
+        else:
+            result_buy = DBExec(Query.QUERY_STOCK_BUY, "GET_STOCK_BUY").execute(None)
+            result = []
+            for i in range(0, len(result_buy)):
+                result.append({'code': result_buy[i]['stock_code']})
         if len(result) == 0:
             return result
         temp = {}
