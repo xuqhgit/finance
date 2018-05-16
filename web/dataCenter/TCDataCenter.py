@@ -24,7 +24,7 @@ class TCData(object):
         :param code: 股票代码 格式为:sh+代码
         :return: 获取指定格式的dict数据
         """
-        url = TX_CUR_DATA_URL % (StringUtils.stock_code_type(code) + code, random.random())
+        url = TX_CUR_DATA_URL % ((StringUtils.stock_code_type(code) == 'sh' and 'sh' or 'sz') + code, random.random())
         req = client.get(url)
         if req.status == 200:
             splitStr = '="'
@@ -49,11 +49,12 @@ class TCData(object):
                           'high_price': float(a[0]),  # 最高
                           'low_price': float(a[1]),  # 最低
                           'price': float(b[3]),  # 当前价
-                          'open_price': float(b[4]),  # 开盘价
+                          'open_price': float(b[5]),  # 开盘价
                           'turnover_rate': float(c[31]),  # 换手
                           'close_price': float(b[4]),  # 昨收
                           'growth': float(c[25]),  # 涨幅
                           'amplitude': float(a[2]),  # 振动幅度
+                          'volume_transaction': float(b[6]),  # 振动幅度
                           'stock_code': code,
                           'rs': 'tc',
                           'chg': float(c[24])  # 涨跌
@@ -65,3 +66,6 @@ class TCData(object):
         else:
             logging.error("【TC】获取[%s]实时数据出现请求错误,请求码:%s" % (code, req.status))
             return None
+
+if __name__=='__main__':
+    print TCData.getCurData('601999')

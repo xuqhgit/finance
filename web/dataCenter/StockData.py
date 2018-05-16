@@ -56,12 +56,12 @@ def get_stock_last_day(code):
     if Holiday.is_trade_date() is False:
         return old_data
     if Holiday.is_trade_time():
-        p_json = thsDataCenter.getStockPlateInfoByCode(code)
-        if p_json and p_json['trade_stop'] == 0:
+        p_json = get_stock_cur_trade(code)
+        if p_json and p_json['open_price'] != 0:
             # 时间,开,高,低,收,成交量,成交额,换手
             old_data.append([int(Holiday.get_cur_date()), p_json['open_price'], p_json['high_price'],
                              p_json['low_price'], p_json['price'], p_json['volume_transaction'],
-                             p_json['turnover'], p_json['turnover_rate']])
+                             0, p_json['turnover_rate']])
     return old_data
 
 
@@ -199,4 +199,6 @@ if __name__ == "__main__":
     # data = get_stock_cur_last("603506")
     # clear_invalid_last_data()
     # print data
+    a = {}
+    print a['a']
     pass
