@@ -101,7 +101,7 @@
 
 <script id="STOCK_LIST_TPL" type="text/html">
     <%for(var i = 0; i < list.length; i++) { %>
-    <tr>
+    <tr class="<%:=list[i].cur.price>list[i].cur.close_price?'danger':''%>">
         <th scope="row"><input type="checkbox" value="<%:=list[i].code%>"></th>
         <th><%:=i+1 %></th>
         <td><%:=list[i].code%></td>
