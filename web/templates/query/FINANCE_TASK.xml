@@ -12,6 +12,12 @@
                 {% if task_1 %}
                    and  t.task_1 = [task_1]
                 {% endif%}
+                {% if task_2 %}
+                   and  t.task_2 = [task_2]
+                {% endif%}
+                {% if task_3 %}
+                   and  t.task_3 = [task_3]
+                {% endif%}
                 order by rand()
                 limit [limit]
             ]]>
@@ -25,6 +31,12 @@
                 t.update_time=now()
                 {% if task_1 %}
                     ,t.task_1 = [task_1]
+                {% endif%}
+                {% if task_2 %}
+                    ,t.task_2 = [task_2]
+                {% endif%}
+                {% if task_3 %}
+                    ,t.task_3 = [task_3]
                 {% endif%}
                 where t.busi_type=[busi_type]
                  {% if code_list %}

@@ -17,13 +17,17 @@ schedudler = BackgroundScheduler(daemonic=False)
 def getCurStockDailyData():
     if Holiday.is_trade_date():
         logging.info("开始获取当前stock daily数据")
-        StockService().saveAllDailyStocks()
+        # StockService().saveAllDailyStocks()
+        ts = TaskService.TaskService()
+        ts.stock_daily()
 
 
 def getCurStockLastData():
     if Holiday.is_trade_date():
         logging.info("开始获取当前stock last 数据")
-        StockService().saveAllDailyStocksLast()
+        # StockService().saveAllDailyStocksLast()
+        ts = TaskService.TaskService()
+        ts.stock_last()
 
 
 def getCurPlateDailyData():
@@ -70,21 +74,23 @@ def handle_stock_event():
     ts = TaskService.TaskService()
     ts.stock_event()
 
+
 def task_reset():
     logging.info("执行 任务重置 事件")
     ts = TaskService.TaskService()
     ts.reset_stock_event()
-
+    ts.reset_stock_daily()
+    ts.reset_stock_last()
 
 def commonTask():
     # 获取当前stock daily数据
-    schedudler.add_job(getCurStockDailyData, 'cron', minute='10', hour='15', day_of_week='0-4')
+    schedudler.add_job(getCurStockDailyData, 'cron', minute='*/5', hour='16-17', day_of_week='0-4')
     # 获取当前stock last 数据
-    schedudler.add_job(getCurStockLastData, 'cron', minute='30', hour='16', day_of_week='0-4')
+    schedudler.add_job(getCurStockLastData, 'cron', minute='*/6', hour='16-17', day_of_week='0-4')
     # 获取当前plate daily 数据
-    schedudler.add_job(getCurPlateDailyData, 'cron', minute='00', hour='16', day_of_week='0-4')
+    schedudler.add_job(getCurPlateDailyData, 'cron', minute='00', hour='18', day_of_week='0-4')
     # 获取当前plate last 数据
-    schedudler.add_job(getCurPlateLastData, 'cron', minute='15', hour='16', day_of_week='0-4')
+    schedudler.add_job(getCurPlateLastData, 'cron', minute='15', hour='18', day_of_week='0-4')
 
     # 更新事件
 
@@ -97,10 +103,10 @@ def commonTask():
 def start():
     commonTask()
     # 更新概念数据
-    schedudler.add_job(updateStockBlock, 'cron', minute='00', hour='8', day_of_week='0-4')
+    schedudler.add_job(updateStockBlock, 'cron', minute='30', hour='8', day_of_week='0-4')
 
     # 保存新股数据
-    schedudler.add_job(saveStockNewData, 'cron', minute='00', hour='18', day_of_week='0-4')
+    schedudler.add_job(saveStockNewData, 'cron', minute='45', hour='18', day_of_week='0-4')
 
     # 检测新股数据
     schedudler.add_job(checkPublicNewStockStatus, 'cron', minute='35', hour='9', day_of_week='0-4')
@@ -112,3 +118,6 @@ def start():
     schedudler.add_job(StockData.clear_invalid_last_data, 'cron', minute='30', hour='9', day_of_week='0-4')
 
     schedudler.start()
+
+
+

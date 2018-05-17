@@ -23,18 +23,22 @@ class StockService(object):
         self.db = DBExec(Query.QUERY_STOCK, "")
         pass
 
-    def saveAllDailyStocks(self):
+    def saveAllDailyStocks(self, stock_list=[], single=False, handleSize=300):
         """
         保存daily stock 数据
         :return:
         """
-        stock_list = self.db.setId("FIND_STOCK_ALL").execute(None)
+        db = DBExec(Query.QUERY_STOCK, "")
+        if bool(stock_list) is False and single is False:
+            stock_list = db.setId("FIND_STOCK_ALL").execute(None)
+        if bool(stock_list) is False:
+            logging.info("保存当日stock daily数据：无数据需处理")
         result = []
-        CommonUtils.start_many_thread(stock_list, handleSize=300, args=(result,), target=self.getAllDailyStocks,
+        CommonUtils.start_many_thread(stock_list, handleSize=handleSize, args=(result,), target=self.getAllDailyStocks,
                                       asyn=False, name='保存stock daily 数据')
-        db_result = self.db.setId("SAVE_DAILY_STOCK").execute(result)
+        db_result = db.setId("SAVE_DAILY_STOCK").execute(result)
         logging.info("插入数据:%s条" % db_result)
-        self.db.commitTrans()
+        db.commitTrans()
         StockData.refresh_stock_last_day(result)
         return db_result
 
@@ -51,13 +55,19 @@ class StockService(object):
         result.extend(r)
         pass
 
-    def saveAllDailyStocksLast(self):
+    def saveAllDailyStocksLast(self, stock_list=[], single=False, handleSize=300):
         """
         保存所有股票当日数据 包含资金等
         :return:
         """
-        stock_list = self.db.setId("FIND_STOCK_ALL").execute(None)
-        CommonUtils.start_many_thread(stock_list, handleSize=500, target=self.saveDailyStocksLast,
+
+        if bool(stock_list) is False and single is False:
+            db = DBExec(Query.QUERY_STOCK, "")
+            stock_list = db.setId("FIND_STOCK_ALL").execute(None)
+        if bool(stock_list) is False:
+            logging.info("保存当日stock 十分数据：无数据需处理")
+
+        CommonUtils.start_many_thread(stock_list, handleSize=handleSize, target=self.saveDailyStocksLast,
                                       name='保存stock last and money 数据', asyn=False)
         pass
 
