@@ -15,6 +15,7 @@ create trigger stock_new_temp_trigger
 	IF v_1=0 THEN
 		insert into stock_new select * from stock_new_temp where code = new.code;
 		insert into stock(code,name,type,create_time) values(new.code,new.name,new.type,now());
+		INSERT INTO finance_task (busi_code,busi_type,update_time,create_time)VALUES (new.code, 'stock',now(), now());
 	ELSEIF v_1=1 THEN
 		select count(*) into v_2 from stock_new where code = new.code and high_count<new.high_count;
 		IF v_2=1 THEN
