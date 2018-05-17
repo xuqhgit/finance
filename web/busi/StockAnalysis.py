@@ -558,25 +558,40 @@ def get_rsi(code, data=[], avg=6, r=2):
     return data
 
 
-def growth_Analysis(data_list, avg=5):
+def growth_Analysis(data_list, avgs=[5]):
     """
     计算涨幅
     :param data_list:
     :param avg:
     :return:
     """
-    avg = avg + 1
-    if len(data_list) < avg:
-        avg = len(data_list)
-    n_data_list = data_list[len(data_list) - avg:]
     result = []
-    last_price = n_data_list[0][4]
-    for i in range(1, len(n_data_list)):
-        result.append(round((n_data_list[i][4] - last_price) * 100 / last_price, 3))
-        last_price = n_data_list[i][4]
-    avg_val = round(numpy.mean(result), 3)
-    return avg_val, round(numpy.std(result, ddof=1), 3)
+    for a in range(0, len(avgs)):
+        avg = avgs[a]
+        avg = avg + 1
+        if len(data_list) < avg:
+            avg = len(data_list)
+        n_data_list = data_list[len(data_list) - avg:]
+        growth = []
+        change = []
+        volumn = []
+        last_price = n_data_list[0][4]
+        last_change = n_data_list[0][7]
+        for i in range(1, len(n_data_list)):
+            if last_change == 0:
+                last_change = 1
+            growth.append(round((n_data_list[i][4] - last_price) * 100 / last_price, 3))
+            last_price = n_data_list[i][4]
+            change.append(round((n_data_list[i][7] - last_change) * 100 / last_change, 3))
+            last_change = n_data_list[i][7]
 
+            avg_val = round(numpy.mean(growth), 3)
+            chg_avg_al = round(numpy.mean(change), 3)
+
+        result.append(
+            [avgs[a], avg_val, round(numpy.std(growth, ddof=1), 3), chg_avg_al, round(numpy.std(change, ddof=1), 3),
+             change[len(change)-1]])
+    return result
 
 if __name__ == '__main__':
     # print handle_stock_daily_data("601838", avg=[5, 10, 20, 30, 60])

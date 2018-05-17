@@ -84,7 +84,7 @@
                     板块
                 </th>
                 <th>
-                    涨幅5均
+                    均值
                 </th>
                 <th>
                     操作
@@ -125,8 +125,8 @@
             登记：<%:=list[i].dj_time%>
         </td>
         <td style="max-width: 200px;"><%:=list[i].plate_name%></td>
-        <td >growth-avg:<%:=list[i].avg_growth%><br/> growth-diff:<%:=list[i].diff_avg%></td>
-
+        <td >
+            <%if(list[i].avg){for(var a=0;a< list[i].avg.length;a++){ %><%:=JSON.stringify(list[i].avg[a]).replace(",","：").replace(/,/g,"--")%><br/><% }}%></td>
         <td>
             <div class="btn-toolbar" role="toolbar" aria-label="...">
                 <div class="btn-group glyphicon glyphicon-edit" role="group"></div>

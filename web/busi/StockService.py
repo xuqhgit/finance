@@ -487,9 +487,7 @@ class StockService(object):
     def __handle_growth(self, header_code_arr):
         for i in range(0, len(header_code_arr)):
             h_data = StockData.get_stock_last_day(header_code_arr[i]['code'])
-            avg_growth, diff_avg = StockAnalysis.growth_Analysis(h_data)
-            header_code_arr[i]['avg_growth'] = avg_growth
-            header_code_arr[i]['diff_avg'] = diff_avg
+            header_code_arr[i]['avg'] = StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
 
     def __get_stock_cur_trade(self, code_list, temp):
         for i in range(0, len(code_list)):
@@ -513,8 +511,7 @@ if __name__ == '__main__':
     # pass
 
     h_data = StockData.get_stock_last_day('601838')
-    avg_growth, diff_avg = StockAnalysis.growth_Analysis(h_data)
-    print avg_growth, diff_avg
+    print StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')
     # data = data['data']
@@ -525,4 +522,3 @@ if __name__ == '__main__':
     # if z_cache.has_key('%s_%s' % (type, year)) is not True:
     #     print False
     # print year
-
