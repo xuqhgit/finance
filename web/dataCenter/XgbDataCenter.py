@@ -65,7 +65,7 @@ class XgbData(object):
         :param code:
         :return:
         """
-        code_type = None
+        code_type = 'SS'
         if code[0] == '6':
             code_type = 'SS'
         elif code[0] == '0':

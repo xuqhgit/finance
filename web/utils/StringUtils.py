@@ -172,7 +172,7 @@ def stock_code_type_int(code):
     :param code:
     :return:
     """
-    code_type = None
+    code_type = 1
     if code[0] == '6':
         code_type = '1'
     elif code[0] == '0':

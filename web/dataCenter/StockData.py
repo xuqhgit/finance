@@ -156,15 +156,18 @@ def get_stock_cur_last(code, date=None):
     return None
 
 
-def get_stock_cur_trade(code, count=8):
+def get_stock_cur_trade(code, count=8, index=None):
     """
     获取当前信息
     :param code:
     :return:
     """
-    code_int = int(code) + count
-    result = None
     try:
+        code_int = (index is None and int(code) or index) + count
+    except Exception, e:
+        return get_stock_cur_trade(code, index=1)
+    try:
+        result = None
         if code_int % 8 == 0:
             result = baiduData.getCurData([code])[0]
         elif code_int % 8 == 1:
@@ -182,11 +185,11 @@ def get_stock_cur_trade(code, count=8):
         elif code_int % 8 == 7:
             result = xgbData.getCurData([code])[0]
     except Exception, e:
-        logging.error("获取Stock当前信息错误：%s-->%s" % (code_int % 8,e))
+        logging.error("获取Stock当前信息错误：%s-->%s" % (code_int % 8, e))
     if count == 0:
         return result
     if result is None:
-        return get_stock_cur_trade(code, count=count - 1)
+        return get_stock_cur_trade(code, count=count - 1,index=index)
     return result
 
 

@@ -5,7 +5,9 @@ from web.utils import TemplateUtils
 from web.db.dbexec import DBExec
 from web.dataCenter import THSDataCenter
 from web.dataCenter import StockData
+
 from web.busi.StockAnalysis import *
+from web.busi import StockAnalysis
 from web.utils import Holiday
 import logging
 from web.db import Query
@@ -335,8 +337,7 @@ class StockService(object):
         # stop_list = [{'code':'002606'}]
         center = THSDataCenter.THSData()
         # 获取当前上证指数 当前中小板指数
-        sh = center.getStockPlateInfoByCode('1A0001')
-        sz = center.getStockPlateInfoByCode('399001')
+
         type_code = {'zxb': '399001', 'sh': '1A0001'}
         result = []
         for i in range(0, len(stop_list)):
@@ -473,7 +474,22 @@ class StockService(object):
                                       args=(temp,),
                                       target=self.__get_stock_cur_trade,
                                       asyn=False, name='获取stock 当前信息')
-        return result
+        sh = self.thsData.getStockPlateInfoByCode('1A0001')
+        sz = self.thsData.getStockPlateInfoByCode('399001')
+        header_code_arr = [
+            {'code': '1A0001', 'name': '上证', 'cur': sh and sh or {}},
+            {'code': '399001', 'name': '深证', 'cur': sz and sz or {}}
+        ]
+        header_code_arr.extend(result)
+        self.__handle_growth(header_code_arr)
+        return header_code_arr
+
+    def __handle_growth(self, header_code_arr):
+        for i in range(0, len(header_code_arr)):
+            h_data = StockData.get_stock_last_day(header_code_arr[i]['code'])
+            avg_growth, diff_avg = StockAnalysis.growth_Analysis(h_data)
+            header_code_arr[i]['avg_growth'] = avg_growth
+            header_code_arr[i]['diff_avg'] = diff_avg
 
     def __get_stock_cur_trade(self, code_list, temp):
         for i in range(0, len(code_list)):
@@ -491,9 +507,13 @@ if __name__ == '__main__':
     # last_date = data[h_code]['date']
     # stockFile.write_stock_money_json(data, code+"_money", last_date)
     # print stockFile.get_stock_money_json(code,last_date)
-    s = StockService()
-    print s.search(None)
-    pass
+    # s = StockService()
+    # print s.thsData.getStockPlateInfoByCode('1A0001')
+    # pass
+
+    h_data = StockData.get_stock_last_day('601838')
+    avg_growth, diff_avg = StockAnalysis.growth_Analysis(h_data)
+    print avg_growth, diff_avg
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')
     # data = data['data']
@@ -504,3 +524,4 @@ if __name__ == '__main__':
     # if z_cache.has_key('%s_%s' % (type, year)) is not True:
     #     print False
     # print year
+

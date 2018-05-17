@@ -64,7 +64,7 @@ class HexunData(object):
         :param code:
         :return:
         """
-        code_type = None
+        code_type = 's'
         if code[0] == '6':
             code_type = 's'
         elif code[0] == '0':

@@ -558,8 +558,30 @@ def get_rsi(code, data=[], avg=6, r=2):
     return data
 
 
+def growth_Analysis(data_list, avg=5):
+    """
+    计算涨幅
+    :param data_list:
+    :param avg:
+    :return:
+    """
+    avg = avg+1
+    if len(data_list) < avg:
+        avg = len(data_list)
+    n_data_list = data_list[len(data_list) - avg:]
+    result = []
+    last_price = n_data_list[0][4]
+    for i in range(1, len(n_data_list)):
+        result.append(round((n_data_list[i][4] - last_price) * 100 /last_price, 3))
+        last_price = n_data_list[i][4]
+    avg_val = round(numpy.mean(result), 3)
+    return avg_val, round(result[len(result) - 1] - avg_val, 3)
+
+
 if __name__ == '__main__':
-    print handle_stock_daily_data("601838", avg=[5, 10, 20, 30, 60])
+    # print handle_stock_daily_data("601838", avg=[5, 10, 20, 30, 60])
+    # print growth_Analysis([-1.23, 1, 1.2, 1.3, 1.6])
+    print
     # l = [[1, 3, 4, {'a': [1, 2, 3]}], [9, 4, 6, {'a': [1, 2, 3]}]]
     # #
     # print numpy.array(l)[:, 1]

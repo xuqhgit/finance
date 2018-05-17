@@ -84,6 +84,9 @@
                     板块
                 </th>
                 <th>
+                    涨幅5均
+                </th>
+                <th>
                     操作
                 </th>
             </tr>
@@ -122,6 +125,8 @@
             登记：<%:=list[i].dj_time%>
         </td>
         <td style="max-width: 200px;"><%:=list[i].plate_name%></td>
+        <td >growth-avg:<%:=list[i].avg_growth%><br/> growth-diff:<%:=list[i].diff_avg%></td>
+
         <td>
             <div class="btn-toolbar" role="toolbar" aria-label="...">
                 <div class="btn-group glyphicon glyphicon-edit" role="group"></div>

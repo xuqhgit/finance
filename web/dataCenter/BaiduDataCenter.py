@@ -61,7 +61,7 @@ class BaiduData(object):
         :param code:
         :return:
         """
-        code_type = None
+        code_type = 'sh'
         if code[0] == '6':
             code_type = 'sh'
         elif code[0] == '0':
