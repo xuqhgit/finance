@@ -480,8 +480,8 @@ class StockService(object):
             {'code': '1A0001', 'name': '上证', 'cur': sh and sh or {}},
             {'code': '399001', 'name': '深证', 'cur': sz and sz or {}}
         ]
-        header_code_arr.extend(result)
         self.__handle_growth(header_code_arr)
+        header_code_arr.extend(result)
         return header_code_arr
 
     def __handle_growth(self, header_code_arr):
@@ -495,6 +495,7 @@ class StockService(object):
         for i in range(0, len(code_list)):
             s = StockData.get_stock_cur_trade(code_list[i])
             temp[code_list[i]]['cur'] = s and s or {}
+            self.__handle_growth([temp[code_list[i]]])
 
 
 if __name__ == '__main__':
