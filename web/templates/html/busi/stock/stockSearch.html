@@ -7,25 +7,45 @@
 {% block content%}
 <div class="container" style="margin-top: 20px;">
     <div class="row" style="min-width: 960px;">
-        <form id="searchForm" class="form-inline" style="min-width: 960px;">
+        <legend></legend>
+        <form id="searchForm" class="form-inline" style="min-width: 960px;margin-bottom: 5px;">
             <div class="form-group">
                 <label>代码：</label>
-                <input type="text" class="form-control" name="code">
+                <input type="text" size="12" class="form-control" name="code">
             </div>
             <div class="form-group">
                 <label>名称：</label>
-                <input type="text" class="form-control" name="name">
+                <input type="text" size="12" class="form-control" name="name">
             </div>
              <div class="form-group">
                 <label>最少匹配：</label>
-                <input type="number" class="form-control" name="plate_count" value="1" min="1">
+                <input type="number" size="8" class="form-control" name="plate_count" value="1" min="1">
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="dtp_input2" class="control-label">减:</label>
+                <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd">
+                    <input class="form-control" size="8" type="text" name="jj_time" value="" readonly>
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label for="dtp_input2" class="control-label">登记：</label>
+                <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" >
+                    <input class="form-control" size="8" type="text" name="dj_time" value="" readonly>
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+
             </div>
             <br>
             <div class="form-group control-label">
                 <label>板块类型：</label>
             </div>
             <div class="form-group">
-                <select class="selectpicker" name="type" multiple>
+                <select class="selectpicker" size="8" name="type" multiple>
                     <option value="sh">沪市</option>
                     <option value="sz">深市</option>
                     <option value="sz">创业</option>
@@ -34,19 +54,20 @@
             <div class="form-group control-label">  <label>区域：</label></div>
             <div class="form-group">
 
-                <select id="area_select" name="area" class="selectpicker" multiple
+                <select id="area_select" size="8" name="area" class="selectpicker" multiple
                         data-live-search="true"></select>
             </div>
              <div class="form-group control-label">  <label>板块：</label></div>
             <div class="form-group">
 
-                <select id="concept_select" name="concept" class="selectpicker" multiple
+                <select id="concept_select" size="16" name="concept" class="selectpicker" multiple
                         data-live-search="true"></select>
             </div>
             <div class="form-group">
                 <a href="javascript:void(0);" onclick="stockSearch()" class="btn btn-primary">搜索</a>
             </div>
         </form>
+        <legend></legend>
         <table class="table  table-bordered table-hover  table-condensed" id="table_search">
             <thead>
             <tr>
@@ -138,6 +159,15 @@
 </script>
 <script type="text/javascript">
     window.template();
+    $('.form_date').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		minView: 2,
+		forceParse: 0
+    });
     function init() {
         request("/shares/plate", null, function (data) {
             var area = "";

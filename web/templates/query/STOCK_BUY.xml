@@ -21,8 +21,10 @@
     <query id="GET_STOCK_BUY" type="list">
         <sql>
             <![CDATA[
-				select * from stock_buy where status=1
+				select b.*,if(b.type=1,'自','系') from stock_buy b where status=1
             ]]>
         </sql>
     </query>
+
+
 </query-config>

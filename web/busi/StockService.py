@@ -435,10 +435,10 @@ class StockService(object):
         result.append({"p": sh['price'], "h": sh['high_price'], "k": sh['open_price'], "l": sh['low_price'],
                        "s": sh['turnover_rate'], "z": sh['growth'], "t": "h", 'a': round(sh['amt'] / 100000000, 2)})
         result.append({"p": sz['price'], "h": sz['high_price'], "k": sz['open_price'], "l": sz['low_price'],
-                       "s": sz['turnover_rate'], "z": sh['growth'], "t": "h", 'a': round(sz['amt'] / 100000000, 2)})
+                       "s": sz['turnover_rate'], "z": sz['growth'], "t": "h", 'a': round(sz['amt'] / 100000000, 2)})
         for d in data:
             stock_code = d['stock_code']
-            stock_data = self.thsData.getStockPlateInfoByCode(stock_code)
+            stock_data =StockData.get_stock_cur_trade(stock_code)
             # 当前价格 当前换手 当前涨幅 营收
             result.append(
                 {"p": stock_data['price'], "h": stock_data['high_price'], "k": stock_data['open_price'],
@@ -460,13 +460,9 @@ class StockService(object):
             if k != 'plate_count' and bool(params[k]):
                 param_flag = True
                 break
-        if param_flag:
-            result = self.db.setId("STOCK_SEARCH").execute(params, params)
-        else:
-            result_buy = DBExec(Query.QUERY_STOCK_BUY, "GET_STOCK_BUY").execute(None)
-            result = []
-            for i in range(0, len(result_buy)):
-                result.append({'code': result_buy[i]['stock_code']})
+        if param_flag is False:
+            params['stock_buy'] = True
+        result = self.db.setId("STOCK_SEARCH").execute(params, params)
         if len(result) == 0:
             return result
         temp = {}
