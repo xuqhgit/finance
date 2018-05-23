@@ -206,7 +206,10 @@ class WebClient(object):
         :return:
         """
         logging.info("移除proxy id %s " % json.dumps(x))
-        ip_dict['list'].remove(x)
+        try:
+            ip_dict['list'].remove(x)
+        except Exception, e:
+            pass
 
     def proxy_get(self, url):
         ip = self.get_ip()
@@ -214,6 +217,8 @@ class WebClient(object):
         try:
             conn.request('GET', url)
             r = conn.getresponse()
+            if r.status != 200:
+                self.ips_remove(ip)
             return Response(r, self.cookies)
         except Exception, e:
             self.ips_remove(ip)
