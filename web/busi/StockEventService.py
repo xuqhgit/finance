@@ -193,7 +193,7 @@ class StockEventService(object):
                     else:
                         DBExec(Query.QUERY_STOCK, "UPDATE_STOP_STOCK").execute(result_json)
                         pass
-                if event['type'] == 'fpfa':
+                if event['type'] == 'fpfa' or event['type'] == 'fenpei':
                     result_json = get_gqdj(str(event['content']))
                     if result_json:
                         DBExec(Query.QUERY_STOCK, "UPDATE_DJ_STOCK").execute(
