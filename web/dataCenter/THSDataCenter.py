@@ -526,9 +526,9 @@ class THSDataOther(object):
         client = WebClient()
         if url is None:
             url = "http://basic.10jqka.com.cn/mobile/%s/reminddetailn.html" % code
-        data = client.get(url)
+        data = client.proxy_get(url)
 
-        if data.status == 200:
+        if data  and data.status == 200:
             html = data.data.decode('gbk').encode('UTF-8')
             bs = BeautifulSoup(html.replace("</h1> </a>", "</h1>").replace("</a> </a>", "</a>"), "html.parser")
             div_list = bs.select("[class~=yearlist]")
@@ -548,7 +548,7 @@ class THSDataOther(object):
                     data_json['content'] = div.p.text.replace('\r', '').replace('\t', '').replace('\n', '').strip()
                 result.append(data_json)
         else:
-            logging.error("同花顺获取stock event [%s] 数据出错:%s" % (code, data.status))
+            logging.error("同花顺获取stock event [%s] 数据出错:%s" % (code, data and data.status or '-1'))
             if count == 0:
                 logging.error("同花顺获取stock event [%s] 切换地址" % code)
                 THSDataOther.get_stock_important_event(code,
