@@ -6,6 +6,11 @@ import json
 import re
 import urllib
 import urlparse
+import logging
+from bs4 import BeautifulSoup
+import random
+
+ip_dict = {"list": []}
 
 
 class CookieSet(object):
@@ -61,7 +66,8 @@ class Response(object):
         self.reason = raw_resp.reason
         self.headers = raw_resp.getheaders()
         self.data = raw_resp.read()
-        self.cookies = cookies.get_dict()
+        if cookies:
+            self.cookies = cookies.get_dict()
 
     def read(self):
         return self.data
@@ -72,7 +78,7 @@ class WebClient(object):
         self.cookies = {}
         self.timeout = timeout
         self.user_agent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36"
-        self.headers=headers
+        self.headers = headers
 
     def serialize(self):
         rows = [(k, self.cookies[k].serialize()) for k in self.cookies]
@@ -150,10 +156,72 @@ class WebClient(object):
 
         return Response(resp, cook)
 
+    def load_proxy_id(self):
+        """
+        加载ip列表
+        :return:
+        """
+        logging.info("加载代理服务器ip列表")
+        url_1 = ["http://www.xicidaili.com/wt/", "http://www.xicidaili.com/nt/"][random.randint(0, 1)]
+        resp = self.get(url_1)
+        if resp.status == 200:
+            ip_dict['list'] = []
+            trs = BeautifulSoup(resp.data, "html.parser").find(id='ip_list').select("tr")
+            for i in range(1, len(trs)):
+                tr = trs[i]
+                tds = tr.select('td')
+                ip = str(tds[1].string.strip())
+                port = int(tds[2].string.strip())
+                ip_type = tds[4].string.strip()
+                # if ip_type == u'透明':
+                ip_dict['list'].append({"ip": ip, "port": port})
+
+        else:
+            logging.error("获取代理服务器数据错误：%s" % resp.status)
+        return ip_dict['list']
+
+    def get_ip(self):
+        """
+        获取ip列表
+        :return:
+        """
+        if ip_dict['list']:
+            return ip_dict['list'][0]
+        ip_dict['list'].extend(self.load_proxy_id())
+        if ip_dict['list']:
+            return ip_dict['list'][0]
+        logging.error("无法获取可用的proxy ip")
+        return None
+
+    def clear_ips(self):
+        """
+        清理ip列表
+        :return:
+        """
+        ip_dict['list'] = []
+
+    def ips_remove(self, x):
+        """
+        移除
+        :return:
+        """
+        logging.info("移除proxy id %s " % json.dumps(x))
+        ip_dict['list'].remove(x)
+
+    def proxy_get(self, url):
+        ip = self.get_ip()
+        conn = httplib.HTTPConnection(ip['ip'], ip['port'], timeout=self.timeout)
+        try:
+            conn.request('GET', url)
+            r = conn.getresponse()
+            return Response(r, self.cookies)
+        except Exception, e:
+            self.ips_remove(ip)
+            return None
+
 
 if __name__ == '__main__':
     client = WebClient()
-    resp = client.get('http://d.gd.189.cn/absp/')
-    print resp.status
-    print client.cookies
+    resp = client.proxy_get('http://basic.10jqka.com.cn/mobile/601999/reminddetailn.html')
+    print resp.data
     # print resp.read()
