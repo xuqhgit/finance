@@ -438,7 +438,7 @@ class StockService(object):
                        "s": sz['turnover_rate'], "z": sz['growth'], "t": "h", 'a': round(sz['amt'] / 100000000, 2)})
         for d in data:
             stock_code = d['stock_code']
-            stock_data =StockData.get_stock_cur_trade(stock_code)
+            stock_data = StockData.get_stock_cur_trade(stock_code)
             # 当前价格 当前换手 当前涨幅 营收
             result.append(
                 {"p": stock_data['price'], "h": stock_data['high_price'], "k": stock_data['open_price'],
@@ -470,6 +470,7 @@ class StockService(object):
         for i in range(0, len(result)):
             code_list.append(result[i]['code'])
             temp[result[i]['code']] = result[i]
+            result[i]['buy_price'] = float(result[i]['buy_price'])
         plate_list = self.db.setId("STOCK_PLATE_LIST").execute(code_list)
         for i in range(0, len(plate_list)):
             c = temp[plate_list[i]['stock_code']]

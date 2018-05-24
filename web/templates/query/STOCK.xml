@@ -408,7 +408,7 @@
                     ORDER BY
                         stock_code) tp on  s.code =tp.stock_code
                  {% endif%}
-                 {% if stock_buy %} left {% endif%} join stock_buy b on  b.stock_code=s.code  and b.status=1
+                 {% if  stock_buy  %} inner {% else %} left  {% endif%} join stock_buy b on  b.stock_code=s.code  and b.status=1
                 where state=1
                 {% if code %}
                     and s.code = [code]
