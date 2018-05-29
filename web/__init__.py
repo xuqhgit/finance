@@ -4,7 +4,7 @@ import os
 import sys
 
 from flask import Flask
-
+import time
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -26,7 +26,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="[%(asctime)s] %(process)s, %(levelname)s: %(message)s",
     # datefmt='%a, %d %b %Y %H:%M:%S',
-    filename=_log_dir + '/finance.log',
+    filename=_log_dir + '/finance%s.log' % time.strftime('%Y%m%d', time.localtime(time.time())),
     filemode='w'
 )
 #################################################################################################

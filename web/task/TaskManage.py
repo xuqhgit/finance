@@ -94,7 +94,7 @@ def commonTask():
 
     # 更新事件
 
-    schedudler.add_job(handle_stock_event, 'cron', minute='*/2', hour='22-23', day_of_week='0-5')
+    schedudler.add_job(handle_stock_event, 'cron', minute='*/2', hour='0-5', day_of_week='0-5')
 
     schedudler.add_job(task_reset, 'cron', minute='25', hour='9', day_of_week='0-4')
     # schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='21')

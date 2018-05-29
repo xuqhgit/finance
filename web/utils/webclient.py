@@ -162,7 +162,8 @@ class WebClient(object):
         :return:
         """
         logging.info("加载代理服务器ip列表")
-        url_1 = ["http://www.xicidaili.com/wt/", "http://www.xicidaili.com/nt/"][random.randint(0, 1)]
+        url_1 = ["http://www.xicidaili.com/wt/", "http://www.xicidaili.com/nt/", "http://www.xicidaili.com/nn/"][
+            random.randint(0, 2)]
         resp = self.get(url_1)
         if resp.status == 200:
             ip_dict['list'] = []
