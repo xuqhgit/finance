@@ -533,7 +533,10 @@ class THSDataOther(object):
             bs = BeautifulSoup(html.replace("</h1> </a>", "</h1>").replace("</a> </a>", "</a>"), "html.parser")
             div_list = bs.select("[class~=yearlist]")
             if bool(div_list) is False:
-                logging.error("同花顺获取stock event [%s] 数据错误:[%s]" % (code,html))
+                logging.error("同花顺获取stock event [%s] 数据错误:[%s]" % (code,data.data))
+                return THSDataOther.get_stock_important_event(code,
+                                                              url="http://basic.10jqka.com.cn/mobile/%s/pubn.html#jumpaction=iframe" % code,
+                                                              count=count + 1)
             for div in div_list:
                 data_json = {}
                 mdate = str(div.select("[class~=mdate]")[0].string).strip()

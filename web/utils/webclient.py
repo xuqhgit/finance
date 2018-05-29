@@ -9,6 +9,7 @@ import urlparse
 import logging
 from bs4 import BeautifulSoup
 import random
+import re
 
 ip_dict = {"list": []}
 
@@ -162,8 +163,8 @@ class WebClient(object):
         :return:
         """
         logging.info("加载代理服务器ip列表")
-        url_1 = ["http://www.xicidaili.com/wt/", "http://www.xicidaili.com/nt/", "http://www.xicidaili.com/nn/"][
-            random.randint(0, 2)]
+        url_1 = ["http://www.xicidaili.com/wt/", "http://www.xicidaili.com/nt/"][
+            random.randint(0, 1)]
         resp = self.get(url_1)
         if resp.status == 200:
             ip_dict['list'] = []
@@ -218,7 +219,7 @@ class WebClient(object):
         try:
             conn.request('GET', url)
             r = conn.getresponse()
-            if r.status != 200:
+            if r.status != 200 or re.match(r'Unauthorized', r.read()) or bool(r.read()) is False:
                 self.ips_remove(ip)
             return Response(r, self.cookies)
         except Exception, e:
