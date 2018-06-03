@@ -42,6 +42,16 @@
                  {% if code_list %}
                     and t.busi_code in ({% for c in code_list %}'{{ c.code }}'{% if not loop.last %},{% endif %}{% endfor %})
                  {% endif%}
+                 {% if t_task_1 %}
+                    and t.task_1 = [t_task_1]
+                 {% endif%}
+                 {% if t_task_2 %}
+                    and t.task_2 = [t_task_2]
+                 {% endif%}
+                 {% if t_task_3 %}
+                    and t.task_3 = [t_task_3]
+                 {% endif%}
+
             ]]>
         </sql>
     </query>

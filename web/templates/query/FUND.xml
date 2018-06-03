@@ -8,8 +8,40 @@
     <query id="SAVE_FUND" type="">
         <sql>
             <![CDATA[
-                INSERT INTO fund(code,name,type,create_time)
-                        values([code],[name],[type],now())
+                INSERT INTO fund(code,name,company_id,type,create_time)
+                        values([code],[name],[company_id],[type],now())
+            ]]>
+        </sql>
+    </query>
+    <query id="SAVE_FUND_COMPANY" type="">
+        <sql>
+            <![CDATA[
+            insert into `fund_company` ( `capacity`, `code`, `create_time`, `company_level`, `name`, `found_date`)
+            values ( [capacity],[code], now(), [company_level], [name], [found_date])
+            ]]>
+        </sql>
+    </query>
+
+    <query id="GET_FUND_COMPANY" type="list">
+        <sql>
+            <![CDATA[
+            select id,name,code from fund_company where status=1
+            ]]>
+        </sql>
+    </query>
+    <query id="GET_FUND" type="list">
+        <sql>
+            <![CDATA[
+                select code from fund where status=1
+
+            ]]>
+        </sql>
+    </query>
+    <query id="SAVE_FUND_STOCK">
+        <sql>
+            <![CDATA[
+                insert into `finance`.`fund_stock` ( `stock_code`, `quantity`, `stock_name`, `fund_code`, `mc`, `create_time`, `end_date`, `scale`)
+            values ( [stock_code], [quantity], [stock_name], [fund_code], [mc], now(), [end_date], [scale])
             ]]>
         </sql>
     </query>

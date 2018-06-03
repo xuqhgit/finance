@@ -3,7 +3,7 @@
 # createTime: 2016/10/10
 from apscheduler.schedulers.background import BackgroundScheduler
 from web.busi.StockService import StockService
-from web.busi.StockEventService import StockEventService
+from web.busi.FundService import FundService
 from web.dataCenter import StockData
 import logging
 import time
@@ -82,6 +82,13 @@ def task_reset():
     ts.reset_stock_daily()
     ts.reset_stock_last()
 
+
+def task_fund_stock():
+    logging.info("执行 fund stock 事件")
+    ts = TaskService.TaskService()
+    ts.fund_stock()
+    pass
+
 def commonTask():
     # 获取当前stock daily数据
     schedudler.add_job(getCurStockDailyData, 'cron', minute='*/5', hour='16-17', day_of_week='0-4')
@@ -98,6 +105,8 @@ def commonTask():
 
     schedudler.add_job(task_reset, 'cron', minute='25', hour='9', day_of_week='0-4')
     # schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='21')
+
+    # schedudler.add_job(task_fund_stock, 'cron', minute='*/1', hour='19-23', day_of_week='0-6')
 
 
 def start():
@@ -118,6 +127,3 @@ def start():
     schedudler.add_job(StockData.clear_invalid_last_data, 'cron', minute='30', hour='9', day_of_week='0-4')
 
     schedudler.start()
-
-
-

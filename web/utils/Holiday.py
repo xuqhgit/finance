@@ -22,6 +22,10 @@ def get_cur_year():
     return time.strftime('%Y', time.localtime(time.time()))
 
 
+def get_cur_month():
+    return time.strftime('%m', time.localtime(time.time()))
+
+
 def is_trade_time():
     """
     是否是交易时间 其中已 925 竞价结束为开始时间

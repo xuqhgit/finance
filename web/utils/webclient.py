@@ -3,7 +3,6 @@
 import copy
 import httplib
 import json
-import re
 import urllib
 import urlparse
 import logging
@@ -229,6 +228,7 @@ class WebClient(object):
 
 if __name__ == '__main__':
     client = WebClient()
-    resp = client.proxy_get('http://basic.10jqka.com.cn/mobile/601999/reminddetailn.html')
+    resp = client.get('http://fund.eastmoney.com/150092.html')
     print resp.data
     # print resp.read()
+

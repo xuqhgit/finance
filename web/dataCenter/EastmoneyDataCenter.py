@@ -6,6 +6,7 @@ import time
 
 from web.utils import StringUtils
 from web.utils.webclient import WebClient
+from bs4 import BeautifulSoup
 
 client = WebClient()
 
@@ -22,6 +23,7 @@ class EastmoneyData(object):
         :param code:
         :return:
         """
+
         url = 'http://nuff.eastmoney.com/EM_Finance2015TradeInterface/JS.ashx?id=%s%s&token=4f1862fc3b5e77c150a2b985b12db0fd&cb=jQuery183&_=%s'
         resp = client.get(url % (code, StringUtils.stock_code_type_int(code), int(time.time())))
         if resp.status == 200:
@@ -55,7 +57,122 @@ class EastmoneyData(object):
             logging.error("【eastmoney】获取[%s]实时数据出现请求错误,请求码:%s" % (code, resp.status))
         return None
 
+    def get_fund_company(self):
+        """
+        获取基金公司数据
+        :return:
+        """
+        url = "http://fund.eastmoney.com/company/default.html"
+        c = WebClient()
+
+        resp = c.get(url)
+        result = []
+        if resp.status == 200:
+            trs = BeautifulSoup(resp.data, "html.parser").find(id='gspmTbl').select("tr")
+            for i in range(1, len(trs)):
+                tr = trs[i]
+                tds = tr.select('td')
+                name = str(tds[1].string)
+                found_date = str(tds[3].string)
+                code = tds[1].select('a')[0].attrs['href'].split("/")[2].split(".")[0]
+                level = 0
+                capacity = 0
+                sprite_star1 = tds[4].find_all(class_='sprite-star1')
+                if bool(sprite_star1):
+                    level = len(sprite_star1)
+                sprite_star5 = tds[4].find_all(class_='sprite-star5')
+                if bool(sprite_star5) and level == 0:
+                    level = len(sprite_star5)
+                # capacity_str = tds[5].text.split(" ")[0].replace(",", "").replace("-", "").strip()
+                capacity_str = tds[5].attrs['data-sortvalue']
+                capacity = bool(capacity_str) and float(capacity_str) or 0
+                obj = {"name": name, "company_level": level, "found_date": found_date, "capacity": capacity,
+                       "code": code}
+                result.append(obj)
+
+
+        else:
+            logging.error("【eastmoney】获取基金公司数据异常请求错误,请求码:%s" % (resp.status))
+        return result
+
+    def get_fund_list_by_company(self, code):
+        """
+        根据公司code获取公司下面所有的基金
+        :param code:
+        :return:
+        """
+        url = "http://fund.eastmoney.com/Company/%s.html" % code
+        c = WebClient()
+
+        resp = c.get(url)
+        result = []
+        if resp.status == 200:
+            trs = BeautifulSoup(resp.data, "html.parser").find(id='kfsFundNetWrap').select("tr")
+            hb_trs = BeautifulSoup(resp.data, "html.parser").find(id='HBLCFundNetCon').select("tr")
+            cn_trs = BeautifulSoup(resp.data, "html.parser").find(id='CNFundNetCon').select("tr")
+            if len(hb_trs) > 0:
+                if len(trs) > 0:
+                    result.extend(hb_trs[1:])
+                else:
+                    trs = hb_trs
+            if len(cn_trs) > 0:
+                if len(trs) > 0:
+                    result.extend(cn_trs[1:])
+                else:
+                    trs = cn_trs
+            for i in range(1, len(trs)):
+                tr = trs[i]
+                tds = tr.select('td')
+                if str(tds[0].string) == '暂无数据':
+                    logging.error("【eastmoney】获取基金公司[%s]无数据" % code)
+                    break
+                name_code = tds[0].select("a")
+                name = str(name_code[0].attrs['title'])
+                code = str(name_code[1].string)
+                fund_type = str(tds[2].string)
+                result.append({"name": name, "code": code, "type": fund_type})
+
+        else:
+            logging.error("【eastmoney】获取基金公司[%s]数据异常,请求码:%s" % (code, resp.status))
+        return result
+
+    def get_fund_stock(self, code, month, year=""):
+        """
+        获取基金股票数据
+        :param month:
+        :param year:
+        :return:
+        """
+        url = "http://fund.eastmoney.com/f10/FundArchivesDatas.aspx?type=jjcc&code=%s&topline=10" \
+              "&year=%s&month=%s&rt=%s" % (code, year, month, int(time.time()))
+        c = WebClient()
+        resp = c.get(url)
+        result = []
+        if resp.status == 200:
+            # print resp.data
+            h = resp.data.split("content:\"")[1].split("arryear:\"")[0]
+            if bool(h) is False:
+                logging.error("【eastmoney】获取基金[%s]stock 数据：无数据" % (code))
+                return result
+            html = BeautifulSoup(h, "html.parser")
+            trs = html.select("table")[0].select('tr')
+            end_date = str(html.find_all(class_='right')[0].select('font')[0].string)
+            for i in range(1, len(trs)):
+                tr = trs[i]
+                tds = tr.select('td')
+                stock_code = str(tds[1].string)
+                stock_name = str(tds[2].string)
+                scale = float(str(tds[6].string.replace("%", "")))
+                quantity = float(str(tds[7].string.replace(",", "")))
+                mc = float(str(tds[8].string.replace(",", "")))
+                result.append({"stock_code": stock_code, "stock_name": stock_name, "mc": mc, "scale": scale,
+                               "quantity": quantity, "end_date": end_date, "fund_code": code})
+
+        else:
+            logging.error("【eastmoney】获取基金公司[%s]数据异常,请求码:%s" % (code, resp.status))
+        return result
+
 
 if __name__ == '__main__':
     em = EastmoneyData()
-    print em.getCurData('603300')
+    # print json.dumps(em.get_fund_stock("501058", "3"))
