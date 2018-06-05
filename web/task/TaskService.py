@@ -28,6 +28,8 @@ class TaskService(object):
         stock_list = self.db.setId("GET_TASK_LIST").execute(
             {"busi_type": "stock", "task_1": waiting,
              "limit": int(ConfigUtils.get_val('task', 'eventLimit', default_val=25))})
+        if len(stock_list) == 0:
+            return stock_list
         se.update_all_stock_event(stock_list=stock_list)
         self.db.setId("UPDATE_TASK").execute({"busi_type": "stock", "task_1": handle, "code_list": stock_list})
         self.db.commitTrans()
@@ -48,6 +50,8 @@ class TaskService(object):
         stock_list = db.setId("GET_TASK_LIST").execute(
             {"busi_type": "stock", task_name: waiting,
              "limit": int(ConfigUtils.get_val('task', 'stockCurLimit', default_val=300))})
+        if len(stock_list) == 0:
+            return stock_list
         ss.saveAllDailyStocks(stock_list=stock_list, single=True, handleSize=100)
         db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list": stock_list})
         db.commitTrans()
@@ -69,6 +73,8 @@ class TaskService(object):
         stock_list = db.setId("GET_TASK_LIST").execute(
             {"busi_type": "stock", task_name: waiting,
              "limit": int(ConfigUtils.get_val('task', 'stockLastLimit', default_val=300))})
+        if len(stock_list) == 0:
+            return stock_list
         ss.saveAllDailyStocksLast(stock_list=stock_list, single=True, handleSize=100)
         db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list": stock_list})
         db.commitTrans()
@@ -89,6 +95,8 @@ class TaskService(object):
         func_list = db.setId("GET_TASK_LIST").execute(
             {"busi_type": "fund", task_name: waiting,
              "limit": int(ConfigUtils.get_val('task', 'fundStockSaveLimit', default_val=300))})
+        if len(func_list) == 0:
+            return func_list
         fs.save_fund_stock(func_list)
         db.setId("UPDATE_TASK").execute({"busi_type": "fund", task_name: handle, "code_list": func_list})
         db.commitTrans()
