@@ -19,7 +19,7 @@
             </div>
              <div class="form-group">
                 <label>最少匹配：</label>
-                <input type="number" size="8" class="form-control" name="plate_count" value="1" min="1">
+                <input type="number" size="8" class="form-control"id="plate_count" name="plate_count" value="1" min="1">
             </div>
             <br>
             <div class="form-group">
@@ -61,10 +61,10 @@
             <div class="form-group">
 
                 <select id="concept_select" size="16" name="concept" class="selectpicker" multiple
-                        data-live-search="true"></select>
+                        data-live-search="true" ></select>
             </div>
             <div class="form-group">
-                <a href="javascript:void(0);" onclick="stockSearch()" class="btn btn-primary">搜索</a>
+                <a href="javascript:void(0);"  data-loading-text="搜索中..."  id="searchBtn" class="btn btn-primary">搜索</a>
             </div>
         </form>
         <legend></legend>
@@ -108,6 +108,9 @@
                     均值
                 </th>
                 <th>
+                    基金
+                </th>
+                <th>
                     操作
                 </th>
             </tr>
@@ -148,6 +151,12 @@
         <td style="max-width: 200px;"><%:=list[i].plate_name%></td>
         <td >
             <%if(list[i].avg){for(var a=0;a< list[i].avg.length;a++){ %><%:=JSON.stringify(list[i].avg[a]).replace(",","：").replace(/,/g,"--")%><br/><% }}%></td>
+
+        <td>
+            基金：<%:=list[i].fund_count%><br/>
+            数量：<%:=list[i].fund_quantity%><br/>
+            市值：<%:=list[i].fund_mc%><br/>
+        </td>
         <td>
             <div class="btn-toolbar" role="toolbar" aria-label="...">
                 <div class="btn-group glyphicon glyphicon-edit" role="group"></div>
@@ -183,12 +192,23 @@
             }
             $('#area_select').empty().append(area).selectpicker('refresh');
             $('#concept_select').empty().append(concept).selectpicker('refresh');
+            $('#concept_select').on('changed.bs.select', function (e) {
+                var arr = $('#concept_select').selectpicker('val');
+                if(arr){
+                    var len = arr.length;
+                    $("#plate_count").val(len>0?len:1);
+                }
+            });
         }, null);
 //        $('#area_select').selectpicker('refresh');
 //        $('#concept_select').selectpicker('refresh');
     }
+
     init();
-    function stockSearch() {
+
+    $('#searchBtn').click(function(){
+        var $btn = $(this).button('loading')
+
         var params = $("#searchForm").getJsonData();
         request("/shares/stockSearch",params , function (data) {
             $("#table_search tbody").empty();
@@ -198,8 +218,11 @@
 
             var tpl = document.getElementById('STOCK_LIST_TPL').innerHTML;
             $("#table_search tbody").append(template(tpl, {"list":data}));
+
+            $btn.button('reset')
         }, null)
-    }
+    });
+
 
 </script>
 
