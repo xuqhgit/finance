@@ -152,7 +152,7 @@
         <td >
             <%if(list[i].avg){for(var a=0;a< list[i].avg.length;a++){ %><%:=JSON.stringify(list[i].avg[a]).replace(",","：").replace(/,/g,"--")%><br/><% }}%></td>
 
-        <td>
+        <td onclick="getFundList('<%:=list[i].code%>')">
             基金：<%:=list[i].fund_count%><br/>
             数量：<%:=list[i].fund_quantity%><br/>
             市值：<%:=list[i].fund_mc%><br/>
@@ -223,6 +223,9 @@
         }, null)
     });
 
+    function getFundList(stockCode) {
+        
+    }
 
 </script>
 
