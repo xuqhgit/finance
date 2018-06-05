@@ -218,7 +218,7 @@ class WebClient(object):
         try:
             conn.request('GET', url)
             r = conn.getresponse()
-            if r.status != 200 or re.match(r'Unauthorized', r.read()) or bool(r.read()) is False:
+            if r.status != 200 or re.match(r'Unauthorized', r.read()) or bool(r.read().strip()) is False:
                 self.ips_remove(ip)
             return Response(r, self.cookies)
         except Exception, e:
