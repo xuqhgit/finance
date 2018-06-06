@@ -70,5 +70,20 @@ def get_fund_stock(fund_code):
     return None
 
 
+def get_fund_daily(fund_code):
+    """
+    获取fund 当前信息
+    :param fund_code:
+    :return:
+    """
+    return eastmoneyData.get_fund_daily(fund_code)
+    # try:
+    #     return eastmoneyData.get_fund_daily(fund_code)
+    # except Exception, e:
+    #     print e
+    #     logging.error("获取基金[%s] 当前信息数据异常:%s" % (fund_code, e.message))
+    # return None
+
+
 if __name__ == '__main__':
     print get_fund_stock("003096")

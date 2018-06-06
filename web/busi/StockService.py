@@ -471,6 +471,8 @@ class StockService(object):
             code_list.append(result[i]['code'])
             temp[result[i]['code']] = result[i]
             result[i]['buy_price'] = result[i]['buy_price'] and float(result[i]['buy_price']) or 0
+            result[i]['fund_quantity'] = result[i]['fund_quantity'] and float(result[i]['fund_quantity']) or 0
+            result[i]['fund_mc'] = result[i]['fund_mc'] and float(result[i]['fund_mc']) or 0
         plate_list = self.db.setId("STOCK_PLATE_LIST").execute(code_list)
         for i in range(0, len(plate_list)):
             c = temp[plate_list[i]['stock_code']]

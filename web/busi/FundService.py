@@ -68,7 +68,38 @@ class FundService(object):
         db.setId("SAVE_FUND_STOCK").execute(res)
         db.commitTrans()
 
+    def get_stock_fund(self, stock_code, end_date=''):
+        """
+        根据股票代码获取基金
+        :param stock_code:
+        :return:
+        """
+        end_date = '2018-03-31'
+        db = DBExec(Query.QUERY_FUND, "GET_FUND_STOCK")
+        fund_list = db.execute({"stock_code": stock_code, "end_date": end_date})
+        result = []
+        if bool(fund_list):
+            code_len = len(fund_list)
+            CommonUtils.start_many_thread(fund_list,
+                                          handleSize=int(code_len / (code_len > 3 and 3 or code_len)),
+                                          args=(result,),
+                                          target=self.__get_fund_info,
+                                          asyn=False, name='获取FUND INFO')
+        return fund_list
+
+    def __get_fund_info(self, fund_list, result):
+        """
+        根据fund 列表获取 信息
+        :param fund_list:
+        :param result:
+        :return:
+        """
+        for f in fund_list:
+            res = FundData.get_fund_daily(f['fund_code'])
+            if res:
+                f.update(res)
+
 
 if __name__ == '__main__':
-    FundService().save_fund()
+    print FundService().get_stock_fund("002241")
     pass

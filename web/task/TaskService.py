@@ -49,7 +49,7 @@ class TaskService(object):
         # 获取未获取的事件的 stock
         stock_list = db.setId("GET_TASK_LIST").execute(
             {"busi_type": "stock", task_name: waiting,
-             "limit": int(ConfigUtils.get_val('task', 'stockCurLimit', default_val=300))})
+             "limit": int(ConfigUtils.get_val('task', 'stockDailyLimit', default_val=300))})
         if len(stock_list) == 0:
             return stock_list
         ss.saveAllDailyStocks(stock_list=stock_list, single=True, handleSize=100)

@@ -397,7 +397,8 @@
         <sql>
             <![CDATA[
                 select s.code,s.name,date_format(s.jj_time, '%Y%m%d') AS jj_time
-                 ,date_format(s.dj_time, '%Y%m%d') AS dj_time,b.buy_price,b.quantity,b.type
+                 ,date_format(s.dj_time, '%Y%m%d') AS dj_time,b.buy_price,b.quantity,b.type,sf.mc fund_mc,sf.quantity as fund_quantity,
+                 sf.fund_count
                  from stock s
                 {% if plate %}
                 join (SELECT
@@ -419,6 +420,7 @@
                         stock_code) tp on  s.code =tp.stock_code
                  {% endif%}
                  {% if  stock_buy  %} inner {% else %} left  {% endif%} join stock_buy b on  b.stock_code=s.code  and b.status=1
+                 left join stock_fund sf on sf.stock_code = s.code
                 where state=1
                 {% if code %}
                     and s.code = [code]

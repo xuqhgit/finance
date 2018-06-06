@@ -45,4 +45,23 @@
             ]]>
         </sql>
     </query>
+
+    <query id="GET_FUND_STOCK" type="list">
+        <sql>
+            <![CDATA[
+                select * from fund_stock s where
+                1=1
+                {% if stock_code %}
+                and s.stock_code=[stock_code]
+                {% endif %}
+                {% if end_date %}
+                and s.end_date=[end_date]
+                {% endif %}
+                {% if fund_code %}
+                and s.fund_code=[fund_code]
+                {% endif %}
+
+            ]]>
+        </sql>
+    </query>
 </query-config>

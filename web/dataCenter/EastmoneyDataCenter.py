@@ -172,7 +172,34 @@ class EastmoneyData(object):
             logging.error("【eastmoney】获取基金公司[%s]数据异常,请求码:%s" % (code, resp.status))
         return result
 
+    def get_fund_daily(self, code):
+        url = "https://fundmobapi.eastmoney.com/FundMApi/FundBaseTypeInformation.ashx?callback=jQuery%s&" \
+              "FCODE=%s&deviceid=Wap&plat=Wap&product=EFund&version=2.0.0&Uid=&_=%s" % (
+                  int(time.time()), code, int(time.time()))
+        c = WebClient()
+        resp = c.get(url)
+        res = {}
+        if resp.status == 200:
+            # print resp.data
+            resp.data = resp.data.encode("utf-8")
+            h = resp.data.split("(", 1)[1]
+            h = h[0:len(h) - 1]
+            if bool(h) is False:
+                logging.error("【eastmoney】获取基金[%s] daily 数据：无数据" % (code))
+                return None
+            obj_json = json.loads(h)['Datas']
+            res = {}
+            res["fund_code"] = code
+            res["fund_name"] = obj_json['SHORTNAME']
+            res['cur_price'] = obj_json['DWJZ']
+            res['growth'] = float(obj_json['RZDF'])
+            res['sell'] = obj_json['SGZT']
+            res['buy'] = obj_json['SHZT']
+        else:
+            logging.error("【eastmoney】获取基金公司[%s]数据异常,请求码:%s" % (code, resp.status))
+        return res
+
 
 if __name__ == '__main__':
     em = EastmoneyData()
-    # print json.dumps(em.get_fund_stock("501058", "3"))
+    print json.dumps(em.get_fund_daily("001600"))
