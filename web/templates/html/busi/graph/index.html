@@ -26,6 +26,7 @@
             'echarts/chart/line' // 使用柱状图就加载bar模块，按需加载
         ],
         function (ec) {
+
             var option = {
                 tooltip: {
                     show: true,
@@ -112,6 +113,13 @@
                     }
                 ]
             };
+
+            option.xAxis[0].data=[];
+            option.series[0];
+            option.series[1];
+            option.series[2];
+            option.series[3];
+            option.series[4];
             var moneyEchart = ec.init(document.getElementById('money_graph'));
 
             moneyEchart.setOption(option);

@@ -502,6 +502,18 @@ class StockService(object):
             temp[code_list[i]]['cur'] = s and s or {}
             self.__handle_growth([temp[code_list[i]]])
 
+    def get_stock_old_daily(self, params):
+        if params is None:
+            params = {"limit": 10}
+        stock_daily_list = DBExec(Query.QUERY_STOCK, "FIND_STOCK_DAILY_BY_CODE").execute(params)
+        result=[]
+        if stock_daily_list:
+            stock_daily_list.reverse()
+            for a in stock_daily_list:
+                d = stockFile.get_stock_json(a['stock_code'],a['stock_code'])
+                # 分析当天数据成交量的数据
+        return result
+
 
 if __name__ == '__main__':
     # result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))

@@ -235,10 +235,11 @@
             ]]>
         </sql>
     </query>
-    <query id="FIND_STOCK_DAILY_BY_CODE">
+    <query id="FIND_STOCK_DAILY_BY_CODE" type="list">
         <sql>
             <![CDATA[
                 SELECT
+                    sd.stock_code,
                     sd.trade_date,
                     sd.open_price,
                     sd.price,
@@ -252,6 +253,15 @@
                     stock_daily sd
                 WHERE
                     stock_code =[code]
+                    {% if m_trade_date %}
+                    and sd.trade_date<=[m_trade_date]
+                    {% endif%}
+                    order by sd.trade_date desc
+                    {% if limit %}
+                    limit [limit]
+                    {% endif%}
+
+
             ]]>
         </sql>
     </query>
@@ -448,10 +458,4 @@
              ]]>
         </sql>
     </query>
-
-
-
-
-
-
 </query-config>
