@@ -76,13 +76,12 @@ def get_fund_daily(fund_code):
     :param fund_code:
     :return:
     """
-    return eastmoneyData.get_fund_daily(fund_code)
-    # try:
-    #     return eastmoneyData.get_fund_daily(fund_code)
-    # except Exception, e:
-    #     print e
-    #     logging.error("获取基金[%s] 当前信息数据异常:%s" % (fund_code, e.message))
-    # return None
+    try:
+        return eastmoneyData.get_fund_daily(fund_code)
+    except Exception, e:
+        print e
+        logging.error("获取基金[%s] 当前信息数据异常:%s" % (fund_code, e.message))
+    return None
 
 
 if __name__ == '__main__':

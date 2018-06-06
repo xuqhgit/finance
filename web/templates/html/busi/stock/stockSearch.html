@@ -121,7 +121,55 @@
         </table>
     </div>
 </div>
+<!-- Modal -->
+<div class="modal fade bs-example-modal-lg" id="fund_list_modal" tabindex="-1" role="dialog" aria-labelledby="fund_list_modal_label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="fund_list_modal_label">基金列表</h4>
+      </div>
+      <div class="modal-body">
+            <table class="table  table-bordered table-hover  table-condensed" id="fund_list_table">
+            <thead>
+            <tr>
+                <th>
+                </th>
+                <th>
+                    序号
+                </th>
+                <th>
+                    代码
+                </th>
+                <th>
+                    名称
+                </th>
+                <th>
+                    当前价格
+                </th>
+                <th>
+                    涨幅
+                </th>
+                <th>
+                    卖出状态
+                </th>
+                 <th>
+                    买入状态
+                </th>
+            </tr>
+            </thead>
+            <tbody>
 
+            </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock%}
 
 {% block footScript %}
@@ -163,6 +211,21 @@
                 <div class="btn-group glyphicon glyphicon-remove-circle" role="group"></div>
             </div>
         </td>
+    </tr>
+    <%  }%>
+</script>
+
+<script id="FUND_LIST_TPL" type="text/html">
+    <%for(var i = 0; i < list.length; i++) { %>
+    <tr class="<%:=list[i].growth>0?'danger':''%>">
+        <th scope="row"><input type="checkbox" value="<%:=list[i].fund_code%>"></th>
+        <th><%:=i+1 %></th>
+        <td><%:=list[i].fund_code%></td>
+        <td><%:=list[i].fund_name%></td>
+        <td><%:=list[i].cur_price%></td>
+        <td><%:=list[i].growth%></td>
+        <td><%:=list[i].sell%></td>
+        <td><%:=list[i].buy%></td>
     </tr>
     <%  }%>
 </script>
@@ -224,7 +287,15 @@
     });
 
     function getFundList(stockCode) {
-        
+        request("/fund/fundListByStock",{"stock_code":stockCode} , function (data) {
+            $("#fund_list_table tbody").empty();
+            $("#fund_list_modal").modal('show');
+            if(data.length==0){
+                 $("#table_search tbody").append("<tr><td>无数据</td></tr>");
+            }
+            var tpl = document.getElementById('FUND_LIST_TPL').innerHTML;
+            $("#fund_list_table tbody").append(template(tpl, {"list":data}));
+        }, null)
     }
 
 </script>
