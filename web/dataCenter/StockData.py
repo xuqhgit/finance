@@ -162,6 +162,8 @@ def get_stock_cur_trade(code, count=8, index=None):
     :param code:
     :return:
     """
+    if code == '1A0001' or code == '399001':
+        return None
     try:
         code_int = (index is None and int(code) or index) + count
     except Exception, e:
@@ -189,7 +191,7 @@ def get_stock_cur_trade(code, count=8, index=None):
     if count == 0:
         return result
     if result is None:
-        return get_stock_cur_trade(code, count=count - 1,index=index)
+        return get_stock_cur_trade(code, count=count - 1, index=index)
     return result
 
 
