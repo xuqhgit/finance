@@ -11,6 +11,14 @@ from bs4 import BeautifulSoup
 client = WebClient()
 
 
+# 个股解禁历史 http://data.eastmoney.com/dxf/q/601997.html
+# 所有解禁 http://data.eastmoney.com/dxf/detail.aspx?market=all
+# 按日期解禁 http://data.eastmoney.com/dxf/detail.aspx?market=all&startdate=2018-07-31&enddate=2018-07-31
+# 股票回购 http://data.eastmoney.com/gphg/
+# 分红 http://data.eastmoney.com/yjfp/
+# 股票增减持 http://data.eastmoney.com/executive/gdzjc.html
+
+
 class EastmoneyData(object):
     """
     东方财富
@@ -239,7 +247,113 @@ class EastmoneyData(object):
             logging.error("【eastmoney】获取停复牌数据异常,请求码:%s" % (resp.status))
         return result
 
+    def get_stock_history_jj_data(self, code):
+        """
+        获取历史解禁数据
+        :param code:
+        :return:
+        {
+        "gpdm": "601997",
+        "ltsj": "2019-08-16T00:00:00",
+        "gpcjjgds": 10.0,
+        "jjsl": 93385.3442,
+        "jjsz": 1113153.302864,
+        "xsglx": "首发原股东限售股份",
+        "jjqesrzdf": "-",
+        "jjhesrzdf": "-",
+        "yltsl": 217281.8537,
+        "wltsl": 12577.3363,
+        "zb": 0.753736683760247,
+        "mkt": "sh",
+        "sname": "贵阳银行",
+        "newPrice": 11.92,
+        "zzb": 0.406271962413163,
+        "kjjsl": 93385.3442,
+        "kjjsz": 1113153.302864
+        }
+        """
+        url = 'http://dcfm.eastmoney.com/em_mutisvcexpandinterface/api/js/get?token=70f12f2f4f091e459a279469fe49eca5' \
+              '&st=ltsj''&sr=-1&p=1&ps=50&type=XSJJ_NJ_PC&js=var%%20FPkxTgHV={pages:(tp),data:(x)}&filter' \
+              '=(gpdm=%%27%s%%27)&rt=51055517' \
+              % code
+        c = WebClient()
+        resp = c.get(url)
+        if resp.status == 200:
+            resp.data = resp.data.encode("utf-8")
+            h = resp.data.split("data:", 1)[1]
+            h = h[0:len(h) - 1]
+            return self.__handl_jj_data(h)
+        else:
+            logging.error("【eastmoney】获取解禁历史数据,请求码:%s code:" % (resp.status, code))
+            return None
+
+    def get_jj_data_by_date(self, start_date=None, end_date=None):
+        """
+        获取历史解禁数据
+        :param start_date:
+        :param end_date:
+        :return:
+        """
+        if bool(start_date) is False:
+            start_date = Holiday.get_cur_date(splitType="-")
+        if bool(end_date) is False:
+            end_date = Holiday.get_cur_date(splitType="-")
+        url = 'http://dcfm.eastmoney.com/EM_MutiSvcExpandInterface/api/js/get?type=XSJJ_NJ_PC&' \
+              'token=70f12f2f4f091e459a279469fe49eca5&st=kjjsl&sr=-1&p=1&ps=10&filter=(mkt=)(ltsj%%3E' \
+              '=^%s^%%20and%%20ltsj%%3C=^%s^)&js=var%%20HtwQmsuo=(x)' \
+              % (start_date, end_date)
+        c = WebClient()
+        resp = c.get(url)
+
+        if resp.status == 200:
+            resp.data = resp.data.encode("utf-8")
+            h = resp.data.split("=", 1)[1]
+            return self.__handl_jj_data(h)
+        else:
+            logging.error("【eastmoney】获取解禁历史数据,请求码:%s [%s:%s]" % (resp.status, start_date, end_date))
+            return None
+
+    def __handl_jj_data(self, data_str):
+        """
+        处理解禁数据
+        :param data_str:
+        :return:
+        {
+        "gpdm": "601997",
+        "ltsj": "2019-08-16T00:00:00",
+        "gpcjjgds": 10.0,
+        "jjsl": 93385.3442,
+        "jjsz": 1113153.302864,
+        "xsglx": "首发原股东限售股份",
+        "jjqesrzdf": "-",
+        "jjhesrzdf": "-",
+        "yltsl": 217281.8537,
+        "wltsl": 12577.3363,
+        "zb": 0.753736683760247,
+        "mkt": "sh",
+        "sname": "贵阳银行",
+        "newPrice": 11.92,
+        "zzb": 0.406271962413163,
+        "kjjsl": 93385.3442,
+        "kjjsz": 1113153.302864
+        }
+        """
+        # print resp.data
+        result = []
+        data = json.loads(data_str)
+        if len(data) <= 0:
+            logging.error("【eastmoney】获取解禁历史数据：无数据")
+            return result
+        for i in range(0, len(data)):
+            d = data[i]
+            res = {'stock_code': d['gpdm'], 'stock_name': d['sname'], 'jj_date': d['ltsj'].split('T')[0],
+                   'jjsl': d['jjsl'], 'jjsz': d['jjsz'], 'jjlx': d['xsglx'], 'jjgds': d['gpcjjgds'],
+                   'wjjsl': d['wltsl'], 'scale': d['zzb']}
+            result.append(res)
+        return result
+
 
 if __name__ == '__main__':
     em = EastmoneyData()
-    print em.get_stock_tfp()
+    print em.get_jj_data_by_date(end_date='2018-07-16')
+    # print em.get_stock_history_jj_data('601997')
