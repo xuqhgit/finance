@@ -517,6 +517,21 @@ class StockService(object):
         return result
 
 
+    def updat_stock_tfp(self):
+        """
+        更新停复牌
+        :return:
+        """
+        data_list = StockData.get_cur_stock_tfp(sType='tp')
+        # 更新停牌数据
+        DBExec(Query.QUERY_STOCK, "UPDATE_STOCK_TFP").execute(data_list)
+        data_list = StockData.get_cur_stock_tfp(sType='fp')
+        # 更新复牌数据
+        DBExec(Query.QUERY_STOCK, "UPDATE_STOCK_TFP").execute(data_list)
+
+
+
+
 if __name__ == '__main__':
     # result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
     # print result
@@ -530,9 +545,12 @@ if __name__ == '__main__':
     # s = StockService()
     # print s.thsData.getStockPlateInfoByCode('1A0001')
     # pass
+    # 分析涨幅数据
+    # h_data = StockData.get_stock_last_day('601838')
+    # print StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
 
-    h_data = StockData.get_stock_last_day('601838')
-    print StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
+    StockService().updat_stock_tfp()
+
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')
     # data = data['data']

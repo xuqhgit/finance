@@ -460,4 +460,14 @@
              ]]>
         </sql>
     </query>
+
+    <query id="UPDATE_STOCK_TFP" type="">
+        <sql>
+            <![CDATA[
+              update stock set stop_time=[tp],resumption_time=[ fp ] where code=[stock_code]
+               and (stop_time<=str_to_date([tp],'%Y-%m-%d') or stop_time is NULL)
+            ]]>
+        </sql>
+    </query>
+
 </query-config>

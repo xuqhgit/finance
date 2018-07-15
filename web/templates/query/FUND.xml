@@ -49,7 +49,7 @@
     <query id="GET_FUND_STOCK" type="list">
         <sql>
             <![CDATA[
-                select fund_code,stock_code from fund_stock s where
+                select fund_code,stock_code,s.scale,s.quantity from fund_stock s where
                 1=1
                 {% if stock_code %}
                 and s.stock_code=[stock_code]

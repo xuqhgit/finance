@@ -189,8 +189,22 @@ def get_stock_cur_trade(code, count=8, index=None):
     if count == 0:
         return result
     if result is None:
-        return get_stock_cur_trade(code, count=count - 1,index=index)
+        return get_stock_cur_trade(code, count=count - 1, index=index)
     return result
+
+
+def get_cur_stock_tfp(**params):
+    """
+    获取当前停复牌
+    :param params:
+    :return:
+    """
+    try:
+        result = eastmoneyData.get_stock_tfp(params)
+        return result
+    except Exception, e:
+        logging.error("获取Stock当前停复牌信息错误：%s" % (e))
+    return None
 
 
 if __name__ == "__main__":

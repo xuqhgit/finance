@@ -4,7 +4,7 @@ import json
 import logging
 import time
 
-from web.utils import StringUtils
+from web.utils import StringUtils, Holiday
 from web.utils.webclient import WebClient
 from bs4 import BeautifulSoup
 
@@ -193,13 +193,53 @@ class EastmoneyData(object):
             res["fund_name"] = obj_json['SHORTNAME']
             res['cur_price'] = obj_json['DWJZ']
             res['growth'] = float(obj_json['RZDF'])
-            res['sell'] = obj_json['SGZT']
-            res['buy'] = obj_json['SHZT']
+            res['sell'] = obj_json['SHZT']
+            res['buy'] = obj_json['SGZT']
         else:
             logging.error("【eastmoney】获取基金公司[%s]数据异常,请求码:%s" % (code, resp.status))
         return res
 
+    def get_stock_tfp(self, sType='tp', pageSize=50):
+        """
+        停复牌 2 停牌 6 复牌
+        :return:
+
+        var LISSPdZE = {
+            pages: 4,
+            data: ["300187,永清环保,2018-04-09 09:30,2018-10-09 15:00,连续停牌,拟筹划重大资产重组,创业板,2018-04-09,2018-10-10"]
+        }
+        """
+        tf = '2'
+        if sType == 'fp':
+            tf = '6'
+
+        url = 'http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?type=FD&sty=SRB&st=%s' \
+              '&sr=-1&p=1&ps=%s&js=var%%20mzsIinmN={pages:(pc),data:[(x)]}&mkt=1&fd=%s&rt=51054649' \
+              % (tf, pageSize, Holiday.get_cur_date(splitType="-"))
+        c = WebClient()
+        resp = c.get(url)
+        result = []
+        if resp.status == 200:
+            # print resp.data
+            resp.data = resp.data.encode("utf-8")
+            h = resp.data.split("data:", 1)[1].replace("}", "")
+            data = json.loads(h)
+            if len(data) <= 0:
+                logging.error("【eastmoney】获取停复牌数据：无数据")
+                return None
+            result = []
+            for i in range(0, len(data)):
+                arr = data[i].split(",")
+                res = {'stock_code': arr[0], 'stock_name': arr[1], 'tp': arr[2], 'fp': None}
+                if len(arr) == 9:
+                    res['fp'] = arr[8]
+                result.append(res)
+
+        else:
+            logging.error("【eastmoney】获取停复牌数据异常,请求码:%s" % (resp.status))
+        return result
+
 
 if __name__ == '__main__':
     em = EastmoneyData()
-    print json.dumps(em.get_fund_daily("001600"))
+    print em.get_stock_tfp()

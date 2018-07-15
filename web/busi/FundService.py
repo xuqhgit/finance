@@ -95,8 +95,11 @@ class FundService(object):
         :return:
         """
         for f in fund_list:
+            f['scale'] = float(f['scale'])
+            f['quantity'] = float(f['quantity'])
             res = FundData.get_fund_daily(f['fund_code'])
             if res:
+
                 f.update(res)
 
 

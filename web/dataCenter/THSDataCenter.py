@@ -526,14 +526,14 @@ class THSDataOther(object):
         client = WebClient()
         if url is None:
             url = "http://basic.10jqka.com.cn/mobile/%s/reminddetailn.html" % code
-        data = client.proxy_get(url)
+        data = client.get(url)
 
         if data  and data.status == 200:
             html = data.data.decode('gbk').encode('UTF-8')
             bs = BeautifulSoup(html.replace("</h1> </a>", "</h1>").replace("</a> </a>", "</a>"), "html.parser")
             div_list = bs.select("[class~=yearlist]")
             if bool(div_list) is False:
-                logging.error("同花顺获取stock event [%s] 数据错误:[%s]" % (code,data.data))
+                logging.error("同花顺获取stock event [%s] 数据错误" % (code))
                 return THSDataOther.get_stock_important_event(code,
                                                               url="http://basic.10jqka.com.cn/mobile/%s/pubn.html#jumpaction=iframe" % code,
                                                               count=count + 1)

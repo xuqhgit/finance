@@ -110,6 +110,7 @@ class TaskService(object):
         logging.info("重置任务---fund stock 完成：%s" % count)
 
 
+
 if __name__ == '__main__':
     ts = TaskService()
     print ts.reset_fund_stock()

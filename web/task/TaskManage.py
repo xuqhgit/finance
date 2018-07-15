@@ -69,10 +69,10 @@ def checkPublicNewStockStatus():
             StockService().checkPublicNewStockStatus()
 
 
-def handle_stock_event():
-    logging.info("执行 stock event 事件")
-    ts = TaskService.TaskService()
-    ts.stock_event()
+def updateCurStockTfp():
+    if Holiday.is_trade_date():
+        logging.info("开始更新 停复牌  数据")
+        StockService().updat_stock_tfp()
 
 
 def task_reset():
@@ -89,6 +89,7 @@ def task_fund_stock():
     ts.fund_stock()
     pass
 
+
 def commonTask():
     # 获取当前stock daily数据
     schedudler.add_job(getCurStockDailyData, 'cron', minute='*/5', hour='16-17', day_of_week='0-4')
@@ -99,10 +100,10 @@ def commonTask():
     # 获取当前plate last 数据
     schedudler.add_job(getCurPlateLastData, 'cron', minute='15', hour='18', day_of_week='0-4')
 
-    # 更新事件
+    # 获取stock 停复牌数据
+    schedudler.add_job(updateCurStockTfp, 'cron', minute='31', hour='9', day_of_week='0-4')
 
-    schedudler.add_job(handle_stock_event, 'cron', minute='*/2', hour='0-5', day_of_week='0-5')
-
+    # 任务重置
     schedudler.add_job(task_reset, 'cron', minute='25', hour='9', day_of_week='0-4')
     # schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='21')
 

@@ -14,8 +14,9 @@ client = WebClient()
 cur_date = {"date": '', 'is_trade': False}
 
 
-def get_cur_date():
-    return time.strftime('%Y%m%d', time.localtime(time.time()))
+def get_cur_date(splitType=''):
+    s = '%%Y%s%%m%s%%d' % (splitType, splitType)
+    return time.strftime(s, time.localtime(time.time()))
 
 
 def get_cur_year():
