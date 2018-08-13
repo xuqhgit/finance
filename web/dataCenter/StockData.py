@@ -209,6 +209,20 @@ def get_cur_stock_tfp(**params):
     return None
 
 
+def get_stock_history_lift(code):
+    """
+    获取stock历史解禁数据
+    :param code:
+    :return:
+    """
+    try:
+        result = eastmoneyData.get_stock_history_jj_data(code)
+        return result
+    except Exception, e:
+        logging.error("获取Stock历史解禁信息错误：%s----%s" % (code,e))
+    return None
+
+
 if __name__ == "__main__":
     # p_json = thsDataCenter.getStockPlateInfoByCode("002606")
     # p_json['name'] = 'XD除息'

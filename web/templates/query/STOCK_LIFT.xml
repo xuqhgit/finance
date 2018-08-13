@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+@description:stock 解禁列表
+@author apple
+@date 2018/3/13
+-->
+<query-config>
+    <query id="INSERT_STOCK_LIFT">
+        <sql>
+            <![CDATA[
+				INSERT INTO stock_lift(
+					stock_code,jj_date,jjsl,jjsz,jjgds,wjjsl,source_type,jjlx,scale,create_time
+				)
+				VALUES(
+					   [ stock_code ] ,  [ jj_date ] ,  [ jjsl ] ,  [ jjsz ] ,
+					  [ jjgds ] ,  [ wjjsl ] ,  [ source_type ] ,  [ jjlx ] ,  [ scale ] ,  now()
+				)
+            ]]>
+        </sql>
+    </query>
+
+    <query id="NOT_IN_STOCK_LIFT" type="list">
+        <sql>
+            <![CDATA[
+				select code from stock s where not exists
+				(select 1 from stock_lift t where t.stock_code=s.code)
+				and s.code!='1A0001' and s.code!='399001' and s.code!='399006' order by rand()
+				limit [count]
+            ]]>
+        </sql>
+    </query>
+</query-config>

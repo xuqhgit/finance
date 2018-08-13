@@ -479,8 +479,9 @@ class StockService(object):
             c['plate_name'] = plate_list[i]['plate_name']
             c['plate_code'] = plate_list[i]['plate_code']
         code_len = len(code_list)
+        filter_condition = None
         CommonUtils.start_many_thread(code_list, handleSize=int(code_len / (code_len > 7 and 8 or code_len)),
-                                      args=(temp,),
+                                      args=(temp, filter_condition),
                                       target=self.__get_stock_cur_trade,
                                       asyn=False, name='获取stock 当前信息')
         sh = self.thsData.getStockPlateInfoByCode('1A0001')
@@ -498,7 +499,14 @@ class StockService(object):
             h_data = StockData.get_stock_last_day(header_code_arr[i]['code'])
             header_code_arr[i]['avg'] = StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
 
-    def __get_stock_cur_trade(self, code_list, temp):
+    def __get_stock_cur_trade(self, code_list, temp, filter_condition):
+        """
+        获取当前交易
+        :param code_list:
+        :param temp:
+        :param filter_condition: 过滤条件
+        :return:
+        """
         for i in range(0, len(code_list)):
             s = StockData.get_stock_cur_trade(code_list[i])
             temp[code_list[i]]['cur'] = s and s or {}
@@ -508,14 +516,13 @@ class StockService(object):
         if params is None:
             params = {"limit": 10}
         stock_daily_list = DBExec(Query.QUERY_STOCK, "FIND_STOCK_DAILY_BY_CODE").execute(params)
-        result=[]
+        result = []
         if stock_daily_list:
             stock_daily_list.reverse()
             for a in stock_daily_list:
-                d = stockFile.get_stock_json(a['stock_code'],a['stock_code'])
+                d = stockFile.get_stock_json(a['stock_code'], a['stock_code'])
                 # 分析当天数据成交量的数据
         return result
-
 
     def updat_stock_tfp(self):
         """
@@ -529,7 +536,21 @@ class StockService(object):
         # 更新复牌数据
         DBExec(Query.QUERY_STOCK, "UPDATE_STOCK_TFP").execute(data_list)
 
+    def save_stock_lift(self):
+        """
+        保存解禁数据
+        :return:
+        """
 
+        stock_list = DBExec(Query.QUERY_STOCK_LIFT, "NOT_IN_STOCK_LIFT").execute({'count': 8})
+        if bool(stock_list) is False:
+            logging.error("解禁数据获取失败")
+            return
+        for i in range(0,len(stock_list)):
+
+            data_list = StockData.get_stock_history_lift(stock_list[i]['code'])
+            # 保存数据
+            DBExec(Query.QUERY_STOCK_LIFT, "INSERT_STOCK_LIFT").execute(data_list)
 
 
 if __name__ == '__main__':
@@ -549,7 +570,7 @@ if __name__ == '__main__':
     # h_data = StockData.get_stock_last_day('601838')
     # print StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
 
-    StockService().updat_stock_tfp()
+    StockService().save_stock_lift("601997")
 
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

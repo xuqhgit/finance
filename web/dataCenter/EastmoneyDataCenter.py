@@ -12,6 +12,8 @@ client = WebClient()
 
 
 # 个股解禁历史 http://data.eastmoney.com/dxf/q/601997.html
+# http://dcfm.eastmoney.com/em_mutisvcexpandinterface/api/js/get?token=70f12f2f4f091e459a279469fe49eca5&st=ltsj&
+# sr=1&p=1&ps=50&type=XSJJ_NJ_PC&js=var%20raxPSCWc={pages:(tp),data:(x)}&filter=(gpdm=%27601997%27)&rt=51138864
 # 所有解禁 http://data.eastmoney.com/dxf/detail.aspx?market=all
 # 按日期解禁 http://data.eastmoney.com/dxf/detail.aspx?market=all&startdate=2018-07-31&enddate=2018-07-31
 # 股票回购 http://data.eastmoney.com/gphg/
@@ -348,12 +350,12 @@ class EastmoneyData(object):
             d = data[i]
             res = {'stock_code': d['gpdm'], 'stock_name': d['sname'], 'jj_date': d['ltsj'].split('T')[0],
                    'jjsl': d['jjsl'], 'jjsz': d['jjsz'], 'jjlx': d['xsglx'], 'jjgds': d['gpcjjgds'],
-                   'wjjsl': d['wltsl'], 'scale': d['zzb']}
+                   'wjjsl': d['wltsl'], 'scale': d['zzb'],'source_type':'eastmoney'}
             result.append(res)
         return result
 
 
 if __name__ == '__main__':
     em = EastmoneyData()
-    print em.get_jj_data_by_date(end_date='2018-07-16')
-    # print em.get_stock_history_jj_data('601997')
+    # print em.get_jj_data_by_date(end_date='2018-07-18')
+    print em.get_stock_history_jj_data('601997')

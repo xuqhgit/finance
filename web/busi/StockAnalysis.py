@@ -572,9 +572,12 @@ def growth_Analysis(data_list, avgs=[5]):
         if len(data_list) < avg:
             avg = len(data_list)
         n_data_list = data_list[len(data_list) - avg:]
+        avg_growth = round((n_data_list[avg-1][4] - n_data_list[0][4])*100 / n_data_list[0][4],2)
+
         growth = []
         change = []
         volumn = []
+        n_data_list
         last_price = n_data_list[0][4]
         last_change = n_data_list[0][7]
         for i in range(1, len(n_data_list)):
@@ -590,7 +593,7 @@ def growth_Analysis(data_list, avgs=[5]):
 
         result.append(
             [avgs[a], avg_val, round(numpy.std(growth, ddof=1), 3), chg_avg_al, round(numpy.std(change, ddof=1), 3),
-             change[len(change)-1]])
+             change[len(change)-1],avg_growth])
     return result
 
 if __name__ == '__main__':
