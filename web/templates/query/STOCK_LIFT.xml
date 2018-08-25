@@ -24,8 +24,8 @@
             <![CDATA[
 				select code from stock s where not exists
 				(select 1 from stock_lift t where t.stock_code=s.code)
-				and s.code!='1A0001' and s.code!='399001' and s.code!='399006' order by rand()
-				limit [count]
+				and s.code!='1A0001' and s.code!='399001' and s.code!='399006'  order by rand()
+				limit 0
             ]]>
         </sql>
     </query>

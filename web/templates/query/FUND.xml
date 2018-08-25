@@ -32,8 +32,10 @@
     <query id="GET_FUND" type="list">
         <sql>
             <![CDATA[
-                select code from fund where status=1
-
+                select code from fund where state=1
+                {% if code_list %}
+                and code in ({% for c in code_list %}'{{ c.code }}'{% if not loop.last %},{% endif %}{% endfor %})
+                {% endif %}
             ]]>
         </sql>
     </query>

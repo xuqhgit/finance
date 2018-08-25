@@ -440,6 +440,9 @@
                 {% if is_jj %}
                     and (s.jj_time<now() or s.jj_time is null)
                 {% endif%}
+                {% if stock_list %}
+                    and s.code in ({% for p in stock_list %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
+                {% endif%}
 
 
 
@@ -469,5 +472,35 @@
             ]]>
         </sql>
     </query>
+
+
+    <query id="GET_ALL_STOCK" type="list">
+        <sql>
+            <![CDATA[
+              select code from stock s where s.code!='1A0001' and s.code!='399001' and s.code!='399006'
+              and state=1
+
+              {% if code %}
+                    and s.code = [code]
+                {% endif%}
+                {% if name %}
+                    and s.name like concat("%",[name],"%")
+                {% endif%}
+                {% if type %}
+                    and s.type=[type]
+                {% endif%}
+                {% if dj_date %}
+                    and s.dj_time>=date([dj_date])
+                {% endif%}
+                {% if jj_date %}
+                    and s.jj_time>=date([jj_date])
+                {% endif%}
+                {% if is_jj %}
+                    and (s.jj_time<now() or s.jj_time is null)
+                {% endif%}
+            ]]>
+        </sql>
+    </query>
+
 
 </query-config>
