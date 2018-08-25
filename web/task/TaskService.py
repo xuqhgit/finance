@@ -101,6 +101,8 @@ class TaskService(object):
         db.setId("UPDATE_TASK").execute({"busi_type": "fund", task_name: handle, "code_list": func_list})
         db.commitTrans()
 
+
+
     def reset_fund_stock(self):
         logging.info("重置任务---fund stock 开始")
         # 获取未获取的事件的 stock
@@ -113,4 +115,4 @@ class TaskService(object):
 
 if __name__ == '__main__':
     ts = TaskService()
-    print ts.reset_fund_stock()
+    print ts.fund_stock()
