@@ -35,11 +35,20 @@ class FundService(object):
         """
         db = DBExec(Query.QUERY_FUND, "")
         company_list = db.setId("GET_FUND_COMPANY").execute(None)
+        # company_list = [{"id":"80000111","code":"80175498"}]
         for c in company_list:
             try:
                 fund_list = FundData.get_fund_list_by_company(c['id'], c['code'])
                 if bool(fund_list):
-                    db.setId("SAVE_FUND").execute(fund_list)
+                    result = []
+                    code_list = db.setId("GET_FUND").execute({'code_list':fund_list})
+                    code_list_h = [i['code'] for i in code_list]
+                    for i in range(0,len(fund_list)):
+                        if fund_list[i]['code'] not in code_list_h:
+                            result.append(fund_list[i])
+                    if bool(result):
+                        db.setId("SAVE_FUND").execute(result)
+                        DBExec(Query.QUERY_FINANCE_TASK, "")
             except Exception, e:
                 print e
                 logging.error("保存基金数据错误【%s】：%s" % (json.dumps(c), e.message))
@@ -74,7 +83,7 @@ class FundService(object):
         :param stock_code:
         :return:
         """
-        end_date = '2018-03-31'
+        end_date = '2018-06-31'
         db = DBExec(Query.QUERY_FUND, "GET_FUND_STOCK")
         fund_list = db.execute({"stock_code": stock_code, "end_date": end_date})
         result = []
@@ -104,5 +113,5 @@ class FundService(object):
 
 
 if __name__ == '__main__':
-    print FundService().get_stock_fund("002241")
+    print FundService().save_fund()
     pass

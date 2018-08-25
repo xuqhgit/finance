@@ -117,17 +117,26 @@ class EastmoneyData(object):
         resp = c.get(url)
         result = []
         if resp.status == 200:
-            trs = BeautifulSoup(resp.data, "html.parser").find(id='kfsFundNetWrap').select("tr")
-            hb_trs = BeautifulSoup(resp.data, "html.parser").find(id='HBLCFundNetCon').select("tr")
-            cn_trs = BeautifulSoup(resp.data, "html.parser").find(id='CNFundNetCon').select("tr")
+            trs = []
+            kfs = BeautifulSoup(resp.data, "html.parser").find(id='kfsFundNetWrap')
+            if kfs:
+                trs = kfs.select("tr")
+            hb_trs=[]
+            hb = BeautifulSoup(resp.data, "html.parser").find(id='HBLCFundNetCon')
+            if hb:
+                hb_trs = hb.select("tr")
+            cnf = BeautifulSoup(resp.data, "html.parser").find(id='CNFundNetCon')
+            cn_trs=[]
+            if cnf:
+                cn_trs = cnf.select("tr")
             if len(hb_trs) > 0:
                 if len(trs) > 0:
-                    result.extend(hb_trs[1:])
+                    trs.extend(hb_trs[1:])
                 else:
                     trs = hb_trs
             if len(cn_trs) > 0:
                 if len(trs) > 0:
-                    result.extend(cn_trs[1:])
+                    trs.extend(cn_trs[1:])
                 else:
                     trs = cn_trs
             for i in range(1, len(trs)):

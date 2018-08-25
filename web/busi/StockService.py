@@ -460,8 +460,11 @@ class StockService(object):
             if k != 'plate_count' and bool(params[k]):
                 param_flag = True
                 break
+
         if param_flag is False:
             params['stock_buy'] = True
+        if 'stock_filter' in params and bool(params['stock_filter']):
+            params['stock_list'] = self.getStockFilter(params)
         result = self.db.setId("STOCK_SEARCH").execute(params, params)
         if len(result) == 0:
             return result
@@ -546,11 +549,35 @@ class StockService(object):
         if bool(stock_list) is False:
             logging.error("解禁数据获取失败")
             return
-        for i in range(0,len(stock_list)):
-
+        for i in range(0, len(stock_list)):
             data_list = StockData.get_stock_history_lift(stock_list[i]['code'])
             # 保存数据
             DBExec(Query.QUERY_STOCK_LIFT, "INSERT_STOCK_LIFT").execute(data_list)
+
+    def getStockFilter(self,params):
+        """
+
+        :return:
+        """
+        result = []
+        logging.info("过滤数据开始")
+        stock_list = self.db.setId("GET_ALL_STOCK").execute(params)
+        # stock_list=[{'code':'603677'}]
+        CommonUtils.start_many_thread(stock_list, args=(result,), target=self.__getStockFilter,
+                                      asyn=False, name='stock filter')
+        logging.info("过滤stock完成：%s" % result)
+        return result
+
+    def __getStockFilter(self, stock_list,res):
+        for s in stock_list:
+            try:
+                res_flag, a, d = StockAnalysis.stock_filter(s['code'])
+                if res_flag:
+                    res.append(s['code'])
+                    logging.info("数据命中：%s" % s['code'])
+            except Exception,e:
+                logging.error("数据过滤异常：%s" % e)
+
 
 
 if __name__ == '__main__':
@@ -570,7 +597,7 @@ if __name__ == '__main__':
     # h_data = StockData.get_stock_last_day('601838')
     # print StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
 
-    StockService().save_stock_lift("601997")
+    StockService().getStockFilter()
 
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

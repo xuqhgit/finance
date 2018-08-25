@@ -396,12 +396,12 @@ def analysis(param, codeList=[]):
     # rg：收红还是收绿 红 r  绿g
     # zd: 涨z 跌d 相对昨天涨跌
     # hs: 相对换手率 相对昨天几倍 数值型 0 0.5 1 2 3 4 一位小数点
-    stock_property = {'xt': ['+'], 'k': '*', 'rg': '*', 'zd': '*', 'hs': ''}
+    stock_property = {'xt': ['+'], 'k': '*', 'rg': 'r', 'zd': '*', 'hs': ''}
     stock_property_arr = [{'xt': ['T', 'q', 'p'], 'k': '*', 'rg': '*', 'zd': '*', 'hs': ''}, stock_property]
     stock_property_arr_len = len(stock_property_arr)
     pro_index = 9
     for i in range(len(codeList)):
-        handle_data = handle_stock_daily_data(codeList[i])
+        handle_data, stock_last = handle_stock_daily_data(codeList[i])
         if handle_data is None:
             continue
         handle_data_len = len(handle_data)
@@ -412,7 +412,9 @@ def analysis(param, codeList=[]):
                 if j + k >= handle_data_len:
                     logging.info("匹配数据超出数据长度...")
                     break
-                stock_data = handle_data[j + k][pro_index]
+                # stock_data = handle_data[j + k][pro_index]
+                stock_data = handle_data[j + k]
+                print stock_data
                 if (prop['xt'] == '*' or prop['xt'] == stock_data['xt'] or stock_data['xt'] in prop['xt']) is False:
                     break
                 if (prop['k'] == '*' or prop['k'] == stock_data['k'] or stock_data['k'] in prop['k']) is False:
@@ -449,7 +451,6 @@ def handle_stock_daily_data(code, avg=[5]):
     avg_result = CommonAnalysis.getAvgData(numpy.array(data)[:, 4], avg=avg)
     macd_result = CommonAnalysis.getMacd(numpy.array(data)[:, 4])
     rsi_result = CommonAnalysis.getrsi(data)
-    print avg_result
     # boll_result = CommonAnalysis.getBoll(numpy.array(data)[:, 4])
     result = []
     for i in range(1, len(data)):
@@ -464,7 +465,7 @@ def handle_stock_daily_data(code, avg=[5]):
         r = {'xt': xt, 'k': k, 'rg': rg, 'zd': zd, 'data': cur, 'kdj': kdj_result[i], 'avg': avg_result[i],
              'macd': macd_result[i - 1], 'rsi': rsi_result[i - 1]}
         result.append(r)
-    return result
+    return result, data
 
 
 def get_avg(code, data=[], avg=[5]):
@@ -572,7 +573,7 @@ def growth_Analysis(data_list, avgs=[5]):
         if len(data_list) < avg:
             avg = len(data_list)
         n_data_list = data_list[len(data_list) - avg:]
-        avg_growth = round((n_data_list[avg-1][4] - n_data_list[0][4])*100 / n_data_list[0][4],2)
+        avg_growth = round((n_data_list[avg - 1][4] - n_data_list[0][4]) * 100 / n_data_list[0][4], 2)
 
         growth = []
         change = []
@@ -593,13 +594,33 @@ def growth_Analysis(data_list, avgs=[5]):
 
         result.append(
             [avgs[a], avg_val, round(numpy.std(growth, ddof=1), 3), chg_avg_al, round(numpy.std(change, ddof=1), 3),
-             change[len(change)-1],avg_growth])
+             change[len(change) - 1], avg_growth])
     return result
+
+
+def stock_filter(code, filter_param=None):
+    a_data, stock_data = handle_stock_daily_data(code)
+    filter_param = [{'rg': 'r'}, {'rg': 'r'}, {'rg': 'r'}, {'rg': 'r'}, {'rg': 'r'}]
+    if filter_param is None:
+        return False, a_data, stock_data
+    if len(a_data) < 30:
+        return False, a_data, stock_data
+    res_flag = True
+    p_len = len(filter_param)
+    for i in range(0, p_len):
+        rg = filter_param[i]['rg']
+
+        if (rg == '*' or rg == a_data[len(a_data) - p_len + i]['rg']) is False:
+            res_flag = False
+            break
+    return res_flag, a_data, stock_data
+
 
 if __name__ == '__main__':
     # print handle_stock_daily_data("601838", avg=[5, 10, 20, 30, 60])
     # print growth_Analysis([-1.23, 1, 1.2, 1.3, 1.6])
-    print
+    flag, a, d = stock_filter('603677')
+    print flag
     # l = [[1, 3, 4, {'a': [1, 2, 3]}], [9, 4, 6, {'a': [1, 2, 3]}]]
     # #
     # print numpy.array(l)[:, 1]
