@@ -105,9 +105,11 @@ def commonTask():
 
     # 任务重置
     schedudler.add_job(task_reset, 'cron', minute='25', hour='9', day_of_week='0-4')
+
     # schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='21')
 
-    # schedudler.add_job(task_fund_stock, 'cron', minute='*/1', hour='19-23', day_of_week='0-6')
+
+    # schedudler.add_job(task_fund_stock, 'cron', minute='*/1', hour='15-23', day_of_week='0-6')
 
 
 def start():
@@ -126,5 +128,6 @@ def start():
 
     # 清理股权登记last数据
     schedudler.add_job(StockData.clear_invalid_last_data, 'cron', minute='30', hour='9', day_of_week='0-4')
+
 
     schedudler.start()

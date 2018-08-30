@@ -196,3 +196,9 @@ def stockSearch():
     params['plate'] = plate
     data = StockService().search(params)
     return data
+
+@shares.route('/stockFilter', methods=['get', 'post'])
+@json_view
+def stockFilter():
+
+    return StockService().getStockFilter()

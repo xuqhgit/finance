@@ -85,4 +85,4 @@ def get_fund_daily(fund_code):
 
 
 if __name__ == '__main__':
-    print get_fund_stock("003096")
+    print get_fund_stock("005945")

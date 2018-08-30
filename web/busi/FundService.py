@@ -74,6 +74,7 @@ class FundService(object):
             if s:
                 res.extend(s)
         # result.extend(res)
+
         db.setId("SAVE_FUND_STOCK").execute(res)
         db.commitTrans()
 

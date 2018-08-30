@@ -121,12 +121,12 @@ class EastmoneyData(object):
             kfs = BeautifulSoup(resp.data, "html.parser").find(id='kfsFundNetWrap')
             if kfs:
                 trs = kfs.select("tr")
-            hb_trs=[]
+            hb_trs = []
             hb = BeautifulSoup(resp.data, "html.parser").find(id='HBLCFundNetCon')
             if hb:
                 hb_trs = hb.select("tr")
             cnf = BeautifulSoup(resp.data, "html.parser").find(id='CNFundNetCon')
-            cn_trs=[]
+            cn_trs = []
             if cnf:
                 cn_trs = cnf.select("tr")
             if len(hb_trs) > 0:
@@ -176,6 +176,8 @@ class EastmoneyData(object):
             html = BeautifulSoup(h, "html.parser")
             trs = html.select("table")[0].select('tr')
             end_date = str(html.find_all(class_='right')[0].select('font')[0].string)
+            if end_date != '2018-06-30':
+                return result
             for i in range(1, len(trs)):
                 tr = trs[i]
                 tds = tr.select('td')
@@ -359,7 +361,7 @@ class EastmoneyData(object):
             d = data[i]
             res = {'stock_code': d['gpdm'], 'stock_name': d['sname'], 'jj_date': d['ltsj'].split('T')[0],
                    'jjsl': d['jjsl'], 'jjsz': d['jjsz'], 'jjlx': d['xsglx'], 'jjgds': d['gpcjjgds'],
-                   'wjjsl': d['wltsl'], 'scale': d['zzb'],'source_type':'eastmoney'}
+                   'wjjsl': d['wltsl'], 'scale': d['zzb'], 'source_type': 'eastmoney'}
             result.append(res)
         return result
 
