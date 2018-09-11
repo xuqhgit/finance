@@ -8,7 +8,7 @@ from web.utils.webclient import WebClient
 
 # 腾讯当前shares 数据
 TX_CUR_DATA_URL = 'http://web.sqt.gtimg.cn/q=%s?r=%s'
-client = WebClient()
+
 
 
 class TCData(object):
@@ -25,6 +25,7 @@ class TCData(object):
         :return: 获取指定格式的dict数据
         """
         url = TX_CUR_DATA_URL % ((StringUtils.stock_code_type(code) == 'sh' and 'sh' or 'sz') + code, random.random())
+        client = WebClient()
         req = client.get(url)
         if req.status == 200:
             splitStr = '="'

@@ -7,7 +7,7 @@ import time
 
 from web.utils.webclient import WebClient
 
-client = WebClient()
+
 regex = r'price_A1\':\[(?P<d1>.*?)\],\'price_A2\':\[(?P<d>.*?)\]'
 
 
@@ -23,6 +23,7 @@ class SohuData(object):
         :param code:列表
         :return:
         """
+        client = WebClient()
         url = 'http://hq.stock.sohu.com/cn/%s/cn_%s-1.html?_=%s'
 
         resp = client.get(url % (code[3:], code, int(time.time())))

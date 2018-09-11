@@ -8,7 +8,6 @@ from web.utils import StringUtils, Holiday
 from web.utils.webclient import WebClient
 from bs4 import BeautifulSoup
 
-client = WebClient()
 
 
 # 个股解禁历史 http://data.eastmoney.com/dxf/q/601997.html
@@ -33,7 +32,7 @@ class EastmoneyData(object):
         :param code:
         :return:
         """
-
+        client = WebClient()
         url = 'http://nuff.eastmoney.com/EM_Finance2015TradeInterface/JS.ashx?id=%s%s&token=4f1862fc3b5e77c150a2b985b12db0fd&cb=jQuery183&_=%s'
         resp = client.get(url % (code, StringUtils.stock_code_type_int(code), int(time.time())))
         if resp.status == 200:
@@ -365,8 +364,50 @@ class EastmoneyData(object):
             result.append(res)
         return result
 
+    def get_stock_money(self, code):
+        """
+        资金流入
+        :return:
+        """
+        url = 'http://ff.eastmoney.com//EM_CapitalFlowInterface/api/js?type=hff&rtntype=2' \
+              '&js=({data:[(x)]})&cb=var%%20aff_data' \
+              '=&check=TMLBMSPROCR&acces_token=1942f5da9b46b069953c873404aad4b5&id=%s%s&_=1535640771482' % \
+              (code, StringUtils.stock_code_type_int(code))
+        c = WebClient()
+        resp = c.get(url)
+        result = []
+        print resp
+        if resp.status == 200:
+            resp.data = resp.data.encode("utf-8")
+            h = resp.data.split("data:", 1)[1]
+            trs = json.loads(h[0:len(h)-2])[0]
+            for i in range(0, len(trs)):
+                tds = trs[i].split(',')
+                trade_date = tds[0]
+                close_price = tds[11]
+                growth = tds[12].replace("%", '')
+                m_amt = tds[1].replace("万", '')
+                m_ratio = tds[2].replace("%", '')
+                sb_amt = tds[3].replace("万", '')
+                sb_ratio = tds[4].replace("%", '')
+                b_amt = tds[5].replace("万", '')
+                b_ratio = tds[6].replace("%", '')
+                md_amt = tds[7].replace("万", '')
+                md_ratio = tds[8].replace("%", '')
+                s_amt = tds[9].replace("万", '')
+                s_ratio = tds[10].replace("%", '')
+                j = {'trade_date': trade_date, 'stock_code': code, 'close_price': close_price,
+                     'growth': growth, 'm_amt': m_amt, 'm_ratio': m_ratio, 'sb_amt': sb_amt, 'sb_ratio': sb_ratio,
+                     'b_amt': b_amt, 'b_ratio': b_ratio, 'md_amt': md_amt, 'md_ratio': md_ratio, 's_amt': s_amt,
+                     's_ratio': s_ratio
+                     }
+                result.append(j)
+        return result
+    # url = 'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx?type=CT&cmd=0027452&sty=CTBF&st=z&sr=&p=&ps=&cb=var%20pie_data=&js=(x)&token=28758b27a75f62dc3065b81f7facb365&_=1535642715895'
+    # var pie_data = "2,002745,木林森,17.85,1.48%,11041.91,791, 27169530,-4965148,2220.44,3.82%, 187317507,-99102819,8821.47,15.17%, 204126281,-321152896,-11702.66,-20.12%, 163060491,-156452944,660.75,1.14%"
+
 
 if __name__ == '__main__':
     em = EastmoneyData()
     # print em.get_jj_data_by_date(end_date='2018-07-18')
-    print em.get_stock_history_jj_data('601997')
+    print em.get_stock_money('601997')

@@ -570,13 +570,29 @@ class StockService(object):
 
     def __getStockFilter(self, stock_list,res):
         for s in stock_list:
+            res_flag, a, d = StockAnalysis.stock_filter(s['code'])
             try:
-                res_flag, a, d = StockAnalysis.stock_filter(s['code'])
                 if res_flag:
                     res.append(s['code'])
                     logging.info("数据命中：%s" % s['code'])
             except Exception,e:
                 logging.error("数据过滤异常：%s" % e)
+
+    def save_stock_money(self):
+        """
+        保存解禁数据
+        :return:
+        """
+        stock_list = self.db.setId("GET_ALL_STOCK").execute(None)
+        # stock_list = [{'code':'603677'}]
+        for i in range(0, len(stock_list)):
+            try:
+                data_list = StockData.get_stock_money(stock_list[i]['code'])
+                # 保存数据
+                if bool(data_list):
+                    DBExec(Query.QUERY_STOCK_MONEY, "INSERT_STOCK_MONEY").execute(data_list)
+            except Exception,e:
+                logging.error("保存资金流入异常：%s" % e)
 
 
 
@@ -597,7 +613,7 @@ if __name__ == '__main__':
     # h_data = StockData.get_stock_last_day('601838')
     # print StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
 
-    StockService().getStockFilter()
+    StockService().save_stock_money()
 
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

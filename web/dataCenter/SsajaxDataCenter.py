@@ -6,7 +6,7 @@ import time
 
 from web.utils.webclient import WebClient
 
-client = WebClient()
+
 
 class SsajaxData(object):
     """
@@ -19,6 +19,7 @@ class SsajaxData(object):
         :param code:列表
         :return:
         """
+        client = WebClient()
         url = 'http://q.ssajax.cn/webhandler/quote_stock.ashx?fn=jQuery1610&debug=1&code=%s&type=1&_=%s'
         resp = client.get(url % (code, int(time.time())))
         if resp.status == 200:

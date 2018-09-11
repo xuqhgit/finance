@@ -5,7 +5,6 @@ import logging
 
 from web.utils.webclient import WebClient
 
-client = WebClient()
 
 
 class HexunData(object):
@@ -20,6 +19,7 @@ class HexunData(object):
         :param codes:列表
         :return:
         """
+        client = WebClient()
         url = 'http://webstock.quote.hermes.hexun.com/a/quotelist?code=%s&callback=callback&column=DateTime,LastClose,' \
               'Open,High,Low,Price,Volume,Amount,LastSettle,SettlePrice,OpenPosition,ClosePosition,BuyPrice,BuyVolume,SellPrice,' \
               'SellVolume,PriceWeight,EntrustRatio,UpDown,EntrustDiff,UpDownRate,OutVolume,InVolume,AvePrice,VolumeRatio,PE,' \

@@ -6,7 +6,6 @@ import random
 
 from web.utils.webclient import WebClient
 
-client = WebClient()
 
 
 class JRJData(object):
@@ -21,6 +20,7 @@ class JRJData(object):
         :param codes:列表
         :return:
         """
+        client = WebClient()
         url = 'http://q.jrjimg.cn/?q=cn|s&i=%s&n=mainQuote&c=l&_=%s'
         resp = client.get(url % (",".join(codes), random.random()))
         if resp.status == 200:

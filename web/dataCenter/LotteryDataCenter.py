@@ -12,6 +12,7 @@ class LotteryDataCenter(object):
         :param date:
         :return:
         """
+
         client = WebClient()
         url = "http://kaijiang.500.com/static/info/kaijiang/xml/gdsyxw/%s.xml?_A=NPDYUKTS1502783714817" % date
         data = client.get(url)

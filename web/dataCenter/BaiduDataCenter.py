@@ -6,7 +6,7 @@ import time
 
 from web.utils.webclient import WebClient
 
-client = WebClient()
+
 
 
 class BaiduData(object):
@@ -21,6 +21,7 @@ class BaiduData(object):
         :param codes:列表
         :return:
         """
+        client = WebClient()
         url = 'https://gupiao.baidu.com/api/rails/stockbasicbatch?from=pc&os_ver=1&cuid=xxx&vv=100' \
               '&format=json&stock_code=%s&timestamp=%s'
         codes_c = []

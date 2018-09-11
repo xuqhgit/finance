@@ -219,7 +219,21 @@ def get_stock_history_lift(code):
         result = eastmoneyData.get_stock_history_jj_data(code)
         return result
     except Exception, e:
-        logging.error("获取Stock历史解禁信息错误：%s----%s" % (code,e))
+        logging.error("获取Stock历史解禁信息错误：%s----%s" % (code, e))
+    return None
+
+
+def get_stock_money(code):
+    """
+
+    :param code:
+    :return:
+    """
+    try:
+        result = eastmoneyData.get_stock_money(code)
+        return result
+    except Exception, e:
+        logging.error("获取Stock 资金流入数据错误：%s----%s" % (code, e))
     return None
 
 

@@ -124,9 +124,9 @@ class CommonAnalysis(object):
             else:
                 return 'b'
 
-        upPre = upDif / maxDif
-        downPre = downDif / maxDif
-        midPre = abs(midDif) / maxDif
+        upPre = maxDif == 0 and 1 or upDif / maxDif
+        downPre = maxDif == 0 and 1 or downDif / maxDif
+        midPre = maxDif == 0 and 1 or abs(midDif) / maxDif
         preDif = upPre - downPre
         absPreDif = abs(preDif)
         if midPre <= 0.15:
@@ -201,7 +201,10 @@ class CommonAnalysis(object):
             h = a[:, 2].max()
             l = a[:, 3].min()
             c = arr[i, 4]
-            rsv = (c - l) / (h - l) * 100
+            d_hl = (h - l)
+            if d_hl == 0:
+                d_hl = 1
+            rsv = (c - l) / d_hl * 100
             k = rsv / 3 + 2 * k / 3
             d = k / 3 + 2 * d / 3
             j = 3 * k - 2 * d
@@ -463,7 +466,11 @@ def handle_stock_daily_data(code, avg=[5]):
         # TODO 换手率暂时不做计算
 
         r = {'xt': xt, 'k': k, 'rg': rg, 'zd': zd, 'data': cur, 'kdj': kdj_result[i], 'avg': avg_result[i],
-             'macd': macd_result[i - 1], 'rsi': rsi_result[i - 1]}
+             'macd': [], 'rsi': []}
+        if bool(macd_result) and len(macd_result) >= i:
+            macd_result['macd'] = macd_result[i - 1]
+        if bool(rsi_result) and len(rsi_result) >= i:
+            macd_result['rsi'] = rsi_result[i - 1]
         result.append(r)
     return result, data
 
@@ -578,7 +585,6 @@ def growth_Analysis(data_list, avgs=[5]):
         growth = []
         change = []
         volumn = []
-        n_data_list
         last_price = n_data_list[0][4]
         last_change = n_data_list[0][7]
         for i in range(1, len(n_data_list)):

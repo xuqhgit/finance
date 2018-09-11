@@ -5,7 +5,7 @@ import logging
 
 from web.utils.webclient import WebClient
 
-client = WebClient()
+
 
 
 class XgbData(object):
@@ -25,12 +25,13 @@ class XgbData(object):
               'market_value,turnover_ratio,dyn_pb_rate,amplitude,pe_rate,bps,hq_type_code,trade_status,bid_grp,offer_grp,' \
               'business_amount_in,business_amount_out,circulation_value,securities_type,update_time,' \
               'price_precision&en_prod_code=%s'
+        client = WebClient()
         codes_c = []
         for c in codes:
             codes_c.append('%s.%s' % (c, XgbData.__stock_code_type(c)))
         resp = client.get(url % ','.join(codes_c))
         if resp.status == 200:
-            da = resp.data.decode("gbk").encode("utf-8")
+            da = resp.data
             data = json.loads(da)['data']['snapshot']
             print data
             result = []
