@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+@(#)TEST.xml 16/1/18
+@description:测试查询
+@author apple
+-->
+<query-config>
+        <query id="GET_DICT_BY_DICT_STATUS_SINGLE" type="">
+        <sql>
+            <![CDATA[
+                select  d.dict_code,d.dict_text
+                as end_date from sys_dict d where
+                d.dict_type=[dict_type]
+                and d.dict_status=1
+            ]]>
+        </sql>
+    </query>
+
+</query-config>
