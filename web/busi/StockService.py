@@ -40,7 +40,7 @@ class StockService(object):
         logging.info("插入数据:%s条" % db_result)
         db.commitTrans()
         StockData.refresh_stock_last_day(result)
-        return db_result
+        return result
 
     def getAllDailyStocks(self, list, result):
         center = THSDataCenter.THSData()
@@ -60,18 +60,18 @@ class StockService(object):
         保存所有股票当日数据 包含资金等
         :return:
         """
-
+        result=[]
         if bool(stock_list) is False and single is False:
             db = DBExec(Query.QUERY_STOCK, "")
             stock_list = db.setId("FIND_STOCK_ALL").execute(None)
         if bool(stock_list) is False:
             logging.info("保存当日stock 十分数据：无数据需处理")
 
-        CommonUtils.start_many_thread(stock_list, handleSize=handleSize, target=self.saveDailyStocksLast,
+        CommonUtils.start_many_thread(stock_list, args=(result,),handleSize=handleSize, target=self.saveDailyStocksLast,
                                       name='保存stock last and money 数据', asyn=False)
         pass
 
-    def saveDailyStocksLast(self, list):
+    def saveDailyStocksLast(self, list,result):
         """
         保存最新股票交易数据到file中 还有 资金数据
         :param list:
@@ -87,6 +87,7 @@ class StockService(object):
 
                 try:
                     stockFile.write_stock_json(d, code, last_date)
+                    result.append({'code':code})
                 except Exception, e:
                     logging.error(e)
                 d = center.getStockMoneyLast(code)
@@ -511,9 +512,13 @@ class StockService(object):
         :return:
         """
         for i in range(0, len(code_list)):
-            s = StockData.get_stock_cur_trade(code_list[i])
-            temp[code_list[i]]['cur'] = s and s or {}
-            self.__handle_growth([temp[code_list[i]]])
+            try:
+                s = StockData.get_stock_cur_trade(code_list[i])
+                temp[code_list[i]]['cur'] = bool(s) and s or {}
+                self.__handle_growth([temp[code_list[i]]])
+            except Exception,e:
+                temp[code_list[i]]['cur'] = {}
+                logging.error("获取当前交易：%s" % e)
 
     def get_stock_old_daily(self, params):
         if params is None:
@@ -570,8 +575,8 @@ class StockService(object):
 
     def __getStockFilter(self, stock_list,res):
         for s in stock_list:
-            res_flag, a, d = StockAnalysis.stock_filter(s['code'])
             try:
+                res_flag, a, d = StockAnalysis.stock_filter(s['code'])
                 if res_flag:
                     res.append(s['code'])
                     logging.info("数据命中：%s" % s['code'])
@@ -613,7 +618,11 @@ if __name__ == '__main__':
     # h_data = StockData.get_stock_last_day('601838')
     # print StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
 
-    StockService().save_stock_money()
+    result = StockService().saveAllDailyStocks(stock_list=[{'code':'603843'}])
+    data=result
+    print data
+    a=[data[i]['stock_code'] for i in range(0,len(data)) ]
+    print a
 
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

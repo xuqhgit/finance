@@ -49,11 +49,12 @@ class TaskService(object):
         # 获取未获取的事件的 stock
         stock_list = db.setId("GET_TASK_LIST").execute(
             {"busi_type": "stock", task_name: waiting,
-             "limit": int(ConfigUtils.get_val('task', 'stockDailyLimit', default_val=300))})
+             "limit": int(ConfigUtils.get_val('task', 'stockDailyLimit', default_val=100))})
         if len(stock_list) == 0:
             return stock_list
-        ss.saveAllDailyStocks(stock_list=stock_list, single=True, handleSize=100)
-        db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list": stock_list})
+        result = ss.saveAllDailyStocks(stock_list=stock_list, single=True, handleSize=20)
+        db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list":
+            [{'code':result[i]['stock_code']} for i in range(0, len(result))]})
         db.commitTrans()
         return stock_list
 
@@ -72,11 +73,11 @@ class TaskService(object):
         # 获取未获取的事件的 stock
         stock_list = db.setId("GET_TASK_LIST").execute(
             {"busi_type": "stock", task_name: waiting,
-             "limit": int(ConfigUtils.get_val('task', 'stockLastLimit', default_val=300))})
+             "limit": int(ConfigUtils.get_val('task', 'stockLastLimit', default_val=100))})
         if len(stock_list) == 0:
             return stock_list
-        ss.saveAllDailyStocksLast(stock_list=stock_list, single=True, handleSize=100)
-        db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list": stock_list})
+        result = ss.saveAllDailyStocksLast(stock_list=stock_list, single=True, handleSize=20)
+        db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list":result})
         db.commitTrans()
         return stock_list
 
@@ -101,8 +102,6 @@ class TaskService(object):
         db.setId("UPDATE_TASK").execute({"busi_type": "fund", task_name: handle, "code_list": func_list})
         db.commitTrans()
 
-
-
     def reset_fund_stock(self):
         logging.info("重置任务---fund stock 开始")
         # 获取未获取的事件的 stock
@@ -110,7 +109,6 @@ class TaskService(object):
         count = db.setId("UPDATE_TASK").execute({"busi_type": "fund", "task_1": waiting, "t_task_1": handle})
         db.commitTrans()
         logging.info("重置任务---fund stock 完成：%s" % count)
-
 
 
 if __name__ == '__main__':

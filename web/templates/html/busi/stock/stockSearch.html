@@ -70,6 +70,7 @@
             </div>
             <div class="form-group">
                 <a href="javascript:void(0);"  data-loading-text="搜索中..."  id="searchBtn" class="btn btn-primary">搜索</a>
+                <a href="javascript:void(0);" show="show" id="stock_img"  class="btn">图片显示</a>
             </div>
         </form>
         <legend></legend>
@@ -85,9 +86,6 @@
                     代码
                 </th>
                 <th>
-                    名称
-                </th>
-                <th>
                     当前价格
                 </th>
                 <th>
@@ -97,9 +95,7 @@
                     涨幅
                 </th>
                  <th>
-                    开/昨收
-                </th>
-                 <th>
+                    开/昨收<br>
                     高/低
                 </th>
                 <th>
@@ -109,12 +105,7 @@
                 <th>
                     板块
                 </th>
-                <th>
-                    均值
-                </th>
-                <th>
-                    基金
-                </th>
+
                 <th>
                     操作
                 </th>
@@ -188,19 +179,17 @@
 <script id="STOCK_LIST_TPL" type="text/html">
     <%for(var i = 0; i < list.length; i++) { %>
     <tr class="<%:=list[i].cur.price>list[i].cur.close_price?'danger':''%>">
-        <th scope="row"><input type="checkbox" value="<%:=list[i].code%>"></th>
-        <th><%:=i+1 %></th>
+        <th scope="row" rowspan="3"><input type="checkbox" value="<%:=list[i].code%>"></th>
+        <th rowspan="3"><%:=i+1 %></th>
         <td><%:=list[i].code%></td>
-        <td><%:=list[i].name%></td>
+
         <td><%:=list[i].cur.price%></td>
         <td><%:=list[i].cur.turnover_rate%></td>
         <td><%:=list[i].cur.growth%></td>
         <td>
-            开：<%:=list[i].cur.open_price%><br/>
-            昨：<%:=list[i].cur.close_price%>
-        </td>
-        <td>
-            高：<%:=list[i].cur.high_price%><br/>
+            开：<%:=list[i].cur.open_price%>
+            昨：<%:=list[i].cur.close_price%><br/>
+            高：<%:=list[i].cur.high_price%>
             低：<%:=list[i].cur.low_price%>
         </td>
         <td>
@@ -208,14 +197,7 @@
             登记：<%:=list[i].dj_time%>
         </td>
         <td style="max-width: 200px;"><%:=list[i].plate_name%></td>
-        <td >
-            <%if(list[i].avg){for(var a=0;a< list[i].avg.length;a++){ %><%:=JSON.stringify(list[i].avg[a]).replace(",","：").replace(/,/g,"--")%><br/><% }}%></td>
 
-        <td onclick="getFundList('<%:=list[i].code%>')">
-            基金：<%:=list[i].fund_count%><br/>
-            数量：<%:=list[i].fund_quantity%><br/>
-            市值：<%:=list[i].fund_mc%><br/>
-        </td>
         <td>
             <div class="btn-toolbar" role="toolbar" aria-label="...">
                 <div class="btn-group glyphicon glyphicon-edit" role="group"></div>
@@ -223,13 +205,31 @@
             </div>
         </td>
     </tr>
+    <tr>
+        <td><%:=list[i].name%></td>
+
+        <td onclick="getFundList('<%:=list[i].code%>')">
+            基金：<%:=list[i].fund_count%><br/>
+            数量：<%:=list[i].fund_quantity%><br/>
+            市值：<%:=list[i].fund_mc%><br/>
+        </td>
+        <td >
+            <%if(list[i].avg){for(var a=0;a< list[i].avg.length;a++){ %><%:=JSON.stringify(list[i].avg[a]).replace(",","：").replace(/,/g,"--")%><br/><% }}%></td>
+
+    </tr>
+    <tr>
+
+        <td colspan="3">
+            <img class="stock_img" src="http://webquotepic.eastmoney.com/GetPic.aspx?id=<%:=getStockType(list[i].code)%>&imageType=r&token=44c9d251add88e27b65ed86506f6e5da"></td>
+        <td colspan="4"><img class="stock_img" src="http://pifm.eastmoney.com/EM_Finance2014PictureInterface/Index.aspx?ID=<%:=getStockType(list[i].code)%>&UnitWidth=-6&imageType=KXL&EF=&Formula=RSI&AT=null&&type=&token=44c9d251add88e27b65ed86506f6e5da&_=0.05856025351922489"></td>
+    </tr>
     <%  }%>
 </script>
 
 <script id="FUND_LIST_TPL" type="text/html">
     <%for(var i = 0; i < list.length; i++) { %>
     <tr class="<%:=list[i].growth>0?'danger':''%>">
-        <th scope="row"><input type="checkbox" value="<%:=list[i].fund_code%>"></th>
+        <th scope="row" ><input type="checkbox" value="<%:=list[i].fund_code%>"></th>
         <th><%:=i+1 %></th>
         <td><%:=list[i].fund_code%></td>
         <td><%:=list[i].fund_name%></td>
@@ -311,6 +311,36 @@
             $("#fund_list_table tbody").append(template(tpl, {"list":data}));
         }, null)
     }
+    function getStockType(code){
+        var a = code.substring(0,1);
+        if(code=='1A0001'){
+            return "0000011";
+        }
+        if(code=='399001'){
+            return "3990012"
+        }
+
+            //http://quote.eastmoney.com/chart/h5.html?id=3990012&type=r
+        if(a=='0'){
+            return code+"2";
+        }
+        if(a=='3'){
+            return code+"3";
+        }
+        if(a=='6'){
+            return code+"1";
+        }
+    }
+    $("#stock_img").click(function(){
+        var a  = $(this).attr("show");
+        if(a=='show'){
+            $('.stock_img').hide();
+            $(this).attr('show','hidden');
+            return;
+        }
+        $('.stock_img').show();
+        $(this).attr('show','show');
+    })
 
 </script>
 

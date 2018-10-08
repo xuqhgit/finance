@@ -7,6 +7,7 @@ import time
 from web.utils import StringUtils, Holiday
 from web.utils.webclient import WebClient
 from bs4 import BeautifulSoup
+from web.busi.SysDictService import DictService
 
 
 
@@ -175,7 +176,7 @@ class EastmoneyData(object):
             html = BeautifulSoup(h, "html.parser")
             trs = html.select("table")[0].select('tr')
             end_date = str(html.find_all(class_='right')[0].select('font')[0].string)
-            if end_date != '2018-06-30':
+            if end_date != DictService().get_fund_end_date():
                 return result
             for i in range(1, len(trs)):
                 tr = trs[i]

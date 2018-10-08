@@ -1332,7 +1332,7 @@ function getV(){
     if(new Date().getTime()-TOKEN_SERVER_TIME>dif_time){
         TOKEN_SERVER_TIME=new Date().getTime();
     }
-    if(count==4||!str_v){
+    if(count==2||!str_v){
         count=0;
         str_v = getHexin();
     }

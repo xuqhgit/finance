@@ -202,3 +202,18 @@ def stockSearch():
 def stockFilter():
 
     return StockService().getStockFilter()
+
+
+
+@shares.route('/stockDataDownLoad', methods=['get', 'post'])
+@json_view
+def stockDataDownLoad():
+    from web.dataCenter.THSDataCenter import THSData
+    thsData = THSData()
+    args = request.args
+    if request.method == 'POST':
+        args = request.form
+    if args['t']=='history':
+        return thsData.getStockHistoryData(args['code'],args['year'],args['type'])
+    from web.dataCenter import StockData
+    return StockData.get_stock_cur_last(args['code'])

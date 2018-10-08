@@ -1,12 +1,10 @@
 # coding:utf-8
 
 import THSDataCenter
-from web.utils import StringUtils
-from web.utils import CommonUtils
+
 from web.utils import Holiday
 import logging
-from web.db import Query
-from web.db.dbexec import DBExec
+from web.busi.SysDictService import DictService
 
 from web.utils.StockFile import StockFile
 
@@ -33,6 +31,7 @@ sohuData = SohuDataCenter.SohuData()
 ssajaxData = SsajaxDataCenter.SsajaxData()
 tcData = TCDataCenter.TCData()
 xgbData = XgbDataCenter.XgbData()
+
 
 
 def get_fund_company(data_type=""):
@@ -84,5 +83,8 @@ def get_fund_daily(fund_code):
     return None
 
 
+
+
+
 if __name__ == '__main__':
-    print get_fund_stock("005945")
+    print get_fund_end_date()

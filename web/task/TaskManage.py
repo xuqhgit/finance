@@ -92,9 +92,9 @@ def task_fund_stock():
 
 def commonTask():
     # 获取当前stock daily数据
-    schedudler.add_job(getCurStockDailyData, 'cron', minute='*/5', hour='16-17', day_of_week='0-4')
+    schedudler.add_job(getCurStockDailyData, 'cron', minute='*/4', hour='16-21', day_of_week='0-4')
     # 获取当前stock last 数据
-    schedudler.add_job(getCurStockLastData, 'cron', minute='*/6', hour='16-17', day_of_week='0-4')
+    schedudler.add_job(getCurStockLastData, 'cron', minute='*/5', hour='17-22', day_of_week='0-4')
     # 获取当前plate daily 数据
     schedudler.add_job(getCurPlateDailyData, 'cron', minute='00', hour='18', day_of_week='0-4')
     # 获取当前plate last 数据

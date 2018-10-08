@@ -198,6 +198,8 @@ class CommonAnalysis(object):
         result = []
         for i in range(0, dlen):
             a = arr[tc <= i + 1 and i + 1 - tc or 0:i + 1]
+            if bool(a) is False:
+                continue
             h = a[:, 2].max()
             l = a[:, 3].min()
             c = arr[i, 4]
@@ -468,9 +470,9 @@ def handle_stock_daily_data(code, avg=[5]):
         r = {'xt': xt, 'k': k, 'rg': rg, 'zd': zd, 'data': cur, 'kdj': kdj_result[i], 'avg': avg_result[i],
              'macd': [], 'rsi': []}
         if bool(macd_result) and len(macd_result) >= i:
-            macd_result['macd'] = macd_result[i - 1]
+            r['macd'] = macd_result[i - 1]
         if bool(rsi_result) and len(rsi_result) >= i:
-            macd_result['rsi'] = rsi_result[i - 1]
+            r['rsi'] = rsi_result[i - 1]
         result.append(r)
     return result, data
 
