@@ -52,9 +52,10 @@ class TaskService(object):
              "limit": int(ConfigUtils.get_val('task', 'stockDailyLimit', default_val=100))})
         if len(stock_list) == 0:
             return stock_list
-        result = ss.saveAllDailyStocks(stock_list=stock_list, single=True, handleSize=20)
-        db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list":
-            [{'code':result[i]['stock_code']} for i in range(0, len(result))]})
+        result = ss.saveAllDailyStocks(stock_list=stock_list, single=True, handleSize=11)
+        if bool(result):
+            db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list":
+                [{'code':result[i]['stock_code']} for i in range(0, len(result))]})
         db.commitTrans()
         return stock_list
 
@@ -76,8 +77,9 @@ class TaskService(object):
              "limit": int(ConfigUtils.get_val('task', 'stockLastLimit', default_val=100))})
         if len(stock_list) == 0:
             return stock_list
-        result = ss.saveAllDailyStocksLast(stock_list=stock_list, single=True, handleSize=20)
-        db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list":result})
+        result = ss.saveAllDailyStocksLast(stock_list=stock_list, single=True, handleSize=11)
+        if bool(result):
+            db.setId("UPDATE_TASK").execute({"busi_type": "stock", task_name: handle, "code_list":result})
         db.commitTrans()
         return stock_list
 

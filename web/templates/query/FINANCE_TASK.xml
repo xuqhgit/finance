@@ -7,7 +7,12 @@
     <query id="GET_TASK_LIST" type="list">
         <sql>
             <![CDATA[
-                select busi_code as code from finance_task t where t.status=1
+                select busi_code as code from finance_task t
+                {% if busi_type=='stock' %}
+                   join stock s on s.state=1 and s.code=t.busi_code
+                   and ((s.resumption_time < now() and s.resumption_time!='0000-00-00 00:00:00') or s.resumption_time is null)
+                {% endif%}
+                where t.status=1
                 and t.busi_type=[busi_type]
                 {% if task_1 %}
                    and  t.task_1 = [task_1]

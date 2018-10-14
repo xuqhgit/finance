@@ -33,14 +33,15 @@ class StockService(object):
             stock_list = db.setId("FIND_STOCK_ALL").execute(None)
         if bool(stock_list) is False:
             logging.info("保存当日stock daily数据：无数据需处理")
-        result = []
-        CommonUtils.start_many_thread(stock_list, handleSize=handleSize, args=(result,), target=self.getAllDailyStocks,
+        result_data = []
+        CommonUtils.start_many_thread(stock_list, handleSize=handleSize, args=(result_data,),
+                                      target=self.getAllDailyStocks,
                                       asyn=False, name='保存stock daily 数据')
-        db_result = db.setId("SAVE_DAILY_STOCK").execute(result)
+        db_result = db.setId("SAVE_DAILY_STOCK").execute(result_data)
         logging.info("插入数据:%s条" % db_result)
         db.commitTrans()
-        StockData.refresh_stock_last_day(result)
-        return result
+        StockData.refresh_stock_last_day(result_data)
+        return result_data
 
     def getAllDailyStocks(self, list, result):
         center = THSDataCenter.THSData()
@@ -49,6 +50,7 @@ class StockService(object):
         for s in list:
             code = s['code']
             d = center.getStockPlateInfoByCode(code)
+            print d
             if d:
                 d['trade_date'] = cur_date
                 r.append(d)
@@ -60,18 +62,19 @@ class StockService(object):
         保存所有股票当日数据 包含资金等
         :return:
         """
-        result=[]
+        result_data = []
         if bool(stock_list) is False and single is False:
             db = DBExec(Query.QUERY_STOCK, "")
             stock_list = db.setId("FIND_STOCK_ALL").execute(None)
         if bool(stock_list) is False:
             logging.info("保存当日stock 十分数据：无数据需处理")
 
-        CommonUtils.start_many_thread(stock_list, args=(result,),handleSize=handleSize, target=self.saveDailyStocksLast,
+        CommonUtils.start_many_thread(stock_list, args=(result_data,), handleSize=handleSize,
+                                      target=self.saveDailyStocksLast,
                                       name='保存stock last and money 数据', asyn=False)
-        pass
+        return result_data
 
-    def saveDailyStocksLast(self, list,result):
+    def saveDailyStocksLast(self, list, result):
         """
         保存最新股票交易数据到file中 还有 资金数据
         :param list:
@@ -87,7 +90,7 @@ class StockService(object):
 
                 try:
                     stockFile.write_stock_json(d, code, last_date)
-                    result.append({'code':code})
+                    result.append({'code': code})
                 except Exception, e:
                     logging.error(e)
                 d = center.getStockMoneyLast(code)
@@ -464,6 +467,8 @@ class StockService(object):
 
         if param_flag is False:
             params['stock_buy'] = True
+        if params['codes']:
+            params['codes'] = params['codes'].split(",")
         if 'stock_filter' in params and bool(params['stock_filter']):
             params['stock_list'] = self.getStockFilter(params)
         result = self.db.setId("STOCK_SEARCH").execute(params, params)
@@ -516,7 +521,7 @@ class StockService(object):
                 s = StockData.get_stock_cur_trade(code_list[i])
                 temp[code_list[i]]['cur'] = bool(s) and s or {}
                 self.__handle_growth([temp[code_list[i]]])
-            except Exception,e:
+            except Exception, e:
                 temp[code_list[i]]['cur'] = {}
                 logging.error("获取当前交易：%s" % e)
 
@@ -559,29 +564,29 @@ class StockService(object):
             # 保存数据
             DBExec(Query.QUERY_STOCK_LIFT, "INSERT_STOCK_LIFT").execute(data_list)
 
-    def getStockFilter(self,params):
+    def getStockFilter(self, params):
         """
 
         :return:
         """
-        result = []
+        result_data = []
         logging.info("过滤数据开始")
         stock_list = self.db.setId("GET_ALL_STOCK").execute(params)
         # stock_list=[{'code':'603677'}]
-        CommonUtils.start_many_thread(stock_list, args=(result,), target=self.__getStockFilter,
+        CommonUtils.start_many_thread(stock_list, args=(result_data,), target=self.__getStockFilter,
                                       asyn=False, name='stock filter')
-        logging.info("过滤stock完成：%s" % result)
-        return result
+        logging.info("过滤stock完成：%s" % result_data)
+        return result_data
 
-    def __getStockFilter(self, stock_list,res):
+    def __getStockFilter(self, stock_list, res):
         for s in stock_list:
             try:
                 res_flag, a, d = StockAnalysis.stock_filter(s['code'])
                 if res_flag:
                     res.append(s['code'])
                     logging.info("数据命中：%s" % s['code'])
-            except Exception,e:
-                logging.error("数据过滤异常：%s" % e)
+            except Exception, e:
+                logging.error("[%s]数据过滤异常：%s" % (s['code'],e))
 
     def save_stock_money(self):
         """
@@ -596,9 +601,8 @@ class StockService(object):
                 # 保存数据
                 if bool(data_list):
                     DBExec(Query.QUERY_STOCK_MONEY, "INSERT_STOCK_MONEY").execute(data_list)
-            except Exception,e:
+            except Exception, e:
                 logging.error("保存资金流入异常：%s" % e)
-
 
 
 if __name__ == '__main__':
@@ -618,12 +622,12 @@ if __name__ == '__main__':
     # h_data = StockData.get_stock_last_day('601838')
     # print StockAnalysis.growth_Analysis(h_data, avgs=[5, 10, 20])
 
-    result = StockService().saveAllDailyStocks(stock_list=[{'code':'603843'}])
-    data=result
-    print data
-    a=[data[i]['stock_code'] for i in range(0,len(data)) ]
-    print a
-
+    # result = StockService().saveAllDailyStocks(stock_list=[{'code': '603843'}])
+    # data = result
+    # print data
+    # a = [data[i]['stock_code'] for i in range(0, len(data))]
+    # print a
+    pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')
     # data = data['data']

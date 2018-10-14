@@ -69,7 +69,13 @@
                 <input type="checkbox"  class="form-control" name="stock_filter" value="true">
             </div>
             <div class="form-group">
+                <label>codes：</label>
+                <input type="text"  class="form-control" size="40" name="codes" >
+            </div>
+            <br>
+            <div class="form-group">
                 <a href="javascript:void(0);"  data-loading-text="搜索中..."  id="searchBtn" class="btn btn-primary">搜索</a>
+                <input type="reset" value="重置">
                 <a href="javascript:void(0);" show="show" id="stock_img"  class="btn">图片显示</a>
             </div>
         </form>
@@ -219,9 +225,11 @@
     </tr>
     <tr>
 
-        <td colspan="3">
-            <img class="stock_img" src="http://webquotepic.eastmoney.com/GetPic.aspx?id=<%:=getStockType(list[i].code)%>&imageType=r&token=44c9d251add88e27b65ed86506f6e5da"></td>
-        <td colspan="4"><img class="stock_img" src="http://pifm.eastmoney.com/EM_Finance2014PictureInterface/Index.aspx?ID=<%:=getStockType(list[i].code)%>&UnitWidth=-6&imageType=KXL&EF=&Formula=RSI&AT=null&&type=&token=44c9d251add88e27b65ed86506f6e5da&_=0.05856025351922489"></td>
+        <td colspan="3" onclick="showImg('<%:=list[i].code%>')">
+            <img class="stock_img <%:=list[i].code%>_img" hsrc="http://webquotepic.eastmoney.com/GetPic.aspx?id=<%:=getStockType(list[i].code)%>&imageType=r&token=44c9d251add88e27b65ed86506f6e5da"></td>
+             <td colspan="4"> <img class="stock_img <%:=list[i].code%>_img" hsrc="http://pifm.eastmoney.com/EM_Finance2014PictureInterface/Index.aspx?ID=<%:=getStockType(list[i].code)%>&UnitWidth=-6&imageType=KXL&EF=&Formula=KDJ&AT=1&&type=&token=44c9d251add88e27b65ed86506f6e5da&_=0.9590387350250367"></td>
+
+        </td>
     </tr>
     <%  }%>
 </script>
@@ -325,7 +333,7 @@
             return code+"2";
         }
         if(a=='3'){
-            return code+"3";
+            return code+"2";
         }
         if(a=='6'){
             return code+"1";
@@ -341,6 +349,22 @@
         $('.stock_img').show();
         $(this).attr('show','show');
     })
+    function showImg(code){
+        var s = $('.'+code+'_img');
+        for(var i=0;i<s.length;i++){
+            var obj = $(s[i]);
+            var src = obj.attr('src');
+            if(src){
+                if(obj.is(':hidden')){obj.show();}
+                else{obj.hide();}
+
+
+            }
+            else{
+                obj.attr("src",obj.attr("hsrc")+"&t="+new Date().getTime())
+            }
+        }
+    }
 
 </script>
 

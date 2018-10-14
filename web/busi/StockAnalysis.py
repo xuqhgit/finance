@@ -198,7 +198,7 @@ class CommonAnalysis(object):
         result = []
         for i in range(0, dlen):
             a = arr[tc <= i + 1 and i + 1 - tc or 0:i + 1]
-            if bool(a) is False:
+            if a is None or len(a)==0:
                 continue
             h = a[:, 2].max()
             l = a[:, 3].min()
@@ -627,8 +627,7 @@ def stock_filter(code, filter_param=None):
 if __name__ == '__main__':
     # print handle_stock_daily_data("601838", avg=[5, 10, 20, 30, 60])
     # print growth_Analysis([-1.23, 1, 1.2, 1.3, 1.6])
-    flag, a, d = stock_filter('603677')
-    print flag
+    pass
     # l = [[1, 3, 4, {'a': [1, 2, 3]}], [9, 4, 6, {'a': [1, 2, 3]}]]
     # #
     # print numpy.array(l)[:, 1]
