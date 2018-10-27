@@ -162,6 +162,7 @@ def get_stock_cur_trade(code, count=8, index=None):
     :param code:
     :return:
     """
+
     if code == '1A0001' or code == '399001':
         return None
     try:
@@ -180,7 +181,7 @@ def get_stock_cur_trade(code, count=8, index=None):
             result = jrjData.getCurData([code])[0]
         elif code_int % 8 == 4:
             result = sohuData.getCurData(code)
-        elif code_int % 8 == 5:
+        elif code_int % 8 == 5 and count == 8:
             result = ssajaxData.getCurData(code)
         elif code_int % 8 == 6:
             result = tcData.getCurData(code)
@@ -202,7 +203,7 @@ def get_cur_stock_tfp(**params):
     :return:
     """
     try:
-        result = eastmoneyData.get_stock_tfp(params)
+        result = eastmoneyData.get_stock_tfp(**params)
         return result
     except Exception, e:
         logging.error("获取Stock当前停复牌信息错误：%s" % (e))

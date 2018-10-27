@@ -469,6 +469,8 @@ class StockService(object):
             params['stock_buy'] = True
         if params['codes']:
             params['codes'] = params['codes'].split(",")
+        trade_date = self.db.setId("STOCK_DAILY_MAX").execute(None)
+        params['trade_date'] = trade_date['trade_date']
         if 'stock_filter' in params and bool(params['stock_filter']):
             params['stock_list'] = self.getStockFilter(params)
         result = self.db.setId("STOCK_SEARCH").execute(params, params)
@@ -586,7 +588,7 @@ class StockService(object):
                     res.append(s['code'])
                     logging.info("数据命中：%s" % s['code'])
             except Exception, e:
-                logging.error("[%s]数据过滤异常：%s" % (s['code'],e))
+                logging.error("[%s]数据过滤异常：%s" % (s['code'], e))
 
     def save_stock_money(self):
         """
@@ -627,6 +629,7 @@ if __name__ == '__main__':
     # print data
     # a = [data[i]['stock_code'] for i in range(0, len(data))]
     # print a
+    StockService().updat_stock_tfp()
     pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

@@ -33,7 +33,6 @@ class XgbData(object):
         if resp.status == 200:
             da = resp.data
             data = json.loads(da)['data']['snapshot']
-            print data
             result = []
             for i in range(0, len(codes_c)):
                 d = data[codes_c[i]]

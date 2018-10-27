@@ -228,7 +228,10 @@ class THSData(StockData):
             result['c_amt'] = StringUtils.str_2_float(json_data['3475914'])
             # 总股本
             if "402" in json_data:
-                result['t_stock'] = StringUtils.str_2_float(json_data['402'])
+                if "-" in json_data['402']:
+                    result['t_stock']=0
+                else:
+                    result['t_stock'] = StringUtils.str_2_float(json_data['402'])
             else:
                 result['t_stock'] = 0
             # 总市值

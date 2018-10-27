@@ -398,9 +398,10 @@
             <![CDATA[
                 select s.code,s.name,date_format(s.jj_time, '%Y%m%d') AS jj_time
                  ,date_format(s.dj_time, '%Y%m%d') AS dj_time,b.buy_price,b.quantity,b.type,sf.mc fund_mc,sf.quantity as fund_quantity,
-                 sf.fund_count
+                 sf.fund_count,j.jj as jj_list,
+                 d.c_amt as d_c_amt,d.c_stock as d_c_stock,d.mc as d_mc,d.t_stock as d_t_stock,d.pe as d_pe
                  from stock s
-                {% if plate %}
+                {% if plate or no_plate %}
                 join (SELECT
                         stock_code
                     FROM
@@ -409,8 +410,14 @@
                                 stock_code
                             FROM
                                 stock_plate p
-                            WHERE
-                                p.plate_code IN ({% for p in plate %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
+                            WHERE 1=1
+                            {% if plate  %}
+                                and p.plate_code IN ({% for p in plate %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
+                            {% endif%}
+                             {% if no_plate  %}
+                                and p.plate_code not IN ({% for p in no_plate %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
+                            {% endif%}
+
                             AND p.state = 1
                         ) s
                     GROUP BY
@@ -421,6 +428,9 @@
                  {% endif%}
                  {% if  stock_buy  %} inner {% else %} left  {% endif%} join stock_buy b on  b.stock_code=s.code  and b.status=1
                  left join stock_fund sf on sf.stock_code = s.code
+                 left join (select group_concat(l.jj_date) as jj,l.stock_code from stock_lift l group by l.stock_code order by l.jj_date asc )
+                  j on j.stock_code=s.code
+                 left join stock_daily d on d.trade_date=[trade_date] and d.stock_code=s.code
                 where state=1
                 {% if code %}
                     and s.code = [code]
@@ -443,7 +453,97 @@
                 {% if codes %}
                   and s.code IN ({% for p in codes %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
                 {% endif%}
+                {% if d_c_amt_from %}
+                    and d.c_amt>=[d_c_amt_from]*100000000
+                {% endif%}
 
+                {% if d_c_amt_to %}
+                    and d.c_amt<=[d_c_amt_to]*100000000
+                {% endif%}
+
+                {% if d_c_stock_from %}
+                    and d.c_stock>=[d_c_stock_from]*100000000
+                {% endif%}
+
+                {% if d_c_stock_to %}
+                    and d.c_stock<=[d_c_stock_to]*100000000
+                {% endif%}
+
+                {% if d_mc_from %}
+                    and d.mc>=[d_mc_from]*100000000
+                {% endif%}
+
+                {% if d_mc_to %}
+                    and d.mc<=[d_mc_to]*100000000
+                {% endif%}
+
+                {% if d_t_stock_from %}
+                    and d.t_stock>=[d_t_stock_from]*100000000
+                {% endif%}
+
+                {% if d_t_stock_to %}
+                    and d.t_stock<=[d_t_stock_to]*100000000
+                {% endif%}
+
+
+
+                {% if d_price_from %}
+                    and d.price>=[d_price_from]
+                {% endif%}
+
+                {% if d_price_to %}
+                    and d.price<=[d_price_to]
+                {% endif%}
+
+
+                {% if d_pe_from %}
+                    and d.pe>=[d_pe_from]
+                {% endif%}
+
+                {% if d_pe_to %}
+                    and d.pe<=[d_pe_to]
+                {% endif%}
+
+                {% if d_growth_from %}
+                    and d.growth>=[d_growth_from]
+                {% endif%}
+
+                {% if d_growth_to %}
+                    and d.growth<=[d_growth_to]
+                {% endif%}
+
+                order by
+                {% if d_price_sort %}
+                    d.price {{d_price_sort}},
+                {% endif%}
+                {% if d_mc_sort %}
+                    d.mc {{d_mc_sort}},
+                {% endif%}
+
+                {% if d_t_stock_sort %}
+                    d.t_stock {{d_t_stock_sort}},
+                {% endif%}
+                {% if d_c_stock_sort %}
+                    d.c_stock {{d_c_stock_sort}},
+                {% endif%}
+                {% if d_c_amt_sort %}
+                    d.c_amt {{d_c_amt_sort}},
+                {% endif%}
+                {% if d_pe_sort %}
+                    d.pe {{d_pe_sort}},
+                {% endif%}
+                {% if d_growth_sort %}
+                    d.growth {{d_growth_sort}},
+                {% endif%}
+
+
+                s.code asc
+
+
+
+                {% if limit %}
+                    limit {{limit}}
+                {% endif%}
 
 
             ]]>
@@ -463,4 +563,21 @@
              ]]>
         </sql>
     </query>
+     <query id="STOCK_DAILY_MAX" type="">
+        <sql>
+            <![CDATA[
+                select max(trade_date) as trade_date from stock_daily d
+            ]]>
+        </sql>
+    </query>
+    <query id="UPDATE_STOCK_TFP" type="">
+        <sql>
+            <![CDATA[
+              update stock set stop_time=[tp],resumption_time=[ fp ] where code=[stock_code]
+               and (stop_time<=str_to_date([tp],'%Y-%m-%d') or stop_time is NULL)
+            ]]>
+        </sql>
+    </query>
+
+
 </query-config>

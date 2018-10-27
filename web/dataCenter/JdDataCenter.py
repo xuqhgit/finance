@@ -37,7 +37,6 @@ class JdData(object):
         result = []
         if resp.status == 200:
             h = resp.data.split("(")[1].replace(")", "")
-            print h
             if bool(h) is False:
                 logging.error("【jd】获取基金[%s]stock 数据：无数据" % (code))
                 return result

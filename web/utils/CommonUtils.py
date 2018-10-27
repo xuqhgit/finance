@@ -19,7 +19,8 @@ def start_many_thread(list, handleSize=200, args=(), target=None, asyn=True, nam
     :return:
     """
 
-
+    if list is None:
+        return 0
     size = len(list)
     list_len = handleSize
     count = size / list_len + (size % list_len == 0 and 2 or 3) - 2

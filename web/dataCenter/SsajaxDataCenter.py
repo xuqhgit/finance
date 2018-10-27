@@ -25,7 +25,6 @@ class SsajaxData(object):
         if resp.status == 200:
             da = resp.data.split("(", 2)[1].decode("gbk").encode("utf-8")
             data = json.loads(da[0:len(da) - 2])
-            print data
             d = data[0]
             res = {
                 'high_price': round(d['high'],3),  # 最高

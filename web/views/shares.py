@@ -185,15 +185,19 @@ def stockSearch():
         args = request.form
 
     plate=[]
+    no_plate=[]
     if args['area']:
         plate.extend( args['area'].split(","))
     if args['concept']:
         plate.extend( args['concept'].split(","))
+    if args['noConcept']:
+        no_plate.extend( args['noConcept'].split(","))
 
     params={}
     for a in args:
         params[a]=args[a]
     params['plate'] = plate
+    params['no_plate'] = no_plate
     data = StockService().search(params)
     return data
 

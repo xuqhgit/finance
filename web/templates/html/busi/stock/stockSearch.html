@@ -17,28 +17,37 @@
                 <label>名称：</label>
                 <input type="text" size="12" class="form-control" name="name">
             </div>
-             <div class="form-group">
+            <div class="form-group">
                 <label>最少匹配：</label>
-                <input type="number" size="8" class="form-control"id="plate_count" name="plate_count" value="1" min="1">
+                <input type="number" size="8" class="form-control" id="plate_count" name="plate_count" value="1"
+                       min="1">
             </div>
             <br>
             <div class="form-group">
-                <label for="dtp_input2" class="control-label">减:</label>
+                <label class="control-label">减:</label>
                 <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd">
                     <input class="form-control" size="8" type="text" name="jj_time" value="" readonly>
                     <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
-					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                 </div>
 
             </div>
             <div class="form-group">
-                <label for="dtp_input2" class="control-label">登记：</label>
-                <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd" >
+                <label class="control-label">登记：</label>
+                <div class="input-group date form_date" data-date="" data-date-format="yyyy-mm-dd">
                     <input class="form-control" size="8" type="text" name="dj_time" value="" readonly>
                     <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
-					<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
                 </div>
 
+            </div>
+            <div class="form-group">
+                <label>buy：</label>
+                <input type="checkbox" class="form-control" name="stock_buy"  value="true">
+            </div>
+            <div class="form-group">
+                <label>过滤：</label>
+                <input type="checkbox" class="form-control" name="stock_filter" value="true">
             </div>
             <br>
             <div class="form-group control-label">
@@ -51,32 +60,183 @@
                     <option value="sz">创业</option>
                 </select>
             </div>
-            <div class="form-group control-label">  <label>区域：</label></div>
+            <div class="form-group control-label"><label>区域：</label></div>
             <div class="form-group">
 
                 <select id="area_select" size="8" name="area" class="selectpicker" multiple
                         data-live-search="true"></select>
             </div>
-             <div class="form-group control-label">  <label>板块：</label></div>
+            <div class="form-group control-label"><label>板块：</label></div>
             <div class="form-group">
 
                 <select id="concept_select" size="16" name="concept" class="selectpicker" multiple
-                        data-live-search="true" ></select>
+                        data-live-search="true"></select>
+                 <a href="javascript:void(0);"  id="concept_select_reset"
+                   class="btn btn-primary">取消</a>
             </div>
+
+            <div class="form-group control-label"><label>板块：</label></div>
+            <div class="form-group">
+
+                <select id="concept_no_select" size="16" name="noConcept" class="selectpicker" multiple
+                        data-live-search="true"></select>
+                 <a href="javascript:void(0);"  id="concept_no_select_reset"
+                   class="btn btn-primary">取消</a>
+            </div>
+
+
             <br>
             <div class="form-group">
-                <label>过滤：</label>
-                <input type="checkbox"  class="form-control" name="stock_filter" value="true">
+
+                <label>流值：</label>
+                <div class="input-group">
+
+                    <input type="text" class="form-control" size="1" name="d_c_amt_from" value="0" aria-label="...">
+                    <input type="text" class="form-control" size="1" name="d_c_amt_to" aria-label="...">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"> sort<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" value="desc">desc</a></li>
+                            <li><a href="javascript:void(0)" value="asc">asc</a></li>
+                            <li><a href="javascript:void(0)" value="">no</a></li>
+                        </ul>
+                        <input type="hidden" class="form-control" name="d_c_amt_sort">
+                    </div><!-- /btn-group -->
+                </div>
             </div>
+            <div class="form-group">
+                <label>流股：</label>
+                <div class="input-group">
+
+                    <input type="text" class="form-control" size="1"  name="d_c_stock_from" aria-label="...">
+                    <input type="text" class="form-control" size="1"  name="d_c_stock_to" aria-label="...">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"> sort<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" value="desc">desc</a></li>
+                            <li><a href="javascript:void(0)" value="asc">asc</a></li>
+                            <li><a href="javascript:void(0)" value="">no</a></li>
+                        </ul>
+                        <input type="hidden" class="form-control" name="d_c_stock_sort">
+                    </div><!-- /btn-group -->
+                </div>
+            </div>
+            <div class="form-group">
+
+                <label>总值：</label>
+                <div class="input-group">
+
+                    <input type="text" class="form-control" size="1"  name="d_mc_from" aria-label="...">
+                    <input type="text" class="form-control" size="1"  name="d_mc_to" aria-label="...">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"> sort<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" value="desc">desc</a></li>
+                            <li><a href="javascript:void(0)" value="asc">asc</a></li>
+                            <li><a href="javascript:void(0)" value="">no</a></li>
+                        </ul>
+                        <input type="hidden" class="form-control" name="d_mc_sort">
+                    </div><!-- /btn-group -->
+                </div>
+            </div>
+            <div class="form-group">
+                <label>总股：</label>
+                <div class="input-group">
+
+                    <input type="text" class="form-control" size="1"  name="d_t_stock_from" aria-label="...">
+                    <input type="text" class="form-control" size="1"  name="d_t_stock_to" aria-label="...">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"> sort<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" value="desc">desc</a></li>
+                            <li><a href="javascript:void(0)" value="asc">asc</a></li>
+                            <li><a href="javascript:void(0)" value="">no</a></li>
+                        </ul>
+                        <input type="hidden" class="form-control" name="d_t_stock_sort">
+                    </div><!-- /btn-group -->
+                </div>
+            </div>
+             <div class="form-group">
+                <label>price：</label>
+                <div class="input-group">
+
+                    <input type="text" class="form-control" size="1"  name="d_price_from" aria-label="...">
+                    <input type="text" class="form-control" size="1"  name="d_price_to" aria-label="...">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"> sort<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" value="desc">desc</a></li>
+                            <li><a href="javascript:void(0)" value="asc">asc</a></li>
+                            <li><a href="javascript:void(0)" value="">no</a></li>
+                        </ul>
+                        <input type="hidden" class="form-control" name="d_price_sort">
+                    </div><!-- /btn-group -->
+                </div>
+            </div>
+
+             <div class="form-group">
+                <label>pe：</label>
+                <div class="input-group">
+
+                    <input type="text" class="form-control" size="1"  name="d_pe_from" aria-label="...">
+                    <input type="text" class="form-control" size="1"  name="d_pe_to" aria-label="...">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"> sort<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" value="desc">desc</a></li>
+                            <li><a href="javascript:void(0)" value="asc">asc</a></li>
+                            <li><a href="javascript:void(0)" value="">no</a></li>
+                        </ul>
+                        <input type="hidden" class="form-control" name="d_pe_sort">
+                    </div><!-- /btn-group -->
+                </div>
+            </div>
+
+             <div class="form-group">
+                <label>growth：</label>
+                <div class="input-group">
+
+                    <input type="text" class="form-control" size="1"  name="d_growth_from" aria-label="...">
+                    <input type="text" class="form-control" size="1"  name="d_growth_to" aria-label="...">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false"> sort<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" value="desc">desc</a></li>
+                            <li><a href="javascript:void(0)" value="asc">asc</a></li>
+                            <li><a href="javascript:void(0)" value="">no</a></li>
+                        </ul>
+                        <input type="hidden" class="form-control" name="d_growth_sort">
+                    </div><!-- /btn-group -->
+                </div>
+            </div>
+
+
+
+            <br>
+
+
             <div class="form-group">
                 <label>codes：</label>
-                <input type="text"  class="form-control" size="40" name="codes" >
+                <input type="text" class="form-control" size="40" name="codes">
             </div>
-            <br>
+
             <div class="form-group">
-                <a href="javascript:void(0);"  data-loading-text="搜索中..."  id="searchBtn" class="btn btn-primary">搜索</a>
+                <label>limit：</label>
+                <input type="text" class="form-control" name="limit" value="50">
+            </div>
+              <br>
+            <div class="form-group">
+                <a href="javascript:void(0);" data-loading-text="搜索中..." id="searchBtn"
+                   class="btn btn-primary">搜索</a>
                 <input type="reset" value="重置">
-                <a href="javascript:void(0);" show="show" id="stock_img"  class="btn">图片显示</a>
+                <a href="javascript:void(0);" show="show" id="stock_img" class="btn">图片显示</a>
             </div>
         </form>
         <legend></legend>
@@ -100,7 +260,7 @@
                 <th>
                     涨幅
                 </th>
-                 <th>
+                <th>
                     开/昨收<br>
                     高/低
                 </th>
@@ -112,9 +272,9 @@
                     板块
                 </th>
 
-                <th>
-                    操作
-                </th>
+                <!--<th>-->
+                    <!--操作-->
+                <!--</th>-->
             </tr>
             </thead>
             <tbody>
@@ -124,60 +284,83 @@
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade  "  id="fund_list_modal" tabindex="-1" role="dialog" aria-labelledby="fund_list_modal_label">
-  <div class="modal-dialog  modal-lg" role="document">
-    <div class="modal-content ">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="fund_list_modal_label">基金列表</h4>
-      </div>
-      <div class="modal-body ">
-            <table class="table  table-bordered table-hover  table-condensed" id="fund_list_table">
-            <thead>
-            <tr>
-                <th>
-                </th>
-                <th>
-                    序号
-                </th>
-                <th>
-                    代码
-                </th>
-                <th>
-                    名称
-                </th>
-                <th>
-                    当前价格
-                </th>
-                <th>
-                    涨幅
-                </th>
-                <th>
-                    比例
-                </th>
-                <th>
-                    数量
-                </th>
-                <th>
-                    买入状态
-                </th>
-                 <th>
-                    卖出状态
-                </th>
-            </tr>
-            </thead>
-            <tbody>
+<div class="modal fade  " id="fund_list_modal" tabindex="-1" role="dialog" aria-labelledby="fund_list_modal_label">
+    <div class="modal-dialog  modal-lg" role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="fund_list_modal_label">基金列表</h4>
+            </div>
+            <div class="modal-body ">
+                <table class="table  table-bordered table-hover  table-condensed" id="fund_list_table">
+                    <thead>
+                    <tr>
+                        <th>
+                        </th>
+                        <th>
+                            序号
+                        </th>
+                        <th>
+                            代码
+                        </th>
+                        <th>
+                            名称
+                        </th>
+                        <th>
+                            当前价格
+                        </th>
+                        <th>
+                            涨幅
+                        </th>
+                        <th>
+                            比例
+                        </th>
+                        <th>
+                            数量
+                        </th>
+                        <th>
+                            买入状态
+                        </th>
+                        <th>
+                            卖出状态
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
 
-            </tbody>
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 
-      </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade  " id="stock_info_modal" tabindex="-1" role="dialog" aria-labelledby="stock_info_modal_label">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="stock_info_modal_label">详情</h4>
+            </div>
+            <div class="modal-body ">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
 {% endblock%}
 
 {% block footScript %}
@@ -187,7 +370,7 @@
     <tr class="<%:=list[i].cur.price>list[i].cur.close_price?'danger':''%>">
         <th scope="row" rowspan="3"><input type="checkbox" value="<%:=list[i].code%>"></th>
         <th rowspan="3"><%:=i+1 %></th>
-        <td><%:=list[i].code%></td>
+        <td style="width: 80px;" onclick="loadStockInfo('<%:=list[i].code%>')"><%:=list[i].code%></td>
 
         <td><%:=list[i].cur.price%></td>
         <td><%:=list[i].cur.turnover_rate%></td>
@@ -204,30 +387,47 @@
         </td>
         <td style="max-width: 200px;"><%:=list[i].plate_name%></td>
 
-        <td>
-            <div class="btn-toolbar" role="toolbar" aria-label="...">
-                <div class="btn-group glyphicon glyphicon-edit" role="group"></div>
-                <div class="btn-group glyphicon glyphicon-remove-circle" role="group"></div>
-            </div>
-        </td>
+        <!--<td>-->
+            <!--<div class="btn-toolbar" role="toolbar" aria-label="...">-->
+                <!--<div class="btn-group glyphicon glyphicon-edit" role="group"></div>-->
+                <!--<div class="btn-group glyphicon glyphicon-remove-circle" role="group"></div>-->
+            <!--</div>-->
+        <!--</td>-->
     </tr>
     <tr>
         <td><%:=list[i].name%></td>
 
+
+        <td colspan="2">
+            <%if(list[i].avg){for(var a=0;a< list[i].avg.length;a++){
+            %><%:=JSON.stringify(list[i].avg[a]).replace(",","：").replace(/,/g,"--")%><br/><% }}%>
+        </td>
+        <td style="width: 150px;">
+            <%:=getJJStr(list[i].jj_list)%>
+        </td>
+
+        <td>
+            流值:<%:=formatValue(list[i].d_c_amt)%> 流股:<%:=formatValue(list[i].d_c_stock)%><br>
+            总值:<%:=formatValue(list[i].d_mc)%> 总股:<%:=formatValue(list[i].d_t_stock)%><br>
+            市盈:<%:=list[i].d_pe%>
+
+        </td>
         <td onclick="getFundList('<%:=list[i].code%>')">
             基金：<%:=list[i].fund_count%><br/>
             数量：<%:=list[i].fund_quantity%><br/>
             市值：<%:=list[i].fund_mc%><br/>
         </td>
-        <td >
-            <%if(list[i].avg){for(var a=0;a< list[i].avg.length;a++){ %><%:=JSON.stringify(list[i].avg[a]).replace(",","：").replace(/,/g,"--")%><br/><% }}%></td>
 
     </tr>
     <tr>
 
         <td colspan="3" onclick="showImg('<%:=list[i].code%>')">
-            <img class="stock_img <%:=list[i].code%>_img" hsrc="http://webquotepic.eastmoney.com/GetPic.aspx?id=<%:=getStockType(list[i].code)%>&imageType=r&token=44c9d251add88e27b65ed86506f6e5da"></td>
-             <td colspan="4"> <img class="stock_img <%:=list[i].code%>_img" hsrc="http://pifm.eastmoney.com/EM_Finance2014PictureInterface/Index.aspx?ID=<%:=getStockType(list[i].code)%>&UnitWidth=-6&imageType=KXL&EF=&Formula=KDJ&AT=1&&type=&token=44c9d251add88e27b65ed86506f6e5da&_=0.9590387350250367"></td>
+            <img class="stock_img <%:=list[i].code%>_img"
+                 hsrc="http://webquotepic.eastmoney.com/GetPic.aspx?id=<%:=getStockType(list[i].code)%>&imageType=r&token=44c9d251add88e27b65ed86506f6e5da">
+        </td>
+        <td colspan="4"><img class="stock_img <%:=list[i].code%>_img"
+                             hsrc="http://pifm.eastmoney.com/EM_Finance2014PictureInterface/Index.aspx?ID=<%:=getStockType(list[i].code)%>&UnitWidth=-6&imageType=KXL&EF=&Formula=KDJ&AT=1&&type=&token=44c9d251add88e27b65ed86506f6e5da&_=0.9590387350250367">
+        </td>
 
         </td>
     </tr>
@@ -237,7 +437,7 @@
 <script id="FUND_LIST_TPL" type="text/html">
     <%for(var i = 0; i < list.length; i++) { %>
     <tr class="<%:=list[i].growth>0?'danger':''%>">
-        <th scope="row" ><input type="checkbox" value="<%:=list[i].fund_code%>"></th>
+        <th scope="row"><input type="checkbox" value="<%:=list[i].fund_code%>"></th>
         <th><%:=i+1 %></th>
         <td><%:=list[i].fund_code%></td>
         <td><%:=list[i].fund_name%></td>
@@ -254,34 +454,42 @@
     window.template();
     $('.form_date').datetimepicker({
         weekStart: 1,
-        todayBtn:  1,
-		autoclose: 1,
-		todayHighlight: 1,
-		startView: 2,
-		minView: 2,
-		forceParse: 0
+        todayBtn: 1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+        minView: 2,
+        forceParse: 0
     });
     function init() {
         request("/shares/plate", null, function (data) {
             var area = "";
-            var concept="";
-            for(var i=0;i<data.length;i++){
+            var concept = "";
+            for (var i = 0; i < data.length; i++) {
                 var d = data[i];
-                if(d.type=='AREA'){
-                    area+="<option value='"+d.code+"'>"+d.name+"</option>>"
+                if (d.type == 'AREA') {
+                    area += "<option value='" + d.code + "'>" + d.name + "</option>>"
                 }
-                else{
-                    concept+="<option value='"+d.code+"'>"+d.name+"</option>>"
+                else {
+                    concept += "<option value='" + d.code + "'>" + d.name + "</option>>"
                 }
             }
             $('#area_select').empty().append(area).selectpicker('refresh');
             $('#concept_select').empty().append(concept).selectpicker('refresh');
             $('#concept_select').on('changed.bs.select', function (e) {
                 var arr = $('#concept_select').selectpicker('val');
-                if(arr){
+                if (arr) {
                     var len = arr.length;
-                    $("#plate_count").val(len>0?len:1);
+                    $("#plate_count").val(len > 0 ? len : 1);
                 }
+            });
+            $('#concept_select_reset').click(function(){
+                $('#concept_select').selectpicker('deselectAll');
+            });
+
+            $('#concept_no_select').empty().append(concept).selectpicker('refresh');
+             $('#concept_no_select_reset').click(function(){
+                $('#concept_no_select').selectpicker('deselectAll');
             });
         }, null);
 //        $('#area_select').selectpicker('refresh');
@@ -290,18 +498,18 @@
 
     init();
 
-    $('#searchBtn').click(function(){
+    $('#searchBtn').click(function () {
         var $btn = $(this).button('loading')
 
         var params = $("#searchForm").getJsonData();
-        request("/shares/stockSearch",params , function (data) {
+        request("/shares/stockSearch", params, function (data) {
             $("#table_search tbody").empty();
-            if(data.length==0){
-                 $("#table_search tbody").append("<tr><td>无数据</td></tr>");
+            if (data.length == 0) {
+                $("#table_search tbody").append("<tr><td>无数据</td></tr>");
             }
 
             var tpl = document.getElementById('STOCK_LIST_TPL').innerHTML;
-            $("#table_search tbody").append(template(tpl, {"list":data}));
+            $("#table_search tbody").append(template(tpl, {"list": data}));
 
             $btn.button('reset')
         }, null)
@@ -310,61 +518,128 @@
     function getFundList(stockCode) {
         $("#fund_list_table tbody").empty();
         $("#fund_list_modal").modal('show');
-        request("/fund/fundListByStock",{"stock_code":stockCode} , function (data) {
+        request("/fund/fundListByStock", {"stock_code": stockCode}, function (data) {
 
-            if(data.length==0){
-                 $("#table_search tbody").append("<tr><td>无数据</td></tr>");
+            if (data.length == 0) {
+                $("#table_search tbody").append("<tr><td>无数据</td></tr>");
             }
             var tpl = document.getElementById('FUND_LIST_TPL').innerHTML;
-            $("#fund_list_table tbody").append(template(tpl, {"list":data}));
+            $("#fund_list_table tbody").append(template(tpl, {"list": data}));
         }, null)
     }
-    function getStockType(code){
-        var a = code.substring(0,1);
-        if(code=='1A0001'){
+    function getStockType(code) {
+        var a = code.substring(0, 1);
+        if (code == '1A0001') {
             return "0000011";
         }
-        if(code=='399001'){
+        if (code == '399001') {
             return "3990012"
         }
 
-            //http://quote.eastmoney.com/chart/h5.html?id=3990012&type=r
-        if(a=='0'){
-            return code+"2";
+        //http://quote.eastmoney.com/chart/h5.html?id=3990012&type=r
+        if (a == '0') {
+            return code + "2";
         }
-        if(a=='3'){
-            return code+"2";
+        if (a == '3') {
+            return code + "2";
         }
-        if(a=='6'){
-            return code+"1";
+        if (a == '6') {
+            return code + "1";
         }
     }
-    $("#stock_img").click(function(){
-        var a  = $(this).attr("show");
-        if(a=='show'){
+    $("#stock_img").click(function () {
+        var a = $(this).attr("show");
+        if (a == 'show') {
             $('.stock_img').hide();
-            $(this).attr('show','hidden');
+
+            $(this).attr('show', 'hidden');
             return;
         }
         $('.stock_img').show();
-        $(this).attr('show','show');
-    })
-    function showImg(code){
-        var s = $('.'+code+'_img');
-        for(var i=0;i<s.length;i++){
+        $(this).attr('show', 'show');
+        var a = $('.stock_img');
+        for (var i = 0; i < a.length; i++) {
+            var obj = $(a[i]);
+            obj.attr("src", obj.attr("hsrc") + "&t=" + new Date().getTime())
+        }
+
+
+    });
+    function showImg(code) {
+        var s = $('.' + code + '_img');
+        for (var i = 0; i < s.length; i++) {
             var obj = $(s[i]);
             var src = obj.attr('src');
-            if(src){
-                if(obj.is(':hidden')){obj.show();}
-                else{obj.hide();}
+            if (src) {
+                if (obj.is(':hidden')) {
+                    obj.show();
+                }
+                else {
+                    obj.hide();
+                }
 
 
             }
-            else{
-                obj.attr("src",obj.attr("hsrc")+"&t="+new Date().getTime())
+            else {
+                obj.attr("src", obj.attr("hsrc") + "&t=" + new Date().getTime())
             }
         }
     }
+
+    function getJJStr(jjList) {
+        if (jjList) {
+            var s = jjList.split(",");
+            var arr = new Array();
+
+            var d = parseInt(getDate());
+            var flag = false;
+            for (var i = 0; i < s.length; i++) {
+                var v = s[i];
+                if (!flag) {
+                    var vi = parseInt(v.replace(/-/g, ""));
+                    if (vi > d) {
+                        flag = true;
+
+                        arr.push("<span style='color: red;'>" + v + "</span>");
+                        continue;
+                    }
+                }
+                arr.push(v);
+            }
+            return arr.join(";");
+
+        }
+        return "";
+    }
+
+    function getDate() {
+        var date = new Date();
+        var y = date.getFullYear();    //获取完整的年份(4位,1970-????)
+        var m = date.getMonth() + 1;       //获取当前月份(0-11,0代表1月)
+        var d = date.getDate();        //获取当前日(1-31)
+        if (m < 10)
+            m += "0";
+        return y + "" + m + d;
+    }
+
+    function formatValue(v) {
+        if (v) {
+            return (v / 100000000).toFixed(3);
+        }
+        return "";
+    }
+    $('.dropdown-menu a').click(function () {
+        var a = $(this);
+        a.parent().parent().prev().html(a.text());
+        var h = a.parent().parent().next();
+        h.val(a.attr("value"));
+    });
+    function loadStockInfo(code){
+       var url = "http://m.10jqka.com.cn/stockpage/hs_"+code+"/#&atab=geguNews";
+       $('#stock_info_modal .modal-body').html("<iframe width='540px;' height='700px' src='"+url+"'></iframe>");
+       $('#stock_info_modal').modal("show");
+    }
+
 
 </script>
 

@@ -233,7 +233,6 @@ class EastmoneyData(object):
         tf = '2'
         if sType == 'fp':
             tf = '6'
-
         url = 'http://datainterface.eastmoney.com/EM_DataCenter/JS.aspx?type=FD&sty=SRB&st=%s' \
               '&sr=-1&p=1&ps=%s&js=var%%20mzsIinmN={pages:(pc),data:[(x)]}&mkt=1&fd=%s&rt=51054649' \
               % (tf, pageSize, Holiday.get_cur_date(splitType="-"))
@@ -243,6 +242,7 @@ class EastmoneyData(object):
         if resp.status == 200:
             # print resp.data
             resp.data = resp.data.encode("utf-8")
+
             h = resp.data.split("data:", 1)[1].replace("}", "")
             data = json.loads(h)
             if len(data) <= 0:
@@ -377,7 +377,6 @@ class EastmoneyData(object):
         c = WebClient()
         resp = c.get(url)
         result = []
-        print resp
         if resp.status == 200:
             resp.data = resp.data.encode("utf-8")
             h = resp.data.split("data:", 1)[1]
