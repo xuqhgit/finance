@@ -38,6 +38,9 @@ var request = function(url,param,callback,settings){
 		  error:function (XMLHttpRequest, textStatus, errorThrown){
 			 $("#"+rid).remove();
 			 cAlert("请求异常");
+			 if(settings.errorFunc){
+			 	settings.errorFunc()
+			 }
 		  }
 		});
 };

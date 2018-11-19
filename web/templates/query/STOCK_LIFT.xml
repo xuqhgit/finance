@@ -11,10 +11,11 @@
 				INSERT INTO stock_lift(
 					stock_code,jj_date,jjsl,jjsz,jjgds,wjjsl,source_type,jjlx,scale,create_time
 				)
-				VALUES(
-					   [ stock_code ] ,  [ jj_date ] ,  [ jjsl ] ,  [ jjsz ] ,
+
+			    SELECT [ stock_code ] ,  [ jj_date ] ,  [ jjsl ] ,  [ jjsz ] ,
 					  [ jjgds ] ,  [ wjjsl ] ,  [ source_type ] ,  [ jjlx ] ,  [ scale ] ,  now()
-				)
+				FROM DUAL WHERE NOT EXISTS(SELECT 1 FROM stock_lift WHERE stock_code = [stock_code] and
+				 jj_date = [jj_date] );
             ]]>
         </sql>
     </query>

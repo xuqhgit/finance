@@ -45,10 +45,7 @@
                 <label>buy：</label>
                 <input type="checkbox" class="form-control" name="stock_buy"  value="true">
             </div>
-            <div class="form-group">
-                <label>过滤：</label>
-                <input type="checkbox" class="form-control" name="stock_filter" value="true">
-            </div>
+
             <br>
             <div class="form-group control-label">
                 <label>板块类型：</label>
@@ -56,8 +53,8 @@
             <div class="form-group">
                 <select class="selectpicker" size="8" name="type" multiple>
                     <option value="sh">沪市</option>
-                    <option value="sz">深市</option>
-                    <option value="sz">创业</option>
+                    <option value="zxb">深市</option>
+                    <option value="cyb">创业</option>
                 </select>
             </div>
             <div class="form-group control-label"><label>区域：</label></div>
@@ -101,7 +98,7 @@
                             <li><a href="javascript:void(0)" value="asc">asc</a></li>
                             <li><a href="javascript:void(0)" value="">no</a></li>
                         </ul>
-                        <input type="hidden" class="form-control" name="d_c_amt_sort">
+                        <input type="hidden" class="form-control" value="asc" name="d_c_amt_sort">
                     </div><!-- /btn-group -->
                 </div>
             </div>
@@ -212,7 +209,7 @@
                             <li><a href="javascript:void(0)" value="asc">asc</a></li>
                             <li><a href="javascript:void(0)" value="">no</a></li>
                         </ul>
-                        <input type="hidden" class="form-control" name="d_growth_sort">
+                        <input type="hidden" class="form-control"  name="d_growth_sort">
                     </div><!-- /btn-group -->
                 </div>
             </div>
@@ -224,13 +221,25 @@
 
             <div class="form-group">
                 <label>codes：</label>
-                <input type="text" class="form-control" size="40" name="codes">
+                <textarea type="text" class="form-control" cols="80" name="codes"></textarea>
             </div>
-
+            <div class="form-group">
+                <label>names：</label>
+                <textarea type="text" class="form-control" cols="80" name="names"></textarea>
+            </div>
+            <br>
             <div class="form-group">
                 <label>limit：</label>
                 <input type="text" class="form-control" name="limit" value="50">
             </div>
+             <div class="form-group">
+                <label>过滤标识：</label>
+                <input type="checkbox" class="form-control" name="stock_filter_flag" value="true">
+            </div>
+             <div class="form-group">
+                <label>过滤：</label>
+                 <textarea  class="form-control" cols="80" name="stock_filter">[{"rg": "r"},{"rg": "r"},{"rg": "r"},{"rg": "r"},{"rg": "r"}]</textarea>
+             </div>
               <br>
             <div class="form-group">
                 <a href="javascript:void(0);" data-loading-text="搜索中..." id="searchBtn"
@@ -492,6 +501,10 @@
                 $('#concept_no_select').selectpicker('deselectAll');
             });
         }, null);
+        var s = localStorage.getItem("stockFilter");
+        if(s){
+            $("#searchForm [name=stock_filter]").val(s)
+        }
 //        $('#area_select').selectpicker('refresh');
 //        $('#concept_select').selectpicker('refresh');
     }
@@ -499,9 +512,20 @@
     init();
 
     $('#searchBtn').click(function () {
-        var $btn = $(this).button('loading')
+        var $btn = $(this).button('loading');
 
         var params = $("#searchForm").getJsonData();
+        var s=params['stock_filter'];
+        try {
+            if(s){
+                JSON.parse(s);
+                localStorage.setItem("stockFilter",s)
+            }
+
+        }catch(e){
+            alert(e);
+            return;
+        }
         request("/shares/stockSearch", params, function (data) {
             $("#table_search tbody").empty();
             if (data.length == 0) {
@@ -512,7 +536,9 @@
             $("#table_search tbody").append(template(tpl, {"list": data}));
 
             $btn.button('reset')
-        }, null)
+        }, {errorFunc:function(){
+                 $btn.button('reset')
+        }})
     });
 
     function getFundList(stockCode) {

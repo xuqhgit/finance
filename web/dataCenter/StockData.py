@@ -223,6 +223,20 @@ def get_stock_history_lift(code):
         logging.error("获取Stock历史解禁信息错误：%s----%s" % (code, e))
     return None
 
+def get_stock_future_lift(start_date,end_date):
+    """
+    获取stock历史解禁数据
+    :param start_date:
+    :param end_date:
+    :return:
+    """
+    try:
+        result = eastmoneyData.get_jj_data_by_date(start_date=start_date,end_date=end_date)
+        return result
+    except Exception, e:
+        logging.error("获取Stock历史解禁信息错误：%s:%s---%s" % (start_date,end_date, e))
+    return None
+
 
 def get_stock_money(code):
     """

@@ -5,7 +5,7 @@ from web.utils import TemplateUtils
 from web.db.dbexec import DBExec
 from web.dataCenter import THSDataCenter
 from web.dataCenter import StockData
-
+import json
 from web.busi.StockAnalysis import *
 from web.busi import StockAnalysis
 from web.utils import Holiday
@@ -467,12 +467,20 @@ class StockService(object):
 
         if param_flag is False:
             params['stock_buy'] = True
+        if params['stock_filter']:
+            params['filter_param'] = json.loads(params['stock_filter'])
+        else:
+            params['filter_param'] = None
         if params['codes']:
             params['codes'] = params['codes'].split(",")
+        if params['names']:
+            params['names'] = params['names'].split(",")
         trade_date = self.db.setId("STOCK_DAILY_MAX").execute(None)
         params['trade_date'] = trade_date['trade_date']
-        if 'stock_filter' in params and bool(params['stock_filter']):
+        if 'stock_filter_flag' in params and bool(params['stock_filter_flag']):
             params['stock_list'] = self.getStockFilter(params)
+            if bool(params['stock_list']) is False:
+                params['stock_list'] = ['no']
         result = self.db.setId("STOCK_SEARCH").execute(params, params)
         if len(result) == 0:
             return result
@@ -558,6 +566,7 @@ class StockService(object):
         """
 
         stock_list = DBExec(Query.QUERY_STOCK_LIFT, "NOT_IN_STOCK_LIFT").execute({'count': 8})
+        # stock_list = [{'code':'600565'}]
         if bool(stock_list) is False:
             logging.error("解禁数据获取失败")
             return
@@ -566,6 +575,17 @@ class StockService(object):
             # 保存数据
             DBExec(Query.QUERY_STOCK_LIFT, "INSERT_STOCK_LIFT").execute(data_list)
 
+    def save_stock_future_lift(self):
+        """
+        保存解禁数据
+        :return:
+        """
+
+        data_list = StockData.get_stock_future_lift("2019-01-01", "2020-03-03")
+        print data_list
+        # 保存数据
+        DBExec(Query.QUERY_STOCK_LIFT, "INSERT_STOCK_LIFT").execute(data_list)
+
     def getStockFilter(self, params):
         """
 
@@ -573,17 +593,17 @@ class StockService(object):
         """
         result_data = []
         logging.info("过滤数据开始")
-        stock_list = self.db.setId("GET_ALL_STOCK").execute(params)
-        # stock_list=[{'code':'603677'}]
-        CommonUtils.start_many_thread(stock_list, args=(result_data,), target=self.__getStockFilter,
+        stock_list = self.db.setId("STOCK_SEARCH").execute(params)
+        # stock_list=[{'code':'000587'}]
+        CommonUtils.start_many_thread(stock_list, args=(result_data, params), target=self.__getStockFilter,
                                       asyn=False, name='stock filter')
         logging.info("过滤stock完成：%s" % result_data)
         return result_data
 
-    def __getStockFilter(self, stock_list, res):
+    def __getStockFilter(self, stock_list, res, params):
         for s in stock_list:
             try:
-                res_flag, a, d = StockAnalysis.stock_filter(s['code'])
+                res_flag, a, d = StockAnalysis.stock_filter(s['code'], params['filter_param'])
                 if res_flag:
                     res.append(s['code'])
                     logging.info("数据命中：%s" % s['code'])
@@ -629,7 +649,7 @@ if __name__ == '__main__':
     # print data
     # a = [data[i]['stock_code'] for i in range(0, len(data))]
     # print a
-    StockService().updat_stock_tfp()
+    StockService().save_stock_lift()
     pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')

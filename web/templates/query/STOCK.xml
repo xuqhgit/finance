@@ -414,12 +414,17 @@
                             {% if plate  %}
                                 and p.plate_code IN ({% for p in plate %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
                             {% endif%}
-                             {% if no_plate  %}
-                                and p.plate_code not IN ({% for p in no_plate %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
-                            {% endif%}
+
 
                             AND p.state = 1
                         ) s
+                        where 1=1
+                        {% if no_plate  %}
+                             and s.stock_code not in
+                             (select stock_code from  stock_plate p1 where   p1.state = 1 and
+                             p1.plate_code  IN ({% for p in no_plate %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
+                             )
+                        {% endif%}
                     GROUP BY
                         s.stock_code
                     HAVING(count(stock_code)) >= {{ plate_count }}
@@ -453,6 +458,13 @@
                 {% if codes %}
                   and s.code IN ({% for p in codes %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
                 {% endif%}
+                {% if stock_list %}
+                  and s.code IN ({% for p in stock_list %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
+                {% endif%}
+                {% if names %}
+                  and s.name IN ({% for p in names %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
+                {% endif%}
+
                 {% if d_c_amt_from %}
                     and d.c_amt>=[d_c_amt_from]*100000000
                 {% endif%}

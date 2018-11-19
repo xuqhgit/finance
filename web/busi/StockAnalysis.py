@@ -454,8 +454,8 @@ def handle_stock_daily_data(code, avg=[5]):
         return None
     kdj_result = CommonAnalysis.getKDJ(numpy.array(data))
     avg_result = CommonAnalysis.getAvgData(numpy.array(data)[:, 4], avg=avg)
-    macd_result = CommonAnalysis.getMacd(numpy.array(data)[:, 4])
-    rsi_result = CommonAnalysis.getrsi(data)
+    # macd_result = CommonAnalysis.getMacd(numpy.array(data)[:, 4])
+    # rsi_result = CommonAnalysis.getrsi(data)
     # boll_result = CommonAnalysis.getBoll(numpy.array(data)[:, 4])
     result = []
     for i in range(1, len(data)):
@@ -469,10 +469,10 @@ def handle_stock_daily_data(code, avg=[5]):
 
         r = {'xt': xt, 'k': k, 'rg': rg, 'zd': zd, 'data': cur, 'kdj': kdj_result[i], 'avg': avg_result[i],
              'macd': [], 'rsi': []}
-        if bool(macd_result) and len(macd_result) >= i:
-            r['macd'] = macd_result[i - 1]
-        if bool(rsi_result) and len(rsi_result) >= i:
-            r['rsi'] = rsi_result[i - 1]
+        # if bool(macd_result) and len(macd_result) >= i:
+        #     r['macd'] = macd_result[i - 1]
+        # if bool(rsi_result) and len(rsi_result) >= i:
+        #     r['rsi'] = rsi_result[i - 1]
         result.append(r)
     return result, data
 
@@ -607,8 +607,9 @@ def growth_Analysis(data_list, avgs=[5]):
 
 
 def stock_filter(code, filter_param=None):
+    if filter_param is None:
+        filter_param = [{'rg': 'r'}, {'rg': 'r'}, {'rg': 'r'}, {'rg': 'r'}, {'rg': 'r'}]
     a_data, stock_data = handle_stock_daily_data(code)
-    filter_param = [{'rg': 'r'}, {'rg': 'r'}, {'rg': 'r'}, {'rg': 'r'}, {'rg': 'r'}]
     if filter_param is None:
         return False, a_data, stock_data
     if len(a_data) < 30:
