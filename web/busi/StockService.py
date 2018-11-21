@@ -473,6 +473,8 @@ class StockService(object):
             params['filter_param'] = None
         if params['codes']:
             params['codes'] = params['codes'].split(",")
+        if params['type']:
+            params['type'] = params['type'].split(",")
         if params['names']:
             params['names'] = params['names'].split(",")
         trade_date = self.db.setId("STOCK_DAILY_MAX").execute(None)

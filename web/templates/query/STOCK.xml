@@ -444,7 +444,7 @@
                     and s.name like concat("%",[name],"%")
                 {% endif%}
                 {% if type %}
-                    and s.type=[type]
+                    and s.type in  ({% for p in type %}'{{ p }}'{% if not loop.last %},{% endif %}{% endfor %})
                 {% endif%}
                 {% if dj_date %}
                     and s.dj_time>=date([dj_date])
