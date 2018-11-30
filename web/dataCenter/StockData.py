@@ -223,7 +223,8 @@ def get_stock_history_lift(code):
         logging.error("获取Stock历史解禁信息错误：%s----%s" % (code, e))
     return None
 
-def get_stock_future_lift(start_date,end_date):
+
+def get_stock_future_lift(start_date, end_date):
     """
     获取stock历史解禁数据
     :param start_date:
@@ -231,10 +232,10 @@ def get_stock_future_lift(start_date,end_date):
     :return:
     """
     try:
-        result = eastmoneyData.get_jj_data_by_date(start_date=start_date,end_date=end_date)
+        result = eastmoneyData.get_jj_data_by_date(start_date=start_date, end_date=end_date)
         return result
     except Exception, e:
-        logging.error("获取Stock历史解禁信息错误：%s:%s---%s" % (start_date,end_date, e))
+        logging.error("获取Stock历史解禁信息错误：%s:%s---%s" % (start_date, end_date, e))
     return None
 
 
@@ -252,6 +253,18 @@ def get_stock_money(code):
     return None
 
 
+def get_stock_zj(code, page=1):
+    """
+    :return:
+    """
+    try:
+        result = eastmoneyData.get_zjc_stock(code, page=page)
+        return result
+    except Exception, e:
+        logging.error("获取Stock 主力增减持错误：%s" % (e))
+    return None
+
+
 if __name__ == "__main__":
     # p_json = thsDataCenter.getStockPlateInfoByCode("002606")
     # p_json['name'] = 'XD除息'
@@ -261,6 +274,5 @@ if __name__ == "__main__":
     # data = get_stock_cur_last("603506")
     # clear_invalid_last_data()
     # print data
-    a = {}
-    print a['a']
+    print get_stock_zj()
     pass

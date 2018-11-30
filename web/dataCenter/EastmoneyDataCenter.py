@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from web.busi.SysDictService import DictService
 
 
-
 # 个股解禁历史 http://data.eastmoney.com/dxf/q/601997.html
 # http://dcfm.eastmoney.com/em_mutisvcexpandinterface/api/js/get?token=70f12f2f4f091e459a279469fe49eca5&st=ltsj&
 # sr=1&p=1&ps=50&type=XSJJ_NJ_PC&js=var%20raxPSCWc={pages:(tp),data:(x)}&filter=(gpdm=%27601997%27)&rt=51138864
@@ -380,7 +379,7 @@ class EastmoneyData(object):
         if resp.status == 200:
             resp.data = resp.data.encode("utf-8")
             h = resp.data.split("data:", 1)[1]
-            trs = json.loads(h[0:len(h)-2])[0]
+            trs = json.loads(h[0:len(h) - 2])[0]
             for i in range(0, len(trs)):
                 tds = trs[i].split(',')
                 trade_date = tds[0]
@@ -403,43 +402,52 @@ class EastmoneyData(object):
                      }
                 result.append(j)
         return result
+
     # url = 'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx?type=CT&cmd=0027452&sty=CTBF&st=z&sr=&p=&ps=&cb=var%20pie_data=&js=(x)&token=28758b27a75f62dc3065b81f7facb365&_=1535642715895'
     # var pie_data = "2,002745,木林森,17.85,1.48%,11041.91,791, 27169530,-4965148,2220.44,3.82%, 187317507,-99102819,8821.47,15.17%, 204126281,-321152896,-11702.66,-20.12%, 163060491,-156452944,660.75,1.14%"
 
-    def get_zjc_stock(self,code):
+    def get_zjc_stock(self, code, page=1):
         """
         var srVevXgQ={pages:1,data:["601008,连云港,3.15,-0.63,连云港港口集团有限公司,增持,12.98,0.01,二级市场,49187.2518,48.45,49187.2518,48.45,2018-11-01,2018-11-01,2018-11-02,0.0128"
         :param code:
+        :param page:
         :return:
         """
-        url = "http://data.eastmoney.com/DataCenter_V3/gdzjc.ashx?pagesize=50&page=1&js=var%%20srVevXgQ&param=&sortRule=-1&sortType=BDJZ&tabid=all&code=%s&name=&rt=51380939" % code
+        url = "http://data.eastmoney.com/DataCenter_V3/gdzjc.ashx?pagesize=50&page=%s&js=var%%20srVevXgQ&param=&sortRule=-1&sortType=BDJZ&tabid=all&code=%s&name=&rt=51380939" % (
+        page, code)
         c = WebClient()
         resp = c.get(url)
         result = []
         if resp.status == 200:
-            resp.data = resp.data.decode("gb2312")
+            resp.data = resp.data.decode("gbk")
             h = resp.data.split("data:", 1)[1].split(",\"url")[0]
             data = json.loads(h)
             for i in range(0, len(data)):
                 arr = data[i].split(',')
-                code=arr[0]
-                name=arr[1]
-                gd_name=arr[4]
-                trade_type=arr[5]
-                trade_quantity=arr[6]
-                trade_lt_ratio = arr[7].replace("-","")
+                code = arr[0]
+                name = arr[1]
+                gd_name = arr[4]
+                trade_type = arr[5]
+                trade_quantity = arr[6]
+                trade_lt_ratio = arr[7].replace("-", "")
                 sc = arr[8]
-                z_quantity=arr[9].replace("-","")
-                zg_ratio = arr[10].replace("-","")
-                lt_quantity=arr[11].replace("-","")
-                lt_ratio= arr[12].replace("-","")
-                notice_date=arr[13].replace("-","")
-                trade_start=arr[14].replace("-","")
-                trade_zg_ratio=arr[15].replace("-","")
-                j={"code":code,"name":name,"gd_name":gd_name,"trade_type":trade_type,"trade_type":trade_type,"trade_quantity":trade_quantity,"trade_lt_ratio":trade_lt_ratio,"trade_zg_ratio":trade_zg_ratio,
-                   "sc": sc,"z_quantity":z_quantity,"zg_ratio":zg_ratio,"lt_quantity":lt_quantity,"lt_quantity":lt_quantity,"lt_ratio":lt_ratio,"notice_date":notice_date,"trade_start":trade_start}
+                z_quantity = arr[9].replace("-", "")
+                zg_ratio = arr[10].replace("-", "")
+                lt_quantity = arr[11].replace("-", "")
+                lt_ratio = arr[12].replace("-", "")
+                trade_start = arr[13].replace("-", "")
+                trade_end = arr[14].replace("-", "")
+                notice_date = arr[15].replace("-", "")
+                trade_zg_ratio = arr[16].replace("-", "")
+                j = {"stock_code": code, "name": name, "gd_name": gd_name, "trade_type": trade_type,
+                     "trade_quantity": trade_quantity, "trade_lt_ratio": trade_lt_ratio,
+                     "trade_zg_ratio": trade_zg_ratio,
+                     "sc": sc, "z_quantity": z_quantity, "zg_ratio": zg_ratio, "lt_quantity": lt_quantity,
+                     "lt_ratio": lt_ratio, "notice_date": notice_date, "trade_start": trade_start,
+                     "trade_end": trade_end}
                 result.append(j)
         return result
+
 
 if __name__ == '__main__':
     em = EastmoneyData()

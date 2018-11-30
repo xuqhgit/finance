@@ -577,6 +577,7 @@ class StockService(object):
             # 保存数据
             DBExec(Query.QUERY_STOCK_LIFT, "INSERT_STOCK_LIFT").execute(data_list)
 
+
     def save_stock_future_lift(self):
         """
         保存解禁数据
@@ -628,6 +629,18 @@ class StockService(object):
             except Exception, e:
                 logging.error("保存资金流入异常：%s" % e)
 
+    def save_stock_zj(self):
+        """
+        保存主力增减持
+        :return:
+        """
+        data_list = StockData.get_stock_zj("")
+        if bool(data_list):
+            logging.info("保存增减持数据：%s" % (len(data_list)))
+            # 保存数据
+            DBExec(Query.QUERY_STOCK_ZJC, "INSERT_STOCK_ZJ").execute(data_list)
+
+
 
 if __name__ == '__main__':
     # result = list(DBExec(QUERY_PATH, "FIND_LAST_NEW_STOCK").execute(None))
@@ -651,7 +664,7 @@ if __name__ == '__main__':
     # print data
     # a = [data[i]['stock_code'] for i in range(0, len(data))]
     # print a
-    StockService().save_stock_lift()
+    StockService().save_stock_zj()
     pass
     # center = THSDataCenter.THSData()
     # data = center.getStockHistoryData('603986', 'last', '01')
