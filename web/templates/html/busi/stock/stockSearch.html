@@ -238,7 +238,7 @@
             </div>
              <div class="form-group">
                 <label>过滤：</label>
-                 <textarea  class="form-control" cols="80" name="stock_filter">[{"rg": "r"},{"rg": "r"},{"rg": "r"},{"rg": "r"},{"rg": "r"}]</textarea>
+                 <textarea  class="form-control" cols="80" name="stock_filter">{"d_param":[{"rg": "r"},{"rg": "r"},{"rg": "r"},{"rg": "r"},{"rg": "r"}],"c_param":{"growth":1}}</textarea>
              </div>
               <br>
             <div class="form-group">
@@ -501,7 +501,7 @@
                 $('#concept_no_select').selectpicker('deselectAll');
             });
         }, null);
-        var s = localStorage.getItem("stockFilter");
+        var s = localStorage.getItem("stockFilter_20181202");
         if(s){
             $("#searchForm [name=stock_filter]").val(s)
         }
@@ -519,10 +519,11 @@
         try {
             if(s){
                 JSON.parse(s);
-                localStorage.setItem("stockFilter",s)
+                localStorage.setItem("stockFilter_20181202",s)
             }
 
         }catch(e){
+            $btn.button('reset')
             alert(e);
             return;
         }

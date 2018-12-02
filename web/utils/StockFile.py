@@ -47,7 +47,7 @@ class StockFile(object):
         """
         code_type = StringUtils.stock_code_type(code)
         if type:
-            FileUtils.write_static_data(stock_date_file % (code_type, date[0:4], date[4:6], date[6:], code),
+            FileUtils.write_static_data(stock_date_file % (code_type, date[0:4], date[4:6], date[6:8], code),
                                         StringUtils.json_2_str(data))
         pass
 
@@ -61,7 +61,7 @@ class StockFile(object):
         """
         code_type = StringUtils.stock_code_type(code)
         if code_type:
-            stock_str = FileUtils.get_static_file(stock_date_file % (code_type, date[0:4], date[4:6], date[6:], code))
+            stock_str = FileUtils.get_static_file(stock_date_file % (code_type, date[0:4], date[4:6], date[6:8], code))
             return StringUtils.str_2_json(stock_str)
 
     @staticmethod
@@ -75,7 +75,7 @@ class StockFile(object):
         """
         code_type = StringUtils.stock_code_type(code)
         if type:
-            FileUtils.write_static_data(stock_date_file % (code_type, date[0:4], date[4:6], date[6:], code + "_money"),
+            FileUtils.write_static_data(stock_date_file % (code_type, date[0:4], date[4:6], date[6:8], code + "_money"),
                                         StringUtils.json_2_str(data))
         pass
 

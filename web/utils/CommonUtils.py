@@ -65,3 +65,16 @@ def calculateLgProArray(list, lg):
             elif j + 1 == size:
                 result["%s" % i] = 0
     return result
+
+
+def init_param(default_value, param):
+    """
+    初始化默认值
+    :param default_value:
+    :param param:
+    :return:
+    """
+    for a in default_value:
+        if a not in param or isinstance(default_value[a], type(param[a])) is False:
+            param[a] = default_value[a]
+

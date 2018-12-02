@@ -147,7 +147,7 @@ def get_stock_cur_last(code, date=None):
         stock_json = thsDataCenter.getStockLast(code)
     if stock_json is None:
         stock_json = stockFile.get_stock_json(code, date)
-    if date == cur_date:
+    if date == cur_date and stock_json is None:
         stock_json = thsDataCenter.getStockLast(code)
     if stock_json:
         stock_json = stock_json["hs_%s" % code]

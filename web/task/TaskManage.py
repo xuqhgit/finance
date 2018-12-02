@@ -75,6 +75,12 @@ def updateCurStockTfp():
         StockService().updat_stock_tfp()
 
 
+def saveStockZJ():
+    if Holiday.is_trade_date():
+        logging.info("开始获取增减持")
+        StockService().save_stock_zj()
+
+
 def task_reset():
     logging.info("执行 任务重置 事件")
     ts = TaskService.TaskService()
@@ -108,7 +114,7 @@ def commonTask():
     schedudler.add_job(task_reset, 'cron', minute='25', hour='9', day_of_week='0-4')
 
     # 获取增减持数据
-    schedudler.add_job(StockService().save_stock_zj(), 'cron', minute='0', hour='8', day_of_week='0-4')
+    schedudler.add_job(saveStockZJ, 'cron', minute='0', hour='8', day_of_week='0-4')
 
     # schedudler.add_job(update_all_stock_event, 'cron', minute='00', hour='21')
 

@@ -577,7 +577,6 @@ class StockService(object):
             # 保存数据
             DBExec(Query.QUERY_STOCK_LIFT, "INSERT_STOCK_LIFT").execute(data_list)
 
-
     def save_stock_future_lift(self):
         """
         保存解禁数据
@@ -604,10 +603,19 @@ class StockService(object):
         return result_data
 
     def __getStockFilter(self, stock_list, res, params):
+        CommonUtils.init_param({"d_param": [], "c_param": {}}, params['filter_param'])
         for s in stock_list:
             try:
-                res_flag, a, d = StockAnalysis.stock_filter(s['code'], params['filter_param'])
-                if res_flag:
+                flag = False
+                if bool(params['filter_param']['d_param']):
+                    res_flag, a, d = StockAnalysis.stock_filter(s['code'], params['filter_param']['d_param'])
+                    if res_flag:
+                        flag = True
+                if bool(params['filter_param']['c_param']):
+                    f, r = StockAnalysis.analysis_daily_growth(s['code'], params['filter_param']['c_param'])
+                    if f:
+                        flag = True
+                if flag:
                     res.append(s['code'])
                     logging.info("数据命中：%s" % s['code'])
             except Exception, e:
@@ -639,7 +647,6 @@ class StockService(object):
             logging.info("保存增减持数据：%s" % (len(data_list)))
             # 保存数据
             DBExec(Query.QUERY_STOCK_ZJC, "INSERT_STOCK_ZJ").execute(data_list)
-
 
 
 if __name__ == '__main__':
