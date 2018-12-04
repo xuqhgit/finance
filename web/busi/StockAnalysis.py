@@ -9,7 +9,10 @@ from web.utils import Holiday
 from web.dataCenter import StockData
 import numpy
 import logging
-
+from web.utils.StockFile import StockFile
+from web.db.dbexec import DBExec
+from web.db import Query
+from web.dataCenter import THSDataCenter
 
 class CommonAnalysis(object):
     """
@@ -452,7 +455,7 @@ def handle_stock_daily_data(code, avg=[5]):
     """
     data = StockData.get_stock_last_day(code)
     if bool(data) is False:
-        return None
+        return None, None
     kdj_result = CommonAnalysis.getKDJ(numpy.array(data))
     avg_result = CommonAnalysis.getAvgData(numpy.array(data)[:, 4], avg=avg)
     # macd_result = CommonAnalysis.getMacd(numpy.array(data)[:, 4])
@@ -462,10 +465,31 @@ def handle_stock_daily_data(code, avg=[5]):
     for i in range(1, len(data)):
         pre = data[i - 1]
         cur = data[i]
+        # if pre[0]==cur[0] and int(pre[1])==0:
+        #     print "删除数据 %s" % pre
+        #     del data[i - 1]
+        #     StockFile().save_stock_year_type_json(data, code, "last", "01")
+        #     return None,None
+
         xt = CommonAnalysis.Ktype(cur=cur[4], openp=cur[1], hp=cur[2], lp=cur[3])
         k = pre[4] - cur[1] > 0 and 'l' or 'h'
         rg = cur[1] - cur[4] > 0 and 'g' or 'r'
         zd = pre[4] - cur[4] > 0 and 'd' or 'z'
+        if pre[7] == 0.00:
+            tdata = THSDataCenter.THSData().getStockHistoryData(code, "last", "01")
+
+            if tdata is None:
+                return None
+            tdata = StringUtils.handle_ths_str_data_to_list(tdata['data'])
+            for k in range(0,len(tdata)):
+                if int(tdata[k][0])==pre[0]:
+                    print "处理数据 %s-%s" % (code,pre[0])
+                    pre[7]=tdata[k][7]
+                    if pre[7]==0.00:
+                        pre[7]=data[i - 2][7]
+                    DBExec(Query.QUERY_STOCK, "UPDATE_STOCK_DAILY_BY_DATE").execute({"stock_code":code,"trade_date":pre[0],"turnover_rate":pre[7]})
+                    StockFile().save_stock_year_type_json(data, code, "last", "01")
+                    break
         ch_r = round(cur[7] / pre[7], 2)
         # TODO 换手率暂时不做计算
         gh = round((cur[4] - pre[4]) / pre[1] * 100, 3)
@@ -610,20 +634,31 @@ def growth_Analysis(data_list, avgs=[5]):
     return result
 
 
-def stock_filter(code, filter_param=None):
+def stock_filter(code, filter_param=None, filter_date=None):
     if filter_param is None:
         filter_param = [{'chr': [0, 0.82]}]
     a_data, stock_data = handle_stock_daily_data(code)
+
     if filter_param is None:
         return False, a_data, stock_data
-    if len(a_data) < 30:
+    if bool(a_data) is False or len(a_data) < 30:
         return False, a_data, stock_data
     res_flag = True
     p_len = len(filter_param)
+
+    a_step = 0
+
+    if filter_date is None:
+        filter_date = u"%s" % Holiday.get_cur_date()
+    else:
+        for j in range(0, len(stock_data)):
+            if stock_data[len(stock_data) - j - 1][0] == int(filter_date):
+                a_step = j
+                break
     for i in range(0, p_len):
         p = filter_param[i]
-        d = a_data[len(a_data) - p_len + i]
-        CommonUtils.init_param({"rg": "*", "gh": ["*", "*"], "amount": ["*", "*"], "ch": ["*", "*"],
+        d = a_data[len(a_data) - p_len - a_step + i]
+        CommonUtils.init_param({"c_param": {}, "rg": "*", "gh": ["*", "*"], "amount": ["*", "*"], "ch": ["*", "*"],
                                 "chr": ["*", "*"]}, p)
         rg = p['rg']
         gh = p['gh']
@@ -648,11 +683,18 @@ def stock_filter(code, filter_param=None):
         if ((ch_r[0] == '*' or ch_r[0] <= d['chr']) and (ch_r[1] == '*' or ch_r[1] >= d['chr'])) is False:
             res_flag = False
             break
+        if bool(p['c_param']):
+            CommonUtils.init_param({"step": 5, 'date': u"%s" % Holiday.get_cur_date()}, p['c_param'])
+            p['c_param']['date'] = u"%s" % int(d['data'][0])
+            d_flag, d_result = analysis_daily_growth(code, p['c_param'], length=p['c_param']['step'])
+            if d_flag is False:
+                res_flag = False
+                break
 
     return res_flag, a_data, stock_data
 
 
-def analysis_daily_growth(code, filter_param):
+def analysis_daily_growth(code, filter_param, length=5):
     """
 
     :param code:
@@ -661,12 +703,16 @@ def analysis_daily_growth(code, filter_param):
     """
     flag = False
     if bool(filter_param) is False:
-        return []
+        return flag, []
     growth = filter_param['growth']
-    CommonUtils.init_param({"z_c": [0, 1000], "d_c": [0, 1000], 'date': u"%s" % Holiday.get_cur_date()}, filter_param)
-    d = handle_daily_data(StockData.get_stock_cur_last(code, date=filter_param['date']))
+
+    CommonUtils.init_param({"z_c": [0, 1000], "d_c": [0, 1000], "step": 0, 'date': u"%s" % Holiday.get_cur_date()},
+                           filter_param)
+    if filter_param['step'] > 0:
+        length = filter_param['step']
+    d = handle_daily_data(StockData.get_stock_cur_last(code, date=filter_param['date']), length=length)
     if bool(d) is False:
-        return False
+        return False, []
     result = []
     zc = 0
     dc = 0
@@ -674,6 +720,7 @@ def analysis_daily_growth(code, filter_param):
         gh = (d[i][3] - d[i][4]) * 100 / d[i][1]
         if gh > growth:
             if d[i][1] < d[i][2]:
+
                 dc = dc + 1
             else:
                 zc = zc + 1
@@ -727,8 +774,13 @@ if __name__ == '__main__':
     # #
     # print numpy.array(l)[:, 1]
     # print analysis_daily_growth("002075", {'growth': 1.5, 'z_c': [0, 1], 'd_c': [0, 0]})
-    print isinstance(u"%s" % Holiday.get_cur_date(),type(u"2018"))
+    # print isinstance(u"%s" % Holiday.get_cur_date(), type(u"2018"))
     # a, b, c = stock_filter("1A0001")
+    # {"d_param": , "filter_date": "20181129"}
+
+    print stock_filter("603192"
+                       "", filter_param=[{"c_param": {"growth": 5, "d_c": [0, 2], "step": 20}}],
+                       filter_date="20181203")
     # print b, a
     #
     # print type('a') is type([])

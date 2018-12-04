@@ -590,6 +590,14 @@
             ]]>
         </sql>
     </query>
+    <query id="UPDATE_STOCK_DAILY_BY_DATE" type="">
+        <sql>
+            <![CDATA[
+              update stock_daily set turnover_rate=[turnover_rate] where stock_code=[stock_code]
+               and trade_date=[trade_date]
+            ]]>
+        </sql>
+    </query>
 
 
 </query-config>

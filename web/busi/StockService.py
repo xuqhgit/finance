@@ -603,12 +603,13 @@ class StockService(object):
         return result_data
 
     def __getStockFilter(self, stock_list, res, params):
-        CommonUtils.init_param({"d_param": [], "c_param": {}}, params['filter_param'])
+        CommonUtils.init_param({"filter_date": None, "d_param": [], "c_param": {}}, params['filter_param'])
         for s in stock_list:
             try:
                 flag = False
                 if bool(params['filter_param']['d_param']):
-                    res_flag, a, d = StockAnalysis.stock_filter(s['code'], params['filter_param']['d_param'])
+                    res_flag, a, d = StockAnalysis.stock_filter(s['code'], params['filter_param']['d_param']
+                                                                , filter_date=params['filter_param']['filter_date'])
                     if res_flag:
                         flag = True
                 if bool(params['filter_param']['c_param']):

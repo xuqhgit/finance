@@ -75,6 +75,6 @@ def init_param(default_value, param):
     :return:
     """
     for a in default_value:
-        if a not in param or isinstance(default_value[a], type(param[a])) is False:
+        if a not in param :
             param[a] = default_value[a]
 

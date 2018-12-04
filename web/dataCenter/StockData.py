@@ -188,7 +188,7 @@ def get_stock_cur_trade(code, count=8, index=None):
         elif code_int % 8 == 7:
             result = xgbData.getCurData([code])[0]
     except Exception, e:
-        logging.error("获取Stock当前信息错误：%s-->%s" % (code_int % 8, e))
+        logging.error("获取Stock当前信息错误：%s:%s-->%s" % (code,code_int % 8, e))
     if count == 0:
         return result
     if result is None:
@@ -274,5 +274,5 @@ if __name__ == "__main__":
     # data = get_stock_cur_last("603506")
     # clear_invalid_last_data()
     # print data
-    print get_stock_zj()
+    print get_stock_cur_trade("603989")
     pass
